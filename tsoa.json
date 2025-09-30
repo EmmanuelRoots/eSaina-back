@@ -1,12 +1,11 @@
 {
   "entryFile": "src/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": ["src/controllers/**/*Controller.ts"],
-  "spec": {
-    "outputDirectory": "public",
-    "specVersion": 3
-  },
-  "routes": {
-    "routesDir": "src/routes"
-  }
+  "routes":{
+      "routesDir":"./src/api/router",
+      "authenticationModule": "./src/api/middleware/authentication.ts"
+   },
+   "controllerPathGlobs":[
+      "./src/api/controller/*.controller.ts"
+   ]
 }
