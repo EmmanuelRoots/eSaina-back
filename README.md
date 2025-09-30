@@ -18,7 +18,7 @@ cd mon-backend
 docker compose up -d
 ```
 ## 3. Variables d’environnement
-DATABASE_URL="postgresql://user:password@localhost:5433/e_saina"
+DATABASE_URL="postgresql://user:password@localhost:port_number/db_name"
 
 ## 4.  Installer les dépendances
 ```bash
