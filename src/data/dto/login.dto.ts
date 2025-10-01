@@ -1,6 +1,7 @@
 export default interface LoginDTO {
   email: string
   password: string
+  deviceInfo? : string
 }
 
 export enum mfaProvider {

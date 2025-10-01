@@ -1,0 +1,243 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"UserDTO": {
+				"properties": {
+					"uuid": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"roleId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"birthDate": {
+						"type": "number",
+						"format": "double"
+					},
+					"active": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"email",
+					"lastName",
+					"firstName",
+					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LoginDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"deviceInfo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "esaina_back",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"paths": {
+		"/user/subscribe": {
+			"post": {
+				"operationId": "Subscribe",
+				"responses": {
+					"200": {
+						"description": "Les informations de l'utilisateur créé et un jeton d'authentification",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"properties": {
+												"data": {},
+												"message": {
+													"type": "string"
+												},
+												"statusCode": {
+													"type": "number",
+													"format": "double"
+												},
+												"success": {
+													"type": "boolean"
+												}
+											},
+											"required": [
+												"message",
+												"statusCode",
+												"success"
+											],
+											"type": "object"
+										},
+										{
+											"properties": {
+												"message": {},
+												"data": {
+													"type": "string"
+												},
+												"statusCode": {
+													"type": "number",
+													"format": "double"
+												},
+												"success": {
+													"type": "boolean"
+												}
+											},
+											"required": [
+												"data",
+												"statusCode",
+												"success"
+											],
+											"type": "object"
+										}
+									]
+								}
+							}
+						}
+					},
+					"201": {
+						"description": "Utilisateur inscrit avec succès"
+					},
+					"400": {
+						"description": "Données invalides"
+					},
+					"409": {
+						"description": "L'utilisateur existe déjà"
+					}
+				},
+				"description": "Inscrit un nouvel utilisateur dans le système.\n\nCet endpoint permet de créer un nouveau compte utilisateur avec\nles informations fournies. Une fois inscrit, l'utilisateur pourra\nse connecter au système et accéder aux fonctionnalités correspondant\nà son niveau d'autorisation.",
+				"tags": [
+					"user"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "Les données de l'utilisateur à inscrire",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserDTO",
+								"description": "Les données de l'utilisateur à inscrire"
+							},
+							"example": {
+								"email": "utilisateur@example.com",
+								"firstName": "Jean",
+								"lastName": "Dupont",
+								"password": "MotDePasse123!",
+								"phoneNumber": "+33123456789",
+								"role": "utilisateur"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/user/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Les informations de l'utilisateur et un jeton d'authentification",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"refreshToken": {
+											"type": "string"
+										},
+										"accessToken": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"refreshToken",
+										"accessToken"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Identifiants invalides"
+					},
+					"403": {
+						"description": "Compte désactivé"
+					}
+				},
+				"description": "Authentifie un utilisateur existant.\n\nCet endpoint permet à un utilisateur de se connecter au système en\nfournissant ses identifiants (email et mot de passe). En cas de succès,\nun jeton d'authentification est généré et retourné pour les requêtes\nultérieures.",
+				"tags": [
+					"user"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "Les identifiants de connexion de l'utilisateur",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginDTO",
+								"description": "Les identifiants de connexion de l'utilisateur"
+							},
+							"example": {
+								"email": "utilisateur@example.com",
+								"password": "MotDePasse123!"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
