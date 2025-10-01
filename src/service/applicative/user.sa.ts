@@ -1,4 +1,5 @@
 import LoginDTO, { mfaDTO } from '../../data/dto/login.dto'
+import { toUserDTO } from '../../data/dto/mappers/user.mappers'
 import { UserDTO } from '../../data/dto/user.dto'
 import { ApiError } from '../../data/exception/api.exception'
 import { PrismaExceptionHandler } from '../../data/exception/prisma.execption.handler'
@@ -68,7 +69,7 @@ export const logUser = async ({email,password,deviceInfo}: LoginDTO) => {
     data: { refreshToken, userId: user.id, expiresAt,deviceInfo },
   });
 
-  const accessToken = signAccess({...user,birthDate:user.birthDate.getTime()});
+  const accessToken = signAccess(toUserDTO(user));
 
   return { accessToken, refreshToken };
 }
@@ -234,6 +235,8 @@ export const refreshToken = async (oldRefresh: string) => {
     where: { refreshToken: oldRefresh },
     include: { user: true },
   });
+  console.log({session});
+  
   if (!session || session.expiresAt < new Date())
     throw new ApiError(401,'Invalid or expired refresh token','Token error');
 
@@ -247,7 +250,7 @@ export const refreshToken = async (oldRefresh: string) => {
     data: { refreshToken: newRefresh, userId: session.userId, expiresAt },
   });
 
-  const accessToken = signAccess({...session.user,birthDate:session.user.birthDate.getTime()});
+  const accessToken = signAccess(toUserDTO(session.user));
   return { accessToken, refreshToken: newRefresh };
 }
 

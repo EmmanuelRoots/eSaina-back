@@ -28,15 +28,14 @@
 						"type": "string"
 					},
 					"createdAt": {
-						"type": "string",
-						"format": "date-time"
+						"type": "string"
 					},
 					"phoneNumber": {
 						"type": "string"
 					},
 					"birthDate": {
-						"type": "number",
-						"format": "double"
+						"type": "string",
+						"nullable": true
 					},
 					"active": {
 						"type": "boolean"

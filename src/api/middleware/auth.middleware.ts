@@ -18,7 +18,7 @@ export const  authMiddleware = (req: Request, res: Response, next: NextFunction)
     const payload = verifyAccess(token);   //jeton expiré ? jwt jette une erreur
     (req as Request).body = payload.user;
     next();
-  } catch (err: any) {
+  } catch (err) {
     
     return res.status(401).json({ message: 'Token invalid or expired' });
   }

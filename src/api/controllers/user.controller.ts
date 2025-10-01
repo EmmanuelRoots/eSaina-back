@@ -5,11 +5,16 @@ import {
   Route,
   Tags,
   Response,
+  Request,
+  Middlewares,
 } from 'tsoa'
+import { Request as ExpressRequest} from 'express'
 
 import LoginDTO, { mfaDTO } from '../../data/dto/login.dto'
 import { UserDTO } from '../../data/dto/user.dto'
 import userSA from '../../service/applicative/user.sa'
+import { sessionMiddleware } from '../middleware/session.middleware'
+
 //import { TokenMiddleware } from '../middleware/token.middleware'
 
 
@@ -126,9 +131,10 @@ export class UserController extends Controller {
    * }
    */
   @Post('refresh')
+  @Middlewares([sessionMiddleware])
   @Response(200, 'Tokens renouvelés avec succès')
   @Response(401, 'Refresh token invalide ou expiré', { success: false, message: 'Invalid or expired refresh token', data: null })
-  public async refresh(@Body() body: { refreshToken: string }) {
-    return userSA.refreshToken(body.refreshToken)
+  public async refresh(@Body() body: {refreshToken:string}) {
+    return userSA.refreshToken(body.refreshToken);
   }
 }

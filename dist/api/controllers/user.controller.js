@@ -98,6 +98,30 @@ let UserController = class UserController extends tsoa_1.Controller {
     async login(body) {
         return user_sa_1.default.logUser(body);
     }
+    /**
+     * Génère un nouveau jeton d'accès à l'aide d'un refresh token valide.
+     *
+     * Cet endpoint permet de prolonger la session d'un utilisateur sans
+     * avoir à se reconnecter. Le refresh token fourni doit être valide
+     * et non expiré. Une fois utilisé, il est révoqué (rotation du token).
+     *
+     * @param body Le refresh token actuel
+     * @returns Un nouveau access token et un nouveau refresh token
+     * @example body {
+     *   "refreshToken": "ancien_refresh_token_12345"
+     * }
+     * @example {
+     *   "success": true,
+     *   "message": "Tokens renouvelés avec succès",
+     *   "data": {
+     *     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+     *     "refreshToken": "nouveau_refresh_token_67890"
+     *   }
+     * }
+     */
+    async refresh(body) {
+        return user_sa_1.default.refreshToken(body.refresToken);
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -120,6 +144,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
+__decorate([
+    (0, tsoa_1.Post)('refresh'),
+    (0, tsoa_1.Response)(200, 'Tokens renouvelés avec succès'),
+    (0, tsoa_1.Response)(401, 'Refresh token invalide ou expiré', { success: false, message: 'Invalid or expired refresh token', data: null }),
+    __param(0, (0, tsoa_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "refresh", null);
 exports.UserController = UserController = __decorate([
     (0, tsoa_1.Route)('user'),
     (0, tsoa_1.Tags)('user')

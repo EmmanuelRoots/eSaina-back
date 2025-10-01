@@ -5,8 +5,8 @@ export interface UserDTO {
   lastName: string
   firstName: string
   roleId?: string
-  createdAt?: Date
+  createdAt?: string
   phoneNumber: string
-  birthDate?: number
+  birthDate?: string | null
   active?: boolean
 }

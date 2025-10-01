@@ -12,16 +12,13 @@ const models = {
             "uuid": { "dataType": "string" },
             "email": { "dataType": "string", "required": true },
             "password": { "dataType": "string" },
-            "name": { "dataType": "string", "required": true },
+            "lastName": { "dataType": "string", "required": true },
+            "firstName": { "dataType": "string", "required": true },
             "roleId": { "dataType": "string" },
-            "createdAt": { "dataType": "datetime" },
-            "lastConnexion": { "dataType": "double" },
+            "createdAt": { "dataType": "string" },
             "phoneNumber": { "dataType": "string", "required": true },
-            "birthDate": { "dataType": "double", "required": true },
-            "male": { "dataType": "boolean", "required": true },
-            "active": { "dataType": "boolean", "required": true },
-            "visible": { "dataType": "boolean" },
-            "token": { "dataType": "string" },
+            "birthDate": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
+            "active": { "dataType": "boolean" },
         },
         "additionalProperties": false,
     },
@@ -31,6 +28,7 @@ const models = {
         "properties": {
             "email": { "dataType": "string", "required": true },
             "password": { "dataType": "string", "required": true },
+            "deviceInfo": { "dataType": "string" },
         },
         "additionalProperties": false,
     },
@@ -77,6 +75,29 @@ function RegisterRoutes(app) {
             const controller = new user_controller_1.UserController();
             await templateService.apiHandler({
                 methodName: 'login',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsUserController_refresh = {
+        body: { "in": "body", "name": "body", "required": true, "dataType": "nestedObjectLiteral", "nestedProperties": { "refresToken": { "dataType": "string", "required": true } } },
+    };
+    app.post('/user/refresh', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.UserController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.UserController.prototype.refresh)), async function UserController_refresh(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsUserController_refresh, request, response });
+            const controller = new user_controller_1.UserController();
+            await templateService.apiHandler({
+                methodName: 'refresh',
                 controller,
                 response,
                 next,
