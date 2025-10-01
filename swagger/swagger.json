@@ -233,6 +233,67 @@
 					}
 				}
 			}
+		},
+		"/user/refresh": {
+			"post": {
+				"operationId": "Refresh",
+				"responses": {
+					"200": {
+						"description": "Un nouveau access token et un nouveau refresh token",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"refreshToken": {
+											"type": "string"
+										},
+										"accessToken": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"refreshToken",
+										"accessToken"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Refresh token invalide ou expiré"
+					}
+				},
+				"description": "Génère un nouveau jeton d'accès à l'aide d'un refresh token valide.\n\nCet endpoint permet de prolonger la session d'un utilisateur sans\navoir à se reconnecter. Le refresh token fourni doit être valide\net non expiré. Une fois utilisé, il est révoqué (rotation du token).",
+				"tags": [
+					"user"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "Le refresh token actuel",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"refreshToken": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"refreshToken"
+								],
+								"type": "object",
+								"description": "Le refresh token actuel"
+							},
+							"example": {
+								"refreshToken": "ancien_refresh_token_12345"
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"servers": [

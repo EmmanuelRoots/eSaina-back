@@ -105,40 +105,30 @@ export class UserController extends Controller {
   }
 
   /**
-   * Authentifie un utilisateur via un système d'authentification multifacteur (MFA).
+   * Génère un nouveau jeton d'accès à l'aide d'un refresh token valide.
    * 
-   * Cet endpoint permet la connexion d'un utilisateur via un système MFA externe
-   * comme Google, Facebook, ou un autre fournisseur d'identité. Si l'utilisateur
-   * n'existe pas encore, un nouveau compte peut être créé automatiquement.
+   * Cet endpoint permet de prolonger la session d'un utilisateur sans
+   * avoir à se reconnecter. Le refresh token fourni doit être valide
+   * et non expiré. Une fois utilisé, il est révoqué (rotation du token).
    * 
-   * @param body Les données d'authentification MFA
-   * @returns Les informations de l'utilisateur et un jeton d'authentification
+   * @param body Le refresh token actuel
+   * @returns Un nouveau access token et un nouveau refresh token
    * @example body {
-   *   "provider": "google",
-   *   "token": "ya29.a0AfH6SMC9X...",
-   *   "email": "utilisateur@example.com"
+   *   "refreshToken": "ancien_refresh_token_12345"
    * }
    * @example {
    *   "success": true,
-   *   "message": "Connexion MFA réussie",
+   *   "message": "Tokens renouvelés avec succès",
    *   "data": {
-   *     "user": {
-   *       "uuid": "123e4567-e89b-12d3-a456-426614174000",
-   *       "email": "utilisateur@example.com",
-   *       "firstName": "Jean",
-   *       "lastName": "Dupont",
-   *       "role": "utilisateur"
-   *     },
-   *     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-   *     "isNewUser": false
+   *     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+   *     "refreshToken": "nouveau_refresh_token_67890"
    *   }
    * }
    */
-  // @Post('mfa-login')
-  // @Response(200, 'Connexion MFA réussie')
-  // @Response(400, 'Données invalides ou jeton MFA expiré')
-  // @Response(401, 'Authentification MFA échouée')
-  // public async mfaLogin(@Body() body: mfaDTO) {
-  //   return userSA.loginOrRegister(body)
-  // }
+  @Post('refresh')
+  @Response(200, 'Tokens renouvelés avec succès')
+  @Response(401, 'Refresh token invalide ou expiré', { success: false, message: 'Invalid or expired refresh token', data: null })
+  public async refresh(@Body() body: { refreshToken: string }) {
+    return userSA.refreshToken(body.refreshToken)
+  }
 }

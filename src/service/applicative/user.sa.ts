@@ -57,18 +57,15 @@ export const addUser = async (user: UserDTO) => {
  * @param credentials informations de connexion de l'utilisateur
  * @returns
  */
-export const logUser = async ({email,password}: LoginDTO) => {
+export const logUser = async ({email,password,deviceInfo}: LoginDTO) => {
   const user  = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new ApiError(401,'User not found','Invalid credentials');
   const ok = await hashText(password);
   if (!ok) throw new ApiError(401,'Wrong password','Invalid credentials');
-
-  await prisma.session.deleteMany({ where: { userId: user.id } });
-
   const refreshToken = genRefresh();
   const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
   await prisma.session.create({
-    data: { refreshToken, userId: user.id, expiresAt },
+    data: { refreshToken, userId: user.id, expiresAt,deviceInfo },
   });
 
   const accessToken = signAccess({...user,birthDate:user.birthDate.getTime()});
@@ -227,68 +224,36 @@ export const logUser = async ({email,password}: LoginDTO) => {
 //   return localUser
 // }
 
-// /**
-//  * générer un nouveau token pour l'utilisateur
-//  * @param token ancien token
-//  * @returns
-//  */
-// export const refreshToken = async (token: string) => {
-//   const localUser = await prisma.user.findFirst({
-//     where: {
-//       token
-//     },
-//     include: {
-//       role: {
-//         select: {
-//           uuid: true,
-//           name: true
-//         }
-//       }
-//     }
-//   })
+/**
+ * générer un nouveau token pour l'utilisateur
+ * @param token ancien token
+ * @returns
+ */
+export const refreshToken = async (oldRefresh: string) => {
+  const session = await prisma.session.findUnique({
+    where: { refreshToken: oldRefresh },
+    include: { user: true },
+  });
+  if (!session || session.expiresAt < new Date())
+    throw new ApiError(401,'Invalid or expired refresh token','Token error');
 
-  // if (localUser) {
-  //   if (!isNewTokenNeeded(localUser)) {
-  //     console.log('refresh token for api user. current token returned')
+  // Rotation : on supprime l’ancienne session
+  await prisma.session.delete({ where: { id: session.id } });
 
-  //     return {
-  //       success: true,
-  //       statusCode: 200,
-  //       data: {
-  //         ...localUser,
-  //         token
-  //       }
-  //     }
-  //   }
+  // Nouvelle session
+  const newRefresh = genRefresh();
+  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+  await prisma.session.create({
+    data: { refreshToken: newRefresh, userId: session.userId, expiresAt },
+  });
 
-//     const { token: newToken } = await prisma.user.update({
-//       where: { uuid: localUser?.uuid },
-//       data: {
-//         token: await generateToken(localUser.uuid ? localUser.uuid : localUser.email),
-//         tokenGeneratedAt: new Date()
-//       }
-//     })
-
-//     return {
-//       success: true,
-//       statusCode: 200,
-//       data: {
-//         ...localUser,
-//         token: newToken
-//       }
-//     }
-//   } else {
-//     return {
-//       success: false,
-//       statusCode: 401,
-//       message: 'expired_token'
-//     }
-//   }
-//}
+  const accessToken = signAccess({...session.user,birthDate:session.user.birthDate.getTime()});
+  return { accessToken, refreshToken: newRefresh };
+}
 
 export default {
   addUser,
   logUser,
-  //refreshToken,
+  refreshToken,
   // loginOrRegister,
 }
