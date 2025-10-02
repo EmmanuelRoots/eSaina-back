@@ -10,10 +10,26 @@ generator client {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  name      String?
-  createdAt DateTime @default(now())
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  lastName    String
+  firstName   String
+  sessions    Session[]
+  createdAt   DateTime  @default(now())
+  active      Boolean   @default(false)
+  birthDate   DateTime
+  phoneNumber String
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  refreshToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo   String?  // "iPhone 12", "Chrome Windows", etc.
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
 }
 
 datasource db {

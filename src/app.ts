@@ -2,7 +2,7 @@ import cors from 'cors'
 import Express from 'express'
 import swaggerUI from 'swagger-ui-express'
 
-import { RegisterRoutes } from './routes'
+import { RegisterRoutes } from './api/routes/routes'
 
 import fs from 'fs'
 

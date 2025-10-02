@@ -1,11 +1,15 @@
 {
-  "entryFile": "src/index.ts",
-  "noImplicitAdditionalProperties": "throw-on-extras",
-  "routes":{
-      "routesDir":"./src/api/router",
-      "authenticationModule": "./src/api/middleware/authentication.ts"
+   "entryFile": "src/index.ts",
+   "noImplicitAdditionalProperties": "throw-on-extras",
+   "spec": {
+     "outputDirectory": "swagger",
+     "specVersion": 3
    },
-   "controllerPathGlobs":[
-      "./src/api/controller/*.controller.ts"
+   "routes": {
+     "routesDir": "./src/api/routes",
+     "middleware": "express"
+   },
+   "controllerPathGlobs": [
+     "./src/api/controllers/*.controller.ts"
    ]
-}
+ }
