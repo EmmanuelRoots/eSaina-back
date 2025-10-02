@@ -68,6 +68,29 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"GoogleLoginDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"family_name": {
+						"type": "string"
+					},
+					"given_name": {
+						"type": "string"
+					},
+					"deviceInfo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"family_name",
+					"given_name"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {}
@@ -186,16 +209,28 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"refreshToken": {
-											"type": "string"
+										"data": {
+											"properties": {
+												"refreshToken": {
+													"type": "string"
+												},
+												"accessToken": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"refreshToken",
+												"accessToken"
+											],
+											"type": "object"
 										},
-										"accessToken": {
-											"type": "string"
+										"success": {
+											"type": "boolean"
 										}
 									},
 									"required": [
-										"refreshToken",
-										"accessToken"
+										"data",
+										"success"
 									],
 									"type": "object"
 								}
@@ -227,6 +262,62 @@
 							"example": {
 								"email": "utilisateur@example.com",
 								"password": "MotDePasse123!"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/user/googleLogin": {
+			"post": {
+				"operationId": "GoogleLogin",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"properties": {
+												"refreshToken": {
+													"type": "string"
+												},
+												"accessToken": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"refreshToken",
+												"accessToken"
+											],
+											"type": "object"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"user"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GoogleLoginDTO"
 							}
 						}
 					}
@@ -288,6 +379,97 @@
 							},
 							"example": {
 								"refreshToken": "ancien_refresh_token_12345"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/user/me": {
+			"get": {
+				"operationId": "GetUserFromProfile",
+				"responses": {
+					"200": {
+						"description": "Les données du profil utilisateur",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère les informations du profil de l'utilisateur connecté.\n\nCet endpoint renvoie les données du profil de l'utilisateur authentifié,\nextraites directement du token JWT décodé par le middleware d'authentification.\nAucune donnée supplémentaire n'est requise dans la requête : l'identité de\nl'utilisateur est déduite du token d'accès fourni dans l'en-tête `Authorization`.",
+				"tags": [
+					"user"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/user/logout": {
+			"post": {
+				"operationId": "LogOut",
+				"responses": {
+					"200": {
+						"description": "Un message de confirmation de déconnexion",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Invalide un refresh token et met fin à la session utilisateur.\n\nCet endpoint permet à un utilisateur de se déconnecter proprement en révoquant\nson refresh token actuel. Une fois appelé, ce token ne peut plus être utilisé\npour générer de nouveaux access tokens, même s’il n’est pas encore expiré.",
+				"tags": [
+					"user"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "Le refresh token à révoquer",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"refreshToken": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"refreshToken"
+								],
+								"type": "object",
+								"description": "Le refresh token à révoquer"
+							},
+							"example": {
+								"refreshToken": "refresh_token_à_révoquer_12345"
 							}
 						}
 					}

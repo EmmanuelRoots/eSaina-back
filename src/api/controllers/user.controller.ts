@@ -7,13 +7,15 @@ import {
   Response,
   Request,
   Middlewares,
+  Get,
 } from 'tsoa'
 import { Request as ExpressRequest} from 'express'
 
-import LoginDTO, { mfaDTO } from '../../data/dto/login.dto'
+import LoginDTO, { GoogleLoginDTO } from '../../data/dto/login.dto'
 import { UserDTO } from '../../data/dto/user.dto'
 import userSA from '../../service/applicative/user.sa'
 import { sessionMiddleware } from '../middleware/session.middleware'
+import { authMiddleware } from '../middleware/auth.middleware'
 
 //import { TokenMiddleware } from '../middleware/token.middleware'
 
@@ -109,6 +111,12 @@ export class UserController extends Controller {
     return userSA.logUser(body)
   }
 
+  @Post('googleLogin')
+  public async googleLogin(@Body() body: GoogleLoginDTO) {
+    
+    return userSA.logGoogleUser(body)
+  }
+
   /**
    * Génère un nouveau jeton d'accès à l'aide d'un refresh token valide.
    * 
@@ -137,4 +145,55 @@ export class UserController extends Controller {
   public async refresh(@Body() body: {refreshToken:string}) {
     return userSA.refreshToken(body.refreshToken);
   }
+
+  /**
+   * Récupère les informations du profil de l'utilisateur connecté.
+   * 
+   * Cet endpoint renvoie les données du profil de l'utilisateur authentifié,
+   * extraites directement du token JWT décodé par le middleware d'authentification.
+   * Aucune donnée supplémentaire n'est requise dans la requête : l'identité de
+   * l'utilisateur est déduite du token d'accès fourni dans l'en-tête `Authorization`.
+   * 
+   * @returns Les données du profil utilisateur
+   * @example {
+   *   "success": true,
+   *   "data": {
+   *     "id": "12345",
+   *     "email": "utilisateur@example.com",
+   *     "firstName": "Jean",
+   *     "lastName": "Dupont",
+   *     "role": "user"
+   *   }
+   * }
+   */
+  @Get('me')
+  @Middlewares([authMiddleware])
+  public async getUserFromProfile(@Request() req: ExpressRequest) {
+    return { success: true, data: req.body }; // Le middleware d'authentification injecte `req.user`
+  }
+
+  /**
+   * Invalide un refresh token et met fin à la session utilisateur.
+   * 
+   * Cet endpoint permet à un utilisateur de se déconnecter proprement en révoquant
+   * son refresh token actuel. Une fois appelé, ce token ne peut plus être utilisé
+   * pour générer de nouveaux access tokens, même s’il n’est pas encore expiré.
+   * 
+   * @param body Le refresh token à révoquer
+   * @returns Un message de confirmation de déconnexion
+   * @example body {
+   *   "refreshToken": "refresh_token_à_révoquer_12345"
+   * }
+   * @example {
+   *   "success": true,
+   *   "message": "Déconnexion réussie",
+   *   "data": null
+   * }
+   */
+  @Post('logout')
+  @Middlewares([sessionMiddleware])
+  public async logOut(@Body() body: { refreshToken: string }) {
+    return userSA.logOut(body.refreshToken);
+  }
+
 }
