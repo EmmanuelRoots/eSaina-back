@@ -38,7 +38,9 @@ const models: TsoaRoute.Models = {
             "title": {"dataType":"string"},
             "type": {"ref":"ConversationType","required":true},
             "userId": {"dataType":"string","required":true},
+            "ownerId": {"dataType":"string","required":true},
             "messages": {"dataType":"array","array":{"dataType":"refObject","ref":"MessageDTO"},"required":true},
+            "members": {"dataType":"array","array":{"dataType":"refObject","ref":"ConversationMember"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -69,6 +71,23 @@ const models: TsoaRoute.Models = {
             "senderType": {"ref":"SenderType","required":true},
             "conversation": {"ref":"ConversationDTO","required":true},
             "user": {"ref":"UserDTO","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "MemberRole": {
+        "dataType": "refEnum",
+        "enums": ["ADMIN","MEMBER"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ConversationMember": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "conversationId": {"dataType":"string","required":true},
+            "userId": {"dataType":"string","required":true},
+            "role": {"ref":"MemberRole","required":true},
+            "joinedAt": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -106,7 +125,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "_36_Enums.ConversationType": {
         "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["REGULAR"]},{"dataType":"enum","enums":["AI_CHAT"]}],"validators":{}},
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["AI_CHAT"]},{"dataType":"enum","enums":["DIRECT"]},{"dataType":"enum","enums":["GROUP"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };

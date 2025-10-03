@@ -41,9 +41,18 @@
 					"userId": {
 						"type": "string"
 					},
+					"ownerId": {
+						"type": "string"
+					},
 					"messages": {
 						"items": {
 							"$ref": "#/components/schemas/MessageDTO"
+						},
+						"type": "array"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/ConversationMember"
 						},
 						"type": "array"
 					}
@@ -51,7 +60,9 @@
 				"required": [
 					"type",
 					"userId",
-					"messages"
+					"ownerId",
+					"messages",
+					"members"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -136,6 +147,41 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"MemberRole": {
+				"enum": [
+					"ADMIN",
+					"MEMBER"
+				],
+				"type": "string"
+			},
+			"ConversationMember": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"conversationId": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/MemberRole"
+					},
+					"joinedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"conversationId",
+					"userId",
+					"role",
+					"joinedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"LoginDTO": {
 				"properties": {
 					"email": {
@@ -197,8 +243,9 @@
 			"_36_Enums.ConversationType": {
 				"type": "string",
 				"enum": [
-					"REGULAR",
-					"AI_CHAT"
+					"AI_CHAT",
+					"DIRECT",
+					"GROUP"
 				]
 			}
 		},
@@ -638,18 +685,14 @@
 																		"conversationId": {
 																			"type": "string"
 																		},
+																		"userId": {
+																			"type": "string"
+																		},
 																		"sender": {
 																			"$ref": "#/components/schemas/_36_Enums.SenderType"
 																		},
 																		"content": {
 																			"type": "string"
-																		},
-																		"userId": {
-																			"type": "string"
-																		},
-																		"updatedAt": {
-																			"type": "string",
-																			"format": "date-time"
 																		},
 																		"type": {
 																			"$ref": "#/components/schemas/_36_Enums.MessageType"
@@ -664,10 +707,9 @@
 																	},
 																	"required": [
 																		"conversationId",
+																		"userId",
 																		"sender",
 																		"content",
-																		"userId",
-																		"updatedAt",
 																		"type",
 																		"createdAt",
 																		"id"
@@ -684,7 +726,7 @@
 													},
 													{
 														"properties": {
-															"userId": {
+															"ownerId": {
 																"type": "string"
 															},
 															"updatedAt": {
@@ -706,7 +748,7 @@
 															}
 														},
 														"required": [
-															"userId",
+															"ownerId",
 															"updatedAt",
 															"type",
 															"title",
