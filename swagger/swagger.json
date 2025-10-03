@@ -7,6 +7,55 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"ConversationType": {
+				"enum": [
+					"REGULAR",
+					"AI_CHAT"
+				],
+				"type": "string"
+			},
+			"MessageType": {
+				"enum": [
+					"TEXT",
+					"IMAGE",
+					"FILE"
+				],
+				"type": "string"
+			},
+			"SenderType": {
+				"enum": [
+					"SYSTEM",
+					"AI",
+					"USER"
+				],
+				"type": "string"
+			},
+			"ConversationDTO": {
+				"properties": {
+					"title": {
+						"type": "string"
+					},
+					"type": {
+						"$ref": "#/components/schemas/ConversationType"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"messages": {
+						"items": {
+							"$ref": "#/components/schemas/MessageDTO"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"type",
+					"userId",
+					"messages"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"UserDTO": {
 				"properties": {
 					"uuid": {
@@ -24,9 +73,6 @@
 					"firstName": {
 						"type": "string"
 					},
-					"roleId": {
-						"type": "string"
-					},
 					"createdAt": {
 						"type": "string"
 					},
@@ -39,6 +85,18 @@
 					},
 					"active": {
 						"type": "boolean"
+					},
+					"conversations": {
+						"items": {
+							"$ref": "#/components/schemas/ConversationDTO"
+						},
+						"type": "array"
+					},
+					"messaages": {
+						"items": {
+							"$ref": "#/components/schemas/MessageDTO"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -46,6 +104,34 @@
 					"lastName",
 					"firstName",
 					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MessageDTO": {
+				"properties": {
+					"content": {
+						"type": "string"
+					},
+					"type": {
+						"$ref": "#/components/schemas/MessageType"
+					},
+					"senderType": {
+						"$ref": "#/components/schemas/SenderType"
+					},
+					"conversation": {
+						"$ref": "#/components/schemas/ConversationDTO"
+					},
+					"user": {
+						"$ref": "#/components/schemas/UserDTO"
+					}
+				},
+				"required": [
+					"content",
+					"type",
+					"senderType",
+					"conversation",
+					"user"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -91,9 +177,38 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"_36_Enums.MessageType": {
+				"type": "string",
+				"enum": [
+					"TEXT",
+					"IMAGE",
+					"FILE"
+				]
+			},
+			"_36_Enums.SenderType": {
+				"type": "string",
+				"enum": [
+					"USER",
+					"AI",
+					"SYSTEM"
+				]
+			},
+			"_36_Enums.ConversationType": {
+				"type": "string",
+				"enum": [
+					"REGULAR",
+					"AI_CHAT"
+				]
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"bearer": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
 	},
 	"info": {
 		"title": "esaina_back",
@@ -474,6 +589,181 @@
 						}
 					}
 				}
+			}
+		},
+		"/conversation/all-conversation": {
+			"get": {
+				"operationId": "GetAllConversationByUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"pagination": {
+											"properties": {
+												"hasMore": {
+													"type": "boolean"
+												},
+												"total": {
+													"type": "number",
+													"format": "double"
+												},
+												"limit": {
+													"type": "number",
+													"format": "double"
+												},
+												"page": {
+													"type": "number",
+													"format": "double"
+												}
+											},
+											"required": [
+												"hasMore",
+												"total",
+												"limit",
+												"page"
+											],
+											"type": "object"
+										},
+										"data": {
+											"items": {
+												"allOf": [
+													{
+														"properties": {
+															"messages": {
+																"items": {
+																	"properties": {
+																		"conversationId": {
+																			"type": "string"
+																		},
+																		"sender": {
+																			"$ref": "#/components/schemas/_36_Enums.SenderType"
+																		},
+																		"content": {
+																			"type": "string"
+																		},
+																		"userId": {
+																			"type": "string"
+																		},
+																		"updatedAt": {
+																			"type": "string",
+																			"format": "date-time"
+																		},
+																		"type": {
+																			"$ref": "#/components/schemas/_36_Enums.MessageType"
+																		},
+																		"createdAt": {
+																			"type": "string",
+																			"format": "date-time"
+																		},
+																		"id": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"conversationId",
+																		"sender",
+																		"content",
+																		"userId",
+																		"updatedAt",
+																		"type",
+																		"createdAt",
+																		"id"
+																	],
+																	"type": "object"
+																},
+																"type": "array"
+															}
+														},
+														"required": [
+															"messages"
+														],
+														"type": "object"
+													},
+													{
+														"properties": {
+															"userId": {
+																"type": "string"
+															},
+															"updatedAt": {
+																"type": "string",
+																"format": "date-time"
+															},
+															"type": {
+																"$ref": "#/components/schemas/_36_Enums.ConversationType"
+															},
+															"title": {
+																"type": "string"
+															},
+															"createdAt": {
+																"type": "string",
+																"format": "date-time"
+															},
+															"id": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"userId",
+															"updatedAt",
+															"type",
+															"title",
+															"createdAt",
+															"id"
+														],
+														"type": "object"
+													}
+												]
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"pagination",
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"conversation"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
 			}
 		}
 	},

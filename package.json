@@ -8,7 +8,8 @@
     "build": "tsc && tsoa spec-and-routes",
     "start": "node dist/server.js",
     "update-docs": "tsoa spec-and-routes",
-    "studio" : "prisma studio"
+    "studio": "prisma studio",
+    "migrate": "node -e \"const readlineSync = require('readline-sync'); const migrationName = readlineSync.question('Nom de la migration sans espace : '); if (!migrationName) { console.error('Veuillez fournir un nom de migration valide.'); process.exit(1); } require('child_process').execSync('npx prisma migrate dev --name ' + migrationName, { stdio: 'inherit' });\""
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.16.2",
+    "readline-sync": "^1.4.10",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0"
   },

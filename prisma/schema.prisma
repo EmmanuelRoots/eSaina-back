@@ -9,17 +9,62 @@ generator client {
   output   = "../generated/prisma"
 }
 
+model Conversation {
+  id          String   @id @default(cuid())
+  title       String?
+  type        ConversationType
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ownerId     String
+  owner       User     @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     ConversationMember[]
+  messages    Message[]
+
+  @@index([ownerId])
+  @@index([type])
+}
+
+model ConversationMember {
+  id             String   @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           MemberRole @default(MEMBER)
+  joinedAt       DateTime @default(now())
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  content        String
+  type           MessageType @default(TEXT)
+  sender         SenderType @default(USER)
+  createdAt      DateTime @default(now())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([conversationId])
+  @@index([sender])
+}
+
+
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
-  lastName    String
-  firstName   String
-  sessions    Session[]
-  createdAt   DateTime  @default(now())
-  active      Boolean   @default(false)
-  birthDate   DateTime
-  phoneNumber String
+  id                          String    @id @default(uuid())
+  email                       String    @unique
+  password                    String
+  lastName                    String
+  firstName                   String
+  sessions                    Session[]
+  createdAt                   DateTime  @default(now())
+  active                      Boolean   @default(false)
+  birthDate                   DateTime
+  phoneNumber                 String
+  ownedConversations          Conversation[] @relation("owner")
+  participatingConversations  ConversationMember[]
+  messages                    Message[]
 }
 
 model Session {
@@ -30,6 +75,29 @@ model Session {
   deviceInfo   String?  // "iPhone 12", "Chrome Windows", etc.
   expiresAt    DateTime
   createdAt    DateTime @default(now())
+}
+
+enum ConversationType {
+  AI_CHAT
+  DIRECT
+  GROUP
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+}
+
+enum SenderType {
+  USER
+  AI
+  SYSTEM
+}
+
+enum MemberRole {
+  ADMIN
+  MEMBER
 }
 
 datasource db {

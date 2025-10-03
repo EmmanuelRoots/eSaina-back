@@ -1,6 +1,7 @@
+import { ConversationDTO, ConversationType } from '../../data/dto/conversation.dto'
 import LoginDTO, { GoogleLoginDTO } from '../../data/dto/login.dto'
 import { toUserDTO } from '../../data/dto/mappers/user.mappers'
-import { UserDTO } from '../../data/dto/user.dto'
+import { UserDTO, UserRequestDTO } from '../../data/dto/user.dto'
 import { ApiError } from '../../data/exception/api.exception'
 import { PrismaExceptionHandler } from '../../data/exception/prisma.execption.handler'
 import { prisma } from '../../repository'
@@ -13,8 +14,8 @@ import { hashText } from '../technical/crypt.ts'
  * @param user informations sur l'utilisateur
  * @returns
  */
-export const addUser = async (user: UserDTO) => {
-  const localUser = await prisma.user.findFirst({ where: { email: user.email, active: true } })
+export const addUser = async (user: UserRequestDTO) => {
+  const localUser = await prisma.user.findFirst({ where: { email: user.email, active: true } }) 
   if(localUser) {
     throw new ApiError(400, 'account_already_exist')
   }
@@ -25,6 +26,19 @@ export const addUser = async (user: UserDTO) => {
         ...user,
         password : hashed,
         birthDate: user.birthDate? new Date(user.birthDate) : new Date(),
+        ownedConversations : {
+          create : {
+            title : 'Assistant IA',
+            type : 'AI_CHAT',
+            messages : {
+              create : {
+                content : 'Bonjour, comment puis-je vous aidez aujourd\'hui?',
+                sender : 'AI',
+                type : 'TEXT',
+              }
+            }
+          }
+        }
       }
     })
     if (newUser.active === false) {
@@ -91,6 +105,19 @@ const logGoogleUser = async({email,given_name,family_name,deviceInfo} : GoogleLo
           phoneNumber : '+261000000',
           email : email,
           birthDate: new Date(),
+          ownedConversations : {
+            create : {
+              title : 'Assistant IA',
+              type : 'AI_CHAT',
+              messages : {
+                create : {
+                  content : 'Bonjour, comment puis-je vous aidez aujourd\'hui?',
+                  sender : 'AI',
+                  type : 'TEXT',
+                }
+              },
+            }
+          }
         }
       })
       // if (newUser.active === false) {
