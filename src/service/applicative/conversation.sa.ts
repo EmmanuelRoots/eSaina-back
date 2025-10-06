@@ -20,7 +20,10 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
             { members: { some: { userId: id } } },
           ]
         },
-        include: { messages: true, },
+        include: {
+          messages: true,
+          members : true
+        },
         orderBy: { updatedAt: "desc" }, // ou createdAt
         skip,
         take: limit,
@@ -30,10 +33,10 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
         { members: { some: { userId: id } } },
       ]}}),
     ]);
-
+    
     return {
       success: true,
-      data: conversations,
+      conversations,
       pagination: {
         page,
         limit,

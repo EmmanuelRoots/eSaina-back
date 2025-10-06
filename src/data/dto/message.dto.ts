@@ -16,7 +16,7 @@ export enum SenderType {
 export interface MessageDTO {
   content : string
   type : MessageType
-  senderType : SenderType
+  sender : SenderType
   conversation : ConversationDTO
   user : UserDTO
 }

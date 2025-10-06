@@ -68,7 +68,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "content": {"dataType":"string","required":true},
             "type": {"ref":"MessageType","required":true},
-            "senderType": {"ref":"SenderType","required":true},
+            "sender": {"ref":"SenderType","required":true},
             "conversation": {"ref":"ConversationDTO","required":true},
             "user": {"ref":"UserDTO","required":true},
         },
@@ -121,6 +121,11 @@ const models: TsoaRoute.Models = {
     "_36_Enums.SenderType": {
         "dataType": "refAlias",
         "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["USER"]},{"dataType":"enum","enums":["AI"]},{"dataType":"enum","enums":["SYSTEM"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.MemberRole": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["ADMIN"]},{"dataType":"enum","enums":["MEMBER"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "_36_Enums.ConversationType": {

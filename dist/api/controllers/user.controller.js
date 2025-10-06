@@ -18,6 +18,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const tsoa_1 = require("tsoa");
 const user_sa_1 = __importDefault(require("../../service/applicative/user.sa"));
+const session_middleware_1 = require("../middleware/session.middleware");
+const auth_middleware_1 = require("../middleware/auth.middleware");
 //import { TokenMiddleware } from '../middleware/token.middleware'
 /**
  * Contrôleur pour la gestion des utilisateurs dans le système.
@@ -98,6 +100,9 @@ let UserController = class UserController extends tsoa_1.Controller {
     async login(body) {
         return user_sa_1.default.logUser(body);
     }
+    async googleLogin(body) {
+        return user_sa_1.default.logGoogleUser(body);
+    }
     /**
      * Génère un nouveau jeton d'accès à l'aide d'un refresh token valide.
      *
@@ -120,7 +125,51 @@ let UserController = class UserController extends tsoa_1.Controller {
      * }
      */
     async refresh(body) {
-        return user_sa_1.default.refreshToken(body.refresToken);
+        return user_sa_1.default.refreshToken(body.refreshToken);
+    }
+    /**
+     * Récupère les informations du profil de l'utilisateur connecté.
+     *
+     * Cet endpoint renvoie les données du profil de l'utilisateur authentifié,
+     * extraites directement du token JWT décodé par le middleware d'authentification.
+     * Aucune donnée supplémentaire n'est requise dans la requête : l'identité de
+     * l'utilisateur est déduite du token d'accès fourni dans l'en-tête `Authorization`.
+     *
+     * @returns Les données du profil utilisateur
+     * @example {
+     *   "success": true,
+     *   "data": {
+     *     "id": "12345",
+     *     "email": "utilisateur@example.com",
+     *     "firstName": "Jean",
+     *     "lastName": "Dupont",
+     *     "role": "user"
+     *   }
+     * }
+     */
+    async getUserFromProfile(req) {
+        return { success: true, data: req.body }; // Le middleware d'authentification injecte `req.user`
+    }
+    /**
+     * Invalide un refresh token et met fin à la session utilisateur.
+     *
+     * Cet endpoint permet à un utilisateur de se déconnecter proprement en révoquant
+     * son refresh token actuel. Une fois appelé, ce token ne peut plus être utilisé
+     * pour générer de nouveaux access tokens, même s’il n’est pas encore expiré.
+     *
+     * @param body Le refresh token à révoquer
+     * @returns Un message de confirmation de déconnexion
+     * @example body {
+     *   "refreshToken": "refresh_token_à_révoquer_12345"
+     * }
+     * @example {
+     *   "success": true,
+     *   "message": "Déconnexion réussie",
+     *   "data": null
+     * }
+     */
+    async logOut(body) {
+        return user_sa_1.default.logOut(body.refreshToken);
     }
 };
 exports.UserController = UserController;
@@ -145,7 +194,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
 __decorate([
+    (0, tsoa_1.Post)('googleLogin'),
+    __param(0, (0, tsoa_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "googleLogin", null);
+__decorate([
     (0, tsoa_1.Post)('refresh'),
+    (0, tsoa_1.Middlewares)([session_middleware_1.sessionMiddleware]),
     (0, tsoa_1.Response)(200, 'Tokens renouvelés avec succès'),
     (0, tsoa_1.Response)(401, 'Refresh token invalide ou expiré', { success: false, message: 'Invalid or expired refresh token', data: null }),
     __param(0, (0, tsoa_1.Body)()),
@@ -153,6 +210,22 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "refresh", null);
+__decorate([
+    (0, tsoa_1.Get)('me'),
+    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
+    __param(0, (0, tsoa_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getUserFromProfile", null);
+__decorate([
+    (0, tsoa_1.Post)('logout'),
+    (0, tsoa_1.Middlewares)([session_middleware_1.sessionMiddleware]),
+    __param(0, (0, tsoa_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "logOut", null);
 exports.UserController = UserController = __decorate([
     (0, tsoa_1.Route)('user'),
     (0, tsoa_1.Tags)('user')

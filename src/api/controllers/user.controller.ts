@@ -143,6 +143,7 @@ export class UserController extends Controller {
   @Response(200, 'Tokens renouvelés avec succès')
   @Response(401, 'Refresh token invalide ou expiré', { success: false, message: 'Invalid or expired refresh token', data: null })
   public async refresh(@Body() body: {refreshToken:string}) {
+    
     return userSA.refreshToken(body.refreshToken);
   }
 

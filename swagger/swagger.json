@@ -127,7 +127,7 @@
 					"type": {
 						"$ref": "#/components/schemas/MessageType"
 					},
-					"senderType": {
+					"sender": {
 						"$ref": "#/components/schemas/SenderType"
 					},
 					"conversation": {
@@ -140,7 +140,7 @@
 				"required": [
 					"content",
 					"type",
-					"senderType",
+					"sender",
 					"conversation",
 					"user"
 				],
@@ -238,6 +238,13 @@
 					"USER",
 					"AI",
 					"SYSTEM"
+				]
+			},
+			"_36_Enums.MemberRole": {
+				"type": "string",
+				"enum": [
+					"ADMIN",
+					"MEMBER"
 				]
 			},
 			"_36_Enums.ConversationType": {
@@ -674,11 +681,42 @@
 											],
 											"type": "object"
 										},
-										"data": {
+										"conversations": {
 											"items": {
 												"allOf": [
 													{
 														"properties": {
+															"members": {
+																"items": {
+																	"properties": {
+																		"joinedAt": {
+																			"type": "string",
+																			"format": "date-time"
+																		},
+																		"role": {
+																			"$ref": "#/components/schemas/_36_Enums.MemberRole"
+																		},
+																		"conversationId": {
+																			"type": "string"
+																		},
+																		"userId": {
+																			"type": "string"
+																		},
+																		"id": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"joinedAt",
+																		"role",
+																		"conversationId",
+																		"userId",
+																		"id"
+																	],
+																	"type": "object"
+																},
+																"type": "array"
+															},
 															"messages": {
 																"items": {
 																	"properties": {
@@ -720,6 +758,7 @@
 															}
 														},
 														"required": [
+															"members",
 															"messages"
 														],
 														"type": "object"
@@ -767,7 +806,7 @@
 									},
 									"required": [
 										"pagination",
-										"data",
+										"conversations",
 										"success"
 									],
 									"type": "object"

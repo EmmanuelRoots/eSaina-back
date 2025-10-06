@@ -170,15 +170,16 @@ export const refreshToken = async (oldRefresh: string) => {
   if (!session || session.expiresAt < new Date())
     throw new ApiError(401,'Invalid or expired refresh token','Token error');
 
-  // Rotation : on supprime l’ancienne session
-  await prisma.session.delete({ where: { id: session.id } });
-
   // Nouvelle session
   const newRefresh = genRefresh();
   const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
-  await prisma.session.create({
-    data: { refreshToken: newRefresh, userId: session.userId, expiresAt },
-  });
+  await prisma.session.update({
+    where:{id:session.id},
+    data : {
+      refreshToken : newRefresh,
+      expiresAt
+    }
+  })
 
   const accessToken = signAccess(toUserDTO(session.user));
   return { accessToken, refreshToken: newRefresh };
