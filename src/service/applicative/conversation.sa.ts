@@ -21,7 +21,17 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
           ]
         },
         include: {
-          messages: true,
+          owner : {
+            select : {
+              firstName : true,
+              lastName : true
+            }
+          },
+          messages: {
+            include : {
+              user : true
+            }
+          },
           members : true
         },
         orderBy: { updatedAt: "desc" }, // ou createdAt
@@ -36,7 +46,7 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
     
     return {
       success: true,
-      conversations,
+      conversations : JSON.parse(JSON.stringify(conversations)),
       pagination: {
         page,
         limit,
