@@ -614,6 +614,113 @@
 				}
 			}
 		},
+		"/user/search-user": {
+			"get": {
+				"operationId": "SearChUser",
+				"responses": {
+					"200": {
+						"description": "les user correspondant a la recherche",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"pagination": {
+											"properties": {
+												"hasPreviousPage": {
+													"type": "boolean"
+												},
+												"hasNextPage": {
+													"type": "boolean"
+												},
+												"totalPages": {
+													"type": "number",
+													"format": "double"
+												},
+												"totalCount": {
+													"type": "number",
+													"format": "double"
+												},
+												"pageSize": {
+													"type": "number",
+													"format": "double"
+												},
+												"currentPage": {
+													"type": "number",
+													"format": "double"
+												}
+											},
+											"required": [
+												"hasPreviousPage",
+												"hasNextPage",
+												"totalPages",
+												"totalCount",
+												"pageSize",
+												"currentPage"
+											],
+											"type": "object"
+										},
+										"data": {},
+										"statusCode": {
+											"type": "number",
+											"format": "double"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"pagination",
+										"data",
+										"statusCode",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Recherche utilisateur par mot cle",
+				"tags": [
+					"user"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "numero de page",
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "nombre d'element par page",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "mot a chercher",
+						"in": "query",
+						"name": "searchTerm",
+						"required": false,
+						"schema": {
+							"default": "",
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/conversation/all-conversation": {
 			"get": {
 				"operationId": "GetAllConversationByUser",

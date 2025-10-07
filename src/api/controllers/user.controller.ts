@@ -8,6 +8,7 @@ import {
   Request,
   Middlewares,
   Get,
+  Query,
 } from 'tsoa'
 import { Request as ExpressRequest} from 'express'
 
@@ -195,6 +196,20 @@ export class UserController extends Controller {
   @Middlewares([sessionMiddleware])
   public async logOut(@Body() body: { refreshToken: string }) {
     return userSA.logOut(body.refreshToken);
+  }
+  
+  /**
+   * Recherche utilisateur par mot cle
+   * @param req requete qui contient le current user depuis le middleware
+   * @param page numero de page
+   * @param limit nombre d'element par page
+   * @param searchTerm mot a chercher
+   * @returns les user correspondant a la recherche
+   */
+  @Get('search-user')
+  @Middlewares([authMiddleware])
+  public async searChUser(@Request() req : ExpressRequest,@Query() page = 1, @Query() limit = 20, @Query() searchTerm ='' ) {
+    return userSA.searchUsersWithPagination(searchTerm,page,limit,req.body.uuid)
   }
 
 }

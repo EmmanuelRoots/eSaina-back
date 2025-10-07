@@ -128,12 +128,6 @@ const logGoogleUser = async({email,given_name,family_name,deviceInfo} : GoogleLo
       //   }
       // }
       localUser = newUser
-
-      // return {
-      //   success: true,
-      //   statusCode: 200,
-      //   data: newUser.id
-      // }
     } catch (error) {
       const newError = PrismaExceptionHandler.handle(error)
       throw new ApiError(500,newError.message,'create user error')
@@ -203,10 +197,114 @@ export const logOut = async (refreshToken:string) => {
   }
 }
 
+/**
+ * Rechercher des utilisateurs avec pagination
+ * @param keyword mot-clé de recherche (si vide, retourne les derniers utilisateurs)
+ * @param page numéro de page (commence à 1)
+ * @param pageSize nombre de résultats par page
+ * @param userId ID de l'utilisateur qui effectue la recherche (optionnel)
+ * @returns liste paginée des utilisateurs correspondants
+ */
+export const searchUsersWithPagination = async (
+  keyword: string,
+  page: number = 1,
+  pageSize: number = 10,
+  userId: string
+) => {
+  if (page < 1) {
+    throw new ApiError(400, 'Le numéro de page doit être supérieur à 0', 'pagination_error')
+  }
+  const searchTerm = keyword?.trim().toLocaleLowerCase()
+  const isEmptySearch = !searchTerm || searchTerm.length === 0
+  const skip = (page - 1) * pageSize
+  console.log({searchTerm});
+  let users
+  let totalCount =0
+  try {
+    const whereClause: any = {
+      active : true,
+      NOT : { id: userId }
+    }
+    if (isEmptySearch) {
+      users = await prisma.user.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phoneNumber: true,
+          birthDate: true,
+          createdAt: true,
+        },
+        skip,
+        take: pageSize,
+        orderBy: isEmptySearch 
+          ? { createdAt: 'desc' } // Les derniers utilisateurs créés si recherche vide
+          : [
+              { firstName: 'asc' },
+              { lastName: 'asc' },
+            ],
+      })
+      totalCount = await prisma.user.count({ where: whereClause })
+    }else {
+      const pattern   = `%${searchTerm}%`;
+      users = await prisma.$queryRaw`
+        SELECT "id", "firstName", "lastName", "email", "phoneNumber", "birthDate", "createdAt"
+        FROM   "User"
+        WHERE  "active" = true
+        AND    "id" != ${userId}
+        AND   (
+                LOWER("firstName") LIKE ${pattern}
+                OR LOWER("lastName") LIKE ${pattern}
+                OR LOWER("email")    LIKE ${pattern}
+                OR "phoneNumber"     LIKE ${pattern}
+              )
+        ORDER  BY "firstName" ASC, "lastName" ASC
+        LIMIT  ${pageSize}
+        OFFSET ${skip};
+      `
+      const rawCount = await prisma.$queryRaw<[{ count: bigint }]>`
+      SELECT COUNT(*) as count
+      FROM "User"
+      WHERE active = true
+      AND "id" != ${userId}
+      AND   (
+        LOWER("firstName") LIKE ${pattern}
+        OR LOWER("lastName") LIKE ${pattern}
+        OR LOWER("email")    LIKE ${pattern}
+        OR "phoneNumber"     LIKE ${pattern}
+      )
+    `
+      totalCount = Number(rawCount[0].count)
+    }
+    const totalPages = Math.ceil(totalCount / pageSize)
+    
+    return {
+      success: true,
+      statusCode: 200,
+      data: users,
+      pagination: {
+        currentPage: page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    }
+  } catch (error) {
+    console.error(error)
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'search_users_error')
+  }
+}
+
 export default {
   addUser,
   logUser,
   refreshToken,
   logOut,
-  logGoogleUser
+  logGoogleUser,
+  searchUsersWithPagination
 }
