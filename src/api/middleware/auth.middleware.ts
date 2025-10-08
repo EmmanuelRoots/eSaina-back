@@ -16,7 +16,7 @@ export const  authMiddleware = (req: Request, res: Response, next: NextFunction)
   try {
     const token = hdr.split(' ')[1];
     const payload = verifyAccess(token);   //jeton expiré ? jwt jette une erreur
-    (req as Request).body = payload.user;
+    (req as any).user = payload.user;
     next();
   } catch (err) {
     

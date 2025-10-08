@@ -61,6 +61,36 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
   }
 }
 
+const createConversation = async (ownerId : string, payload:ConversationDTO)=>{
+  try {
+    const res = await prisma.conversation.create({
+      data : {
+        type : payload.type,
+        members : {
+          create : payload.members.map(m=>{
+            return {
+              userId : m.userId,
+              role : m.role
+            }
+          })
+        },
+        ownerId : payload.ownerId,
+        title : payload.title,
+      }
+    })
+
+    return {
+      success : true,
+      data : res
+    }
+    
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500,newError.message,'error on get all conversation')
+  }
+}
+
 export default {
-  getAllConversationByUser
+  getAllConversationByUser,
+  createConversation
 }

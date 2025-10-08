@@ -217,7 +217,7 @@ export const searchUsersWithPagination = async (
   const searchTerm = keyword?.trim().toLocaleLowerCase()
   const isEmptySearch = !searchTerm || searchTerm.length === 0
   const skip = (page - 1) * pageSize
-  console.log({searchTerm});
+  
   let users
   let totalCount =0
   try {
@@ -279,7 +279,7 @@ export const searchUsersWithPagination = async (
       totalCount = Number(rawCount[0].count)
     }
     const totalPages = Math.ceil(totalCount / pageSize)
-    
+
     return {
       success: true,
       statusCode: 200,

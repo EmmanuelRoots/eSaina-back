@@ -1,8 +1,9 @@
 import { MessageDTO } from "./message.dto"
 
 export enum ConversationType {
-  REGULAR = 'REGULAR',
-  AI_CHAT = 'AI_CHAT'
+  AI_CHAT = 'AI_CHAT',
+  DIRECT = 'DIRECT',
+  GROUP = 'GROUP'
 }
 
 export enum MemberRole {

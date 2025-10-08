@@ -109,12 +109,13 @@ export class UserController extends Controller {
   @Response(401, 'Identifiants invalides')
   @Response(403, 'Compte désactivé')
   public async login(@Body() body: LoginDTO) {
+
     return userSA.logUser(body)
   }
 
   @Post('googleLogin')
   public async googleLogin(@Body() body: GoogleLoginDTO) {
-    
+  
     return userSA.logGoogleUser(body)
   }
 
@@ -171,7 +172,8 @@ export class UserController extends Controller {
   @Get('me')
   @Middlewares([authMiddleware])
   public async getUserFromProfile(@Request() req: ExpressRequest) {
-    return { success: true, data: req.body }; // Le middleware d'authentification injecte `req.user`
+
+    return { success: true, data: (req as any).user }; // Le middleware d'authentification injecte `req.user`
   }
 
   /**
@@ -209,7 +211,7 @@ export class UserController extends Controller {
   @Get('search-user')
   @Middlewares([authMiddleware])
   public async searChUser(@Request() req : ExpressRequest,@Query() page = 1, @Query() limit = 20, @Query() searchTerm ='' ) {
-    return userSA.searchUsersWithPagination(searchTerm,page,limit,req.body.uuid)
+    return userSA.searchUsersWithPagination(searchTerm,page,limit,(req as any).user.uuid)
   }
 
 }
