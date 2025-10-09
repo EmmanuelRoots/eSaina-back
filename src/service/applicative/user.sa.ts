@@ -211,6 +211,8 @@ export const searchUsersWithPagination = async (
   pageSize: number = 10,
   userId: string
 ) => {
+  console.log({userId});
+  
   if (page < 1) {
     throw new ApiError(400, 'Le numéro de page doit être supérieur à 0', 'pagination_error')
   }
@@ -279,6 +281,8 @@ export const searchUsersWithPagination = async (
       totalCount = Number(rawCount[0].count)
     }
     const totalPages = Math.ceil(totalCount / pageSize)
+    console.log({users});
+    
 
     return {
       success: true,

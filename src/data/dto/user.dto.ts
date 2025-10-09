@@ -2,7 +2,7 @@ import { ConversationDTO } from "./conversation.dto"
 import { MessageDTO } from "./message.dto"
 
 export interface UserDTO {
-  uuid?: string
+  id?: string
   email: string
   password?: string
   lastName: string

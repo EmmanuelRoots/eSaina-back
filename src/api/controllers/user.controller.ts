@@ -211,7 +211,7 @@ export class UserController extends Controller {
   @Get('search-user')
   @Middlewares([authMiddleware])
   public async searChUser(@Request() req : ExpressRequest,@Query() page = 1, @Query() limit = 20, @Query() searchTerm ='' ) {
-    return userSA.searchUsersWithPagination(searchTerm,page,limit,(req as any).user.uuid)
+    return userSA.searchUsersWithPagination(searchTerm,page,limit,(req as any).user.id)
   }
 
 }

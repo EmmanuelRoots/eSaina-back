@@ -1,7 +1,9 @@
 import { ConversationDTO } from "../../data/dto/conversation.dto"
+import { NotificationType } from "../../data/dto/notification.dto"
 import { ApiError } from "../../data/exception/api.exception"
 import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.handler"
 import { prisma } from "../../repository"
+import sseSa from "./sse.sa"
 
 /**
  * get all conversations by user
@@ -9,7 +11,7 @@ import { prisma } from "../../repository"
  * @returns 
  */
 const getAllConversationByUser = async (id : string | undefined, page: number, limit: number) => {
-  if (!id) throw new ApiError(500,"email missing");
+  if (!id) throw new ApiError(500,"user id missing");
   const skip = (page - 1) * limit;
   try {
     const [conversations, total] = await prisma.$transaction([
@@ -32,7 +34,11 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
               user : true
             }
           },
-          members : true
+          members : {
+            include : {
+              user : true
+            }
+          }
         },
         orderBy: { updatedAt: "desc" }, // ou createdAt
         skip,
@@ -62,6 +68,7 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
 }
 
 const createConversation = async (ownerId : string, payload:ConversationDTO)=>{
+  
   try {
     const res = await prisma.conversation.create({
       data : {
@@ -74,10 +81,12 @@ const createConversation = async (ownerId : string, payload:ConversationDTO)=>{
             }
           })
         },
-        ownerId : payload.ownerId,
+        ownerId : ownerId,
         title : payload.title,
       }
     })
+
+    sseSa.sendEventToUser({title:"Nouvelle conversation",userId:payload.userId,read:false,type:NotificationType.NEW_CONVERSATION,data:res,message:"vous avez une nouvelle conversation"})
 
     return {
       success : true,
@@ -85,6 +94,8 @@ const createConversation = async (ownerId : string, payload:ConversationDTO)=>{
     }
     
   } catch (error) {
+    console.error(error);
+    
     const newError = PrismaExceptionHandler.handle(error)
     throw new ApiError(500,newError.message,'error on get all conversation')
   }

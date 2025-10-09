@@ -3,7 +3,7 @@ import { toISO } from "../../../utils/date.utils";
 import { UserDTO } from "../user.dto";
 
 export const toUserDTO = (user: User): UserDTO => ({
-  uuid : user.id,
+  id : user.id,
   email: user.email,
   firstName: user.firstName,
   lastName: user.lastName,

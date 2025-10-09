@@ -22,16 +22,14 @@ export class ConversationController extends Controller {
   @Security('bearer') 
   public async getAllConversationByUser(@Request() req : ExpressRequest,@Query() page = 1, @Query() limit = 20 ) {
     
-    return conversationSa.getAllConversationByUser((req as any).user.uuid, Number(page), Number(limit))
+    return conversationSa.getAllConversationByUser((req as any).user.id, Number(page), Number(limit))
   }
 
   @Post('create')
   @Middlewares([authMiddleware])
   @Security('bearer')
   public async createConversation (@Request() req: ExpressRequest){
-    console.log({req});
     
-    
-    return conversationSa.createConversation('',req as unknown as ConversationDTO)
+    return conversationSa.createConversation((req as any).user.id,req.body.conversation)
   }
 }

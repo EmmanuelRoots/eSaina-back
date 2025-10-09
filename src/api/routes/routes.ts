@@ -6,6 +6,8 @@ import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UserController } from './../controllers/user.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { SSEController } from './../controllers/sse.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ConversationController } from './../controllers/conversation.controller';
 import { expressAuthentication } from './../middleware/swagger.middleware';
 // @ts-ignore - no great way to install types from subpackage
@@ -48,7 +50,7 @@ const models: TsoaRoute.Models = {
     "UserDTO": {
         "dataType": "refObject",
         "properties": {
-            "uuid": {"dataType":"string"},
+            "id": {"dataType":"string"},
             "email": {"dataType":"string","required":true},
             "password": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
@@ -109,6 +111,24 @@ const models: TsoaRoute.Models = {
             "family_name": {"dataType":"string","required":true},
             "given_name": {"dataType":"string","required":true},
             "deviceInfo": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "NotificationType": {
+        "dataType": "refEnum",
+        "enums": ["NEW_MESSAGE","NEW_CONVERSATION","BROADCAST","NOTIFICATION","CONNECTED"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "NotificationDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "userId": {"dataType":"string","required":true},
+            "type": {"ref":"NotificationType","required":true},
+            "title": {"dataType":"string","required":true},
+            "message": {"dataType":"string","required":true},
+            "data": {"dataType":"any","required":true},
+            "read": {"dataType":"boolean","required":true},
         },
         "additionalProperties": false,
     },
@@ -337,6 +357,36 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'searChUser',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSSEController_sendNotification: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"NotificationDTO"},
+        };
+        app.post('/notification/send',
+            ...(fetchMiddlewares<RequestHandler>(SSEController)),
+            ...(fetchMiddlewares<RequestHandler>(SSEController.prototype.sendNotification)),
+
+            async function SSEController_sendNotification(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSSEController_sendNotification, request, response });
+
+                const controller = new SSEController();
+
+              await templateService.apiHandler({
+                methodName: 'sendNotification',
                 controller,
                 response,
                 next,

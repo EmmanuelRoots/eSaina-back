@@ -70,7 +70,7 @@
 			},
 			"UserDTO": {
 				"properties": {
-					"uuid": {
+					"id": {
 						"type": "string"
 					},
 					"email": {
@@ -221,6 +221,46 @@
 					"email",
 					"family_name",
 					"given_name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"NotificationType": {
+				"enum": [
+					"NEW_MESSAGE",
+					"NEW_CONVERSATION",
+					"BROADCAST",
+					"NOTIFICATION",
+					"CONNECTED"
+				],
+				"type": "string"
+			},
+			"NotificationDTO": {
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"type": {
+						"$ref": "#/components/schemas/NotificationType"
+					},
+					"title": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {},
+					"read": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"userId",
+					"type",
+					"title",
+					"message",
+					"data",
+					"read"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -728,6 +768,50 @@
 						}
 					}
 				]
+			}
+		},
+		"/notification/send": {
+			"post": {
+				"operationId": "SendNotification",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/NotificationDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"notification"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/NotificationDTO"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/conversation/all-conversation": {
