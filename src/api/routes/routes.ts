@@ -37,6 +37,7 @@ const models: TsoaRoute.Models = {
     "ConversationDTO": {
         "dataType": "refObject",
         "properties": {
+            "id": {"dataType":"string","required":true},
             "title": {"dataType":"string"},
             "type": {"ref":"ConversationType","required":true},
             "userId": {"dataType":"string","required":true},
@@ -136,6 +137,16 @@ const models: TsoaRoute.Models = {
     "_36_Enums.ConversationType": {
         "dataType": "refAlias",
         "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["AI_CHAT"]},{"dataType":"enum","enums":["DIRECT"]},{"dataType":"enum","enums":["GROUP"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.MessageType": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["TEXT"]},{"dataType":"enum","enums":["IMAGE"]},{"dataType":"enum","enums":["FILE"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.SenderType": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["USER"]},{"dataType":"enum","enums":["AI"]},{"dataType":"enum","enums":["SYSTEM"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -451,6 +462,68 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'createConversation',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_sendMessage: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.post('/conversation/send-message',
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.sendMessage)),
+
+            async function ConversationController_sendMessage(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_sendMessage, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'sendMessage',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsConversationController_getAllMessagesByConversation: Record<string, TsoaRoute.ParameterSchema> = {
+                conversationId: {"in":"query","name":"conversationId","required":true,"dataType":"string"},
+                page: {"default":1,"in":"query","name":"page","dataType":"double"},
+                limit: {"default":20,"in":"query","name":"limit","dataType":"double"},
+        };
+        app.get('/conversation/get-all-messages',
+            ...(fetchMiddlewares<RequestHandler>(ConversationController)),
+            ...(fetchMiddlewares<RequestHandler>(ConversationController.prototype.getAllMessagesByConversation)),
+
+            async function ConversationController_getAllMessagesByConversation(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsConversationController_getAllMessagesByConversation, request, response });
+
+                const controller = new ConversationController();
+
+              await templateService.apiHandler({
+                methodName: 'getAllMessagesByConversation',
                 controller,
                 response,
                 next,

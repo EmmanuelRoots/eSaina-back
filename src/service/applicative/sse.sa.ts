@@ -24,6 +24,7 @@ const removeClient = (clientId: string) =>{
 }
 
 const sendEventToUser = async ({userId, type, title, read, message, data}:NotificationDTO) =>{
+  
   try {
     const notification = await prisma.notification.create({
       data: {
@@ -37,7 +38,7 @@ const sendEventToUser = async ({userId, type, title, read, message, data}:Notifi
     }) as NotificationDTO
 
     clients.forEach(({ userId: clientUserId, res }) => {
-      if (clientUserId === userId && !res.writableEnded) {
+      if (clientUserId === userId && !res.writableEnded) { 
         res.write(`event: ${type}\n`);
         res.write(`data: ${JSON.stringify(data)}\n\n`);
       }
@@ -49,8 +50,10 @@ const sendEventToUser = async ({userId, type, title, read, message, data}:Notifi
     }
     
   } catch (error) {
+    console.error({error});
+    
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create session')
+    throw new ApiError(500,newError.message,'create notification')
   }
 }
 

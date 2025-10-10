@@ -4,6 +4,7 @@ import { authMiddleware } from "../middleware/auth.middleware";
 import conversationSa from "../../service/applicative/conversation.sa";
 import { UserDTO } from "../../data/dto/user.dto";
 import { ConversationDTO } from "../../data/dto/conversation.dto";
+import { MessageDTO } from "../../data/dto/message.dto";
 
 @Route('conversation')
 @Tags('conversation')
@@ -31,5 +32,19 @@ export class ConversationController extends Controller {
   public async createConversation (@Request() req: ExpressRequest){
     
     return conversationSa.createConversation((req as any).user.id,req.body.conversation)
+  }
+
+  @Post('send-message')
+  @Middlewares([authMiddleware])
+  public async sendMessage(@Request() req: ExpressRequest) {
+
+    return conversationSa.createMessage(req.body)
+  }
+
+  @Get('get-all-messages')
+  @Middlewares([authMiddleware])
+  public async getAllMessagesByConversation (@Query() conversationId:string,@Query() page = 1, @Query() limit = 20 ){
+
+    return conversationSa.getAllMessagesByConversation(conversationId,page,limit)
   }
 }

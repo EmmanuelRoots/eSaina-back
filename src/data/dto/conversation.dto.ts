@@ -12,6 +12,7 @@ export enum MemberRole {
 }
 
 export interface ConversationDTO {
+  id : string
   title? : string
   type : ConversationType
   userId : string

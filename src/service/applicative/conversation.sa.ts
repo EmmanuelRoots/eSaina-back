@@ -1,4 +1,5 @@
 import { ConversationDTO } from "../../data/dto/conversation.dto"
+import { MessageDTO } from "../../data/dto/message.dto"
 import { NotificationType } from "../../data/dto/notification.dto"
 import { ApiError } from "../../data/exception/api.exception"
 import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.handler"
@@ -29,11 +30,12 @@ const getAllConversationByUser = async (id : string | undefined, page: number, l
               lastName : true
             }
           },
-          messages: {
-            include : {
-              user : true
-            }
-          },
+          // messages: {
+          //   include : {
+          //     user : true
+          //   },
+          //   take : 10
+          // },
           members : {
             include : {
               user : true
@@ -97,11 +99,84 @@ const createConversation = async (ownerId : string, payload:ConversationDTO)=>{
     console.error(error);
     
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'error on get all conversation')
+    throw new ApiError(500,newError.message,'error on create conversation')
+  }
+}
+
+const createMessage = async (payload :MessageDTO)=> {
+  try {
+    const res = await prisma.message.create({
+      data : {
+        content : payload.content,
+        conversationId : payload.conversation.id,
+        sender : payload.sender,
+        userId : payload.user.id,
+        type : payload.type
+      }
+    })
+
+
+    const userListToSend = payload.conversation.members.filter(m=>m.userId !== payload.user.id)
+    userListToSend.forEach(m=>{
+      sseSa.sendEventToUser({title:"Nouveau message",userId:m.userId,read:false,type:NotificationType.NEW_MESSAGE,data:res,message:"vous avez un nouveau message"})
+    })
+
+    return {
+      success : true,
+      data : res
+    }
+    
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500,newError.message,'error on create message')
+  }
+}
+
+const getAllMessagesByConversation = async (conversationId:string | undefined, page: number, limit: number)=>{
+  
+  console.log({conversationId,page,limit});
+  
+  if (!conversationId) throw new ApiError(500,"conversation's id missing");
+  try {
+    const skip = (page - 1) * limit;
+    const [messages, total] = await prisma.$transaction([
+      prisma.message.findMany({
+        where: { 
+          conversationId
+        },
+        include: {
+          user : true
+        },
+        orderBy: { createdAt: "desc" }, 
+        skip,
+        take: limit,
+      }),
+      prisma.message.count({
+        where:{
+          conversationId
+        }
+      }),
+    ]);
+
+    return {
+      success: true,
+      messages : JSON.parse(JSON.stringify(messages)),
+      pagination: {
+        page,
+        limit,
+        total,
+        hasMore: skip + limit < total,
+      }
+    }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500,newError.message,'error on get all message by conversation')
   }
 }
 
 export default {
   getAllConversationByUser,
-  createConversation
+  createConversation,
+  createMessage,
+  getAllMessagesByConversation
 }
