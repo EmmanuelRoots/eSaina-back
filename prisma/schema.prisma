@@ -19,6 +19,7 @@ model Conversation {
   owner       User     @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
   members     ConversationMember[]
   messages    Message[]
+  read        Boolean @default(false)
 
   @@index([ownerId])
   @@index([type])
@@ -56,7 +57,7 @@ model Notification {
   type      String
   title     String
   message   String
-  data      Json?    // Pour stocker des métadonnées
+  data      Json?
   read      Boolean  @default(false)
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -78,6 +79,7 @@ model User {
   participatingConversations  ConversationMember[]
   messages                    Message[]
   notifications               Notification[]
+  connected                   Boolean   @default(false)
 }
 
 model Session {

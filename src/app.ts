@@ -7,6 +7,7 @@ import { RegisterRoutes } from './api/routes/routes'
 import fs from 'fs'
 import { authMiddleware } from './api/middleware/auth.middleware'
 import sseSa from './service/applicative/sse.sa'
+import { prisma } from './repository'
 
 export const app = Express()
 app.use(cors())
@@ -17,7 +18,7 @@ app.get('/', (req, res) => {
   res.send('Hello')
 })
 
-app.get('/notification/stream',(req, res) => {
+app.get('/notification/stream',async (req, res) => {
   const userId = req.query.userId as string;
   if (!userId) return res.status(400).send('userId manquant');
 
@@ -26,12 +27,23 @@ app.get('/notification/stream',(req, res) => {
   res.setHeader('Connection', 'keep-alive');
 
   const clientId = sseSa.addClient(userId, res);
-
+  await prisma.user.update({
+    where:{id:userId},
+    data :{
+      connected : true
+    }
+  })
   res.write(`event: CONNECTED\ndata: ${JSON.stringify({ userId, clientId })}\n\n`);
   console.log('Client connecte');
   
 
-  req.on('close', () => {
+  req.on('close', async () => {
+    await prisma.user.update({
+      where:{id:userId},
+      data :{
+        connected : false
+      }
+    })
     console.log('client deconnecte');
     
     sseSa.removeClient(clientId);

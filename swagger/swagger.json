@@ -934,6 +934,9 @@
 												"ownerId": {
 													"type": "string"
 												},
+												"read": {
+													"type": "boolean"
+												},
 												"updatedAt": {
 													"type": "string",
 													"format": "date-time"
@@ -954,6 +957,7 @@
 											},
 											"required": [
 												"ownerId",
+												"read",
 												"updatedAt",
 												"type",
 												"title",
@@ -996,52 +1000,149 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"properties": {
-										"data": {
+									"anyOf": [
+										{
 											"properties": {
-												"conversationId": {
-													"type": "string"
+												"data": {
+													"properties": {
+														"aiMessage": {
+															"properties": {
+																"conversationId": {
+																	"type": "string"
+																},
+																"userId": {
+																	"type": "string"
+																},
+																"sender": {
+																	"$ref": "#/components/schemas/_36_Enums.SenderType"
+																},
+																"content": {
+																	"type": "string"
+																},
+																"type": {
+																	"$ref": "#/components/schemas/_36_Enums.MessageType"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"conversationId",
+																"userId",
+																"sender",
+																"content",
+																"type",
+																"createdAt",
+																"id"
+															],
+															"type": "object"
+														},
+														"userMessage": {
+															"properties": {
+																"conversationId": {
+																	"type": "string"
+																},
+																"userId": {
+																	"type": "string"
+																},
+																"sender": {
+																	"$ref": "#/components/schemas/_36_Enums.SenderType"
+																},
+																"content": {
+																	"type": "string"
+																},
+																"type": {
+																	"$ref": "#/components/schemas/_36_Enums.MessageType"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"conversationId",
+																"userId",
+																"sender",
+																"content",
+																"type",
+																"createdAt",
+																"id"
+															],
+															"type": "object"
+														}
+													},
+													"required": [
+														"aiMessage",
+														"userMessage"
+													],
+													"type": "object"
 												},
-												"userId": {
-													"type": "string"
-												},
-												"sender": {
-													"$ref": "#/components/schemas/_36_Enums.SenderType"
-												},
-												"content": {
-													"type": "string"
-												},
-												"type": {
-													"$ref": "#/components/schemas/_36_Enums.MessageType"
-												},
-												"createdAt": {
-													"type": "string",
-													"format": "date-time"
-												},
-												"id": {
-													"type": "string"
+												"success": {
+													"type": "boolean"
 												}
 											},
 											"required": [
-												"conversationId",
-												"userId",
-												"sender",
-												"content",
-												"type",
-												"createdAt",
-												"id"
+												"data",
+												"success"
 											],
 											"type": "object"
 										},
-										"success": {
-											"type": "boolean"
+										{
+											"properties": {
+												"data": {
+													"properties": {
+														"conversationId": {
+															"type": "string"
+														},
+														"userId": {
+															"type": "string"
+														},
+														"sender": {
+															"$ref": "#/components/schemas/_36_Enums.SenderType"
+														},
+														"content": {
+															"type": "string"
+														},
+														"type": {
+															"$ref": "#/components/schemas/_36_Enums.MessageType"
+														},
+														"createdAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"id": {
+															"type": "string"
+														}
+													},
+													"required": [
+														"conversationId",
+														"userId",
+														"sender",
+														"content",
+														"type",
+														"createdAt",
+														"id"
+													],
+													"type": "object"
+												},
+												"success": {
+													"type": "boolean"
+												}
+											},
+											"required": [
+												"data",
+												"success"
+											],
+											"type": "object"
 										}
-									},
-									"required": [
-										"data",
-										"success"
-									],
-									"type": "object"
+									]
 								}
 							}
 						}

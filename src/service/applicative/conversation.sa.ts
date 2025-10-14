@@ -1,9 +1,10 @@
-import { ConversationDTO } from "../../data/dto/conversation.dto"
-import { MessageDTO } from "../../data/dto/message.dto"
+import { ConversationDTO, ConversationType } from "../../data/dto/conversation.dto"
+import { MessageDTO, MessageType, SenderType } from "../../data/dto/message.dto"
 import { NotificationType } from "../../data/dto/notification.dto"
 import { ApiError } from "../../data/exception/api.exception"
 import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.handler"
 import { prisma } from "../../repository"
+import n8n from "../technique/n8n.ts"
 import sseSa from "./sse.sa"
 
 /**
@@ -103,38 +104,78 @@ const createConversation = async (ownerId : string, payload:ConversationDTO)=>{
   }
 }
 
-const createMessage = async (payload :MessageDTO)=> {
+const createMessage = async (payload: MessageDTO) => {
   try {
-    const res = await prisma.message.create({
-      data : {
-        content : payload.content,
-        conversationId : payload.conversation.id,
-        sender : payload.sender,
-        userId : payload.user.id,
-        type : payload.type
-      }
-    })
+    // 1. Sauvegarde du message utilisateur (toujours)
+    const userMessage = await prisma.message.create({
+      data: {
+        content: payload.content,
+        conversationId: payload.conversation.id,
+        sender: payload.sender,
+        userId: payload.user.id,
+        type: payload.type,
+      },
+    });
 
+    // 2. Si c’est un message à l’IA
+    if (payload.conversation.type === ConversationType.AI_CHAT) {
+      // Appel à n8n
+      const aiResponseContent = await n8n.sendRequest(payload.content, payload.user.id!);
 
-    const userListToSend = payload.conversation.members.filter(m=>m.userId !== payload.user.id)
-    userListToSend.forEach(m=>{
-      sseSa.sendEventToUser({title:"Nouveau message",userId:m.userId,read:false,type:NotificationType.NEW_MESSAGE,data:res,message:"vous avez un nouveau message"})
-    })
+      // 3. Sauvegarde de la réponse de l’IA
+      const aiMessage = await prisma.message.create({
+        data: {
+          content: aiResponseContent,
+          conversationId: payload.conversation.id,
+          sender: SenderType.AI,
+          userId: payload.user.id,
+          type: MessageType.TEXT, // ou le type adapté
+        },
+      });
+
+      // 4. Notification à l’utilisateur (propriétaire de la conversation)
+      sseSa.sendEventToUser({
+        title: "Nouveau message",
+        userId: payload.conversation.ownerId,
+        read: false,
+        type: NotificationType.NEW_MESSAGE,
+        data: aiMessage,
+        message: "L’IA a répondu à votre message",
+      });
+
+      return {
+        success: true,
+        data: { userMessage, aiMessage },
+      };
+    }
+
+    // 5. Si c’est un message humain → notifie les autres membres
+    const otherMembers = payload.conversation.members.filter(
+      (m) => m.userId !== payload.user.id
+    );
+
+    otherMembers.forEach((m) => {
+      sseSa.sendEventToUser({
+        title: "Nouveau message",
+        userId: m.userId,
+        read: false,
+        type: NotificationType.NEW_MESSAGE,
+        data: userMessage,
+        message: "Vous avez un nouveau message",
+      });
+    });
 
     return {
-      success : true,
-      data : res
-    }
-    
+      success: true,
+      data: userMessage,
+    };
   } catch (error) {
-    const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'error on create message')
+    const newError = PrismaExceptionHandler.handle(error);
+    throw new ApiError(500, newError.message, "Erreur lors de la création du message");
   }
-}
+};
 
 const getAllMessagesByConversation = async (conversationId:string | undefined, page: number, limit: number)=>{
-  
-  console.log({conversationId,page,limit});
   
   if (!conversationId) throw new ApiError(500,"conversation's id missing");
   try {
