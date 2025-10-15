@@ -10,4 +10,5 @@ export const toUserDTO = (user: User): UserDTO => ({
   phoneNumber: user.phoneNumber,
   birthDate: toISO(user.birthDate),
   createdAt: toISO(user.createdAt)!,
+  pdpUrl : user.pdpUrl ?? ''
 });
