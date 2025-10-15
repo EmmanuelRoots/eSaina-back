@@ -13,6 +13,7 @@ export interface UserDTO {
   active?: boolean
   conversations? : ConversationDTO []
   messaages? : MessageDTO []
+  pdpUrl?: string
 }
 
 export interface UserRequestDTO {

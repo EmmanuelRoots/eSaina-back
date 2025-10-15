@@ -113,6 +113,9 @@
 							"$ref": "#/components/schemas/MessageDTO"
 						},
 						"type": "array"
+					},
+					"pdpUrl": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -218,6 +221,9 @@
 						"type": "string"
 					},
 					"deviceInfo": {
+						"type": "string"
+					},
+					"picture": {
 						"type": "string"
 					}
 				},
