@@ -93,7 +93,7 @@ export const logUser = async ({email,password,deviceInfo}: LoginDTO) => {
   }
 }
 
-const logGoogleUser = async({email,given_name,family_name,deviceInfo} : GoogleLoginDTO)=> {
+const logGoogleUser = async({email,given_name,family_name,deviceInfo, picture} : GoogleLoginDTO)=> {
   let localUser = await prisma.user.findUnique({where : {email}})
   if(!localUser){ //create user
     try {
@@ -117,7 +117,8 @@ const logGoogleUser = async({email,given_name,family_name,deviceInfo} : GoogleLo
                 }
               },
             }
-          }
+          },
+          pdpUrl: picture
         }
       })
       // if (newUser.active === false) {

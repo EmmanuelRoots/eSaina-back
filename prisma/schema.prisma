@@ -80,6 +80,7 @@ model User {
   messages                    Message[]
   notifications               Notification[]
   connected                   Boolean   @default(false)
+  pdpUrl                      String?
 }
 
 model Session {
