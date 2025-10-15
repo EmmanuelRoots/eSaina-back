@@ -3,11 +3,19 @@
    "noImplicitAdditionalProperties": "throw-on-extras",
    "spec": {
      "outputDirectory": "swagger",
-     "specVersion": 3
+     "specVersion": 3,
+     "securityDefinitions": {
+        "bearer": {        
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
    },
    "routes": {
-     "routesDir": "./src/api/routes",
-     "middleware": "express"
+      "routesDir": "./src/api/routes",
+      "middleware": "express",
+      "authenticationModule": "./src/api/middleware/swagger.middleware.ts"
    },
    "controllerPathGlobs": [
      "./src/api/controllers/*.controller.ts"
