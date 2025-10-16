@@ -59,6 +59,9 @@
 							"$ref": "#/components/schemas/ConversationMember"
 						},
 						"type": "array"
+					},
+					"read": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -67,7 +70,8 @@
 					"userId",
 					"ownerId",
 					"messages",
-					"members"
+					"members",
+					"read"
 				],
 				"type": "object",
 				"additionalProperties": false

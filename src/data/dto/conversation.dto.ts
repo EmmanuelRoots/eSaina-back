@@ -19,6 +19,7 @@ export interface ConversationDTO {
   ownerId : string
   messages : MessageDTO []
   members : ConversationMember []
+  read : boolean
 }
 
 export interface ConversationMember {

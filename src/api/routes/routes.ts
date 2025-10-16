@@ -44,6 +44,7 @@ const models: TsoaRoute.Models = {
             "ownerId": {"dataType":"string","required":true},
             "messages": {"dataType":"array","array":{"dataType":"refObject","ref":"MessageDTO"},"required":true},
             "members": {"dataType":"array","array":{"dataType":"refObject","ref":"ConversationMember"},"required":true},
+            "read": {"dataType":"boolean","required":true},
         },
         "additionalProperties": false,
     },
