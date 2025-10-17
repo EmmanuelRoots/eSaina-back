@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Middlewares, Post, Query, RequestProp, Res, Route, Tags, TsoaResponse } from "tsoa";
-import {Response as ResponseExpress, Request as RequestExpress} from 'express'
+import { Body, Controller, Get, Middlewares, Post, Route, Tags } from "tsoa";
 
 import { NotificationDTO } from "../../data/dto/notification.dto";
 import { authMiddleware } from "../middleware/auth.middleware";

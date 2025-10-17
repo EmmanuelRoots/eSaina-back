@@ -14,6 +14,29 @@ const createPost = async ({author, content, mediaUrls, salon, type}:PostDTO)=> {
         mediaUrls
       }
     })
+
+    return {
+      success:true,
+      data: res
+    }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'error on get user profile')
+  }
+}
+
+const getPostSalon = async (salonId:string)=>{
+  try {
+    const posts = await prisma.post.findMany({
+      where:{
+        salonId
+      }
+    })
+
+    return {
+      success:true,
+      data:posts
+    }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
     throw new ApiError(500, newError.message, 'error on get user profile')
@@ -21,5 +44,6 @@ const createPost = async ({author, content, mediaUrls, salon, type}:PostDTO)=> {
 }
 
 export default {
-  createPost
+  createPost,
+  getPostSalon
 }
