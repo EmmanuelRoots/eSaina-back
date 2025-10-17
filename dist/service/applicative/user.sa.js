@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logOut = exports.refreshToken = exports.logUser = exports.addUser = void 0;
+exports.searchUsersWithPagination = exports.logOut = exports.refreshToken = exports.logUser = exports.addUser = void 0;
 const user_mappers_1 = require("../../data/dto/mappers/user.mappers");
 const api_exception_1 = require("../../data/exception/api.exception");
 const prisma_execption_handler_1 = require("../../data/exception/prisma.execption.handler");
@@ -37,7 +37,8 @@ const addUser = async (user) => {
                             }
                         }
                     }
-                }
+                },
+                roleId: user.roleId
             }
         });
         if (newUser.active === false) {
@@ -91,9 +92,19 @@ const logUser = async ({ email, password, deviceInfo }) => {
     }
 };
 exports.logUser = logUser;
-const logGoogleUser = async ({ email, given_name, family_name, deviceInfo }) => {
+const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, picture }) => {
+    const userRole = await repository_1.prisma.role.findFirst({
+        where: {
+            name: 'USER'
+        }
+    });
     let localUser = await repository_1.prisma.user.findUnique({ where: { email } });
     if (!localUser) { //create user
+        const salonOfficiel = await repository_1.prisma.salon.findFirst({
+            where: {
+                title: 'Annonce officielle'
+            }
+        });
         try {
             const newUser = await repository_1.prisma.user.create({
                 data: {
@@ -115,6 +126,14 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo }) => 
                                 }
                             },
                         }
+                    },
+                    pdpUrl: picture,
+                    roleId: userRole?.id,
+                    salonMembers: {
+                        create: {
+                            role: 'ADMIN',
+                            salonId: salonOfficiel?.id
+                        }
                     }
                 }
             });
@@ -126,13 +145,9 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo }) => 
             //   }
             // }
             localUser = newUser;
-            // return {
-            //   success: true,
-            //   statusCode: 200,
-            //   data: newUser.id
-            // }
         }
         catch (error) {
+            console.error(error);
             const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
             throw new api_exception_1.ApiError(500, newError.message, 'create user error');
         }
@@ -160,20 +175,21 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo }) => 
  * @returns
  */
 const refreshToken = async (oldRefresh) => {
-    console.log('call refresh token', oldRefresh);
     const session = await repository_1.prisma.session.findUnique({
         where: { refreshToken: oldRefresh },
         include: { user: true },
     });
     if (!session || session.expiresAt < new Date())
         throw new api_exception_1.ApiError(401, 'Invalid or expired refresh token', 'Token error');
-    // Rotation : on supprime l’ancienne session
-    await repository_1.prisma.session.delete({ where: { id: session.id } });
     // Nouvelle session
     const newRefresh = (0, token_1.genRefresh)();
     const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
-    await repository_1.prisma.session.create({
-        data: { refreshToken: newRefresh, userId: session.userId, expiresAt },
+    await repository_1.prisma.session.update({
+        where: { id: session.id },
+        data: {
+            refreshToken: newRefresh,
+            expiresAt
+        }
     });
     const accessToken = (0, jwt_1.signAccess)((0, user_mappers_1.toUserDTO)(session.user));
     return { accessToken, refreshToken: newRefresh };
@@ -198,10 +214,111 @@ const logOut = async (refreshToken) => {
     }
 };
 exports.logOut = logOut;
+/**
+ * Rechercher des utilisateurs avec pagination
+ * @param keyword mot-clé de recherche (si vide, retourne les derniers utilisateurs)
+ * @param page numéro de page (commence à 1)
+ * @param pageSize nombre de résultats par page
+ * @param userId ID de l'utilisateur qui effectue la recherche (optionnel)
+ * @returns liste paginée des utilisateurs correspondants
+ */
+const searchUsersWithPagination = async (keyword, page = 1, pageSize = 10, userId) => {
+    // console.log({userId});
+    if (page < 1) {
+        throw new api_exception_1.ApiError(400, 'Le numéro de page doit être supérieur à 0', 'pagination_error');
+    }
+    const searchTerm = keyword?.trim().toLocaleLowerCase();
+    const isEmptySearch = !searchTerm || searchTerm.length === 0;
+    const skip = (page - 1) * pageSize;
+    let users;
+    let totalCount = 0;
+    try {
+        const whereClause = {
+            active: true,
+            NOT: { id: userId }
+        };
+        if (isEmptySearch) {
+            users = await repository_1.prisma.user.findMany({
+                where: whereClause,
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    phoneNumber: true,
+                    birthDate: true,
+                    createdAt: true,
+                },
+                skip,
+                take: pageSize,
+                orderBy: isEmptySearch
+                    ? { createdAt: 'desc' } // Les derniers utilisateurs créés si recherche vide
+                    : [
+                        { firstName: 'asc' },
+                        { lastName: 'asc' },
+                    ],
+            });
+            totalCount = await repository_1.prisma.user.count({ where: whereClause });
+        }
+        else {
+            const pattern = `%${searchTerm}%`;
+            users = await repository_1.prisma.$queryRaw `
+        SELECT "id", "firstName", "lastName", "email", "phoneNumber", "birthDate", "createdAt"
+        FROM   "User"
+        WHERE  "active" = true
+        AND    "id" != ${userId}
+        AND   (
+                LOWER("firstName") LIKE ${pattern}
+                OR LOWER("lastName") LIKE ${pattern}
+                OR LOWER("email")    LIKE ${pattern}
+                OR "phoneNumber"     LIKE ${pattern}
+              )
+        ORDER  BY "firstName" ASC, "lastName" ASC
+        LIMIT  ${pageSize}
+        OFFSET ${skip};
+      `;
+            const rawCount = await repository_1.prisma.$queryRaw `
+      SELECT COUNT(*) as count
+      FROM "User"
+      WHERE active = true
+      AND "id" != ${userId}
+      AND   (
+        LOWER("firstName") LIKE ${pattern}
+        OR LOWER("lastName") LIKE ${pattern}
+        OR LOWER("email")    LIKE ${pattern}
+        OR "phoneNumber"     LIKE ${pattern}
+      )
+    `;
+            totalCount = Number(rawCount[0].count);
+        }
+        const totalPages = Math.ceil(totalCount / pageSize);
+        // console.log({users});
+        return {
+            success: true,
+            statusCode: 200,
+            data: users,
+            pagination: {
+                currentPage: page,
+                pageSize,
+                totalCount,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPreviousPage: page > 1,
+            },
+        };
+    }
+    catch (error) {
+        console.error(error);
+        const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
+        throw new api_exception_1.ApiError(500, newError.message, 'search_users_error');
+    }
+};
+exports.searchUsersWithPagination = searchUsersWithPagination;
 exports.default = {
     addUser: exports.addUser,
     logUser: exports.logUser,
     refreshToken: exports.refreshToken,
     logOut: exports.logOut,
-    logGoogleUser
+    logGoogleUser,
+    searchUsersWithPagination: exports.searchUsersWithPagination
 };

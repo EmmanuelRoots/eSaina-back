@@ -20,8 +20,24 @@ const tsoa_1 = require("tsoa");
 const auth_middleware_1 = require("../middleware/auth.middleware");
 const conversation_sa_1 = __importDefault(require("../../service/applicative/conversation.sa"));
 let ConversationController = class ConversationController extends tsoa_1.Controller {
+    /**
+     * get all conversations for user
+     * @param req
+     * @param page
+     * @param limit
+     * @returns list of all conversation
+     */
     async getAllConversationByUser(req, page = 1, limit = 20) {
-        return conversation_sa_1.default.getAllConversationByUser(req.body.uuid, Number(page), Number(limit));
+        return conversation_sa_1.default.getAllConversationByUser(req.user.id, Number(page), Number(limit));
+    }
+    async createConversation(req) {
+        return conversation_sa_1.default.createConversation(req.user.id, req.body.conversation);
+    }
+    async sendMessage(req) {
+        return conversation_sa_1.default.createMessage(req.body);
+    }
+    async getAllMessagesByConversation(conversationId, page = 1, limit = 20) {
+        return conversation_sa_1.default.getAllMessagesByConversation(conversationId, page, limit);
     }
 };
 exports.ConversationController = ConversationController;
@@ -37,6 +53,33 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], ConversationController.prototype, "getAllConversationByUser", null);
+__decorate([
+    (0, tsoa_1.Post)('create'),
+    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
+    (0, tsoa_1.Security)('bearer'),
+    __param(0, (0, tsoa_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ConversationController.prototype, "createConversation", null);
+__decorate([
+    (0, tsoa_1.Post)('send-message'),
+    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
+    __param(0, (0, tsoa_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ConversationController.prototype, "sendMessage", null);
+__decorate([
+    (0, tsoa_1.Get)('get-all-messages'),
+    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
+    __param(0, (0, tsoa_1.Query)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", Promise)
+], ConversationController.prototype, "getAllMessagesByConversation", null);
 exports.ConversationController = ConversationController = __decorate([
     (0, tsoa_1.Route)('conversation'),
     (0, tsoa_1.Tags)('conversation')
