@@ -319,9 +319,29 @@ export const searchUsersWithPagination = async (
       },
     }
   } catch (error) {
-    console.error(error)
     const newError = PrismaExceptionHandler.handle(error)
     throw new ApiError(500, newError.message, 'search_users_error')
+  }
+}
+
+const getUserProfile = async (userId:string)=>{
+  try {
+    const res = await prisma.user.findFirst({
+      where : {
+        id:userId
+      },
+      include : {
+        role : true
+      }
+    })
+
+    return {
+      success : true,
+      data : res as unknown as UserDTO
+    }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'error on get user profile')
   }
 }
 
@@ -331,5 +351,6 @@ export default {
   refreshToken,
   logOut,
   logGoogleUser,
-  searchUsersWithPagination
+  searchUsersWithPagination,
+  getUserProfile
 }

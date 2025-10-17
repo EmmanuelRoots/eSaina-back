@@ -308,17 +308,37 @@ const searchUsersWithPagination = async (keyword, page = 1, pageSize = 10, userI
         };
     }
     catch (error) {
-        console.error(error);
         const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
         throw new api_exception_1.ApiError(500, newError.message, 'search_users_error');
     }
 };
 exports.searchUsersWithPagination = searchUsersWithPagination;
+const getUserProfile = async (userId) => {
+    try {
+        const res = await repository_1.prisma.user.findFirst({
+            where: {
+                id: userId
+            },
+            include: {
+                role: true
+            }
+        });
+        return {
+            success: true,
+            data: res
+        };
+    }
+    catch (error) {
+        const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
+        throw new api_exception_1.ApiError(500, newError.message, 'error on get user profile');
+    }
+};
 exports.default = {
     addUser: exports.addUser,
     logUser: exports.logUser,
     refreshToken: exports.refreshToken,
     logOut: exports.logOut,
     logGoogleUser,
-    searchUsersWithPagination: exports.searchUsersWithPagination
+    searchUsersWithPagination: exports.searchUsersWithPagination,
+    getUserProfile
 };

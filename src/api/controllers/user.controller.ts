@@ -173,7 +173,7 @@ export class UserController extends Controller {
   @Middlewares([authMiddleware])
   public async getUserFromProfile(@Request() req: ExpressRequest) {
 
-    return { success: true, data: (req as any).user }; // Le middleware d'authentification injecte `req.user`
+    return await userSA.getUserProfile((req as any).user.id)
   }
 
   /**

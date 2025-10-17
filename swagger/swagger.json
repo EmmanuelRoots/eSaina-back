@@ -619,7 +619,9 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"data": {},
+										"data": {
+											"$ref": "#/components/schemas/UserDTO"
+										},
 										"success": {
 											"type": "boolean"
 										}
