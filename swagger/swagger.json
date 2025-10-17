@@ -120,13 +120,17 @@
 					},
 					"pdpUrl": {
 						"type": "string"
+					},
+					"roleId": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"email",
 					"lastName",
 					"firstName",
-					"phoneNumber"
+					"phoneNumber",
+					"roleId"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -228,6 +232,9 @@
 						"type": "string"
 					},
 					"picture": {
+						"type": "string"
+					},
+					"roleId": {
 						"type": "string"
 					}
 				},

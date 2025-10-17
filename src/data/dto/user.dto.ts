@@ -14,6 +14,7 @@ export interface UserDTO {
   conversations? : ConversationDTO []
   messaages? : MessageDTO []
   pdpUrl?: string
+  roleId: string
 }
 
 export interface UserRequestDTO {
@@ -26,4 +27,5 @@ export interface UserRequestDTO {
   phoneNumber: string
   birthDate?: string | null
   active?: boolean
+  roleId: string
 }

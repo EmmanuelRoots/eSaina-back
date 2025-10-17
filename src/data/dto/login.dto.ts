@@ -10,4 +10,5 @@ export interface GoogleLoginDTO {
   given_name : string
   deviceInfo? : string
   picture?: string
+  roleId?:string
 }

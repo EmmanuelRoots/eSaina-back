@@ -1,4 +1,4 @@
-import { User } from "../../../../generated/prisma";
+import { User } from "@prisma/client";
 import { toISO } from "../../../utils/date.utils";
 import { UserDTO } from "../user.dto";
 
@@ -10,5 +10,6 @@ export const toUserDTO = (user: User): UserDTO => ({
   phoneNumber: user.phoneNumber,
   birthDate: toISO(user.birthDate),
   createdAt: toISO(user.createdAt)!,
-  pdpUrl : user.pdpUrl ?? ''
+  pdpUrl : user.pdpUrl ?? '',
+  roleId : user.roleId
 });
