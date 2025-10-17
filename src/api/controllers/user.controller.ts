@@ -173,7 +173,7 @@ export class UserController extends Controller {
   @Middlewares([authMiddleware])
   public async getUserFromProfile(@Request() req: ExpressRequest) {
 
-    return await userSA.getUserProfile((req as any).user.id)
+    return userSA.getUserProfile((req as any).user.id)
   }
 
   /**
