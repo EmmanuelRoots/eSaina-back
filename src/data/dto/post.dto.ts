@@ -57,8 +57,8 @@ export interface PostDTO {
   content : string
   type : PostType
   author : Partial<UserDTO>
-  mediaUrls : string[]
-  reactions : ReactionDTO []
-  comments : CommentDTO []
+  mediaUrls? : string[]
+  reactions? : ReactionDTO []
+  comments? : CommentDTO []
   salon : SalonDTO
 }

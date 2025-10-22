@@ -8,4 +8,5 @@ var NotificationType;
     NotificationType["BROADCAST"] = "BROADCAST";
     NotificationType["NOTIFICATION"] = "NOTIFICATION";
     NotificationType["CONNECTED"] = "CONNECTED";
+    NotificationType["NEW_POST"] = "NEW_POST";
 })(NotificationType || (exports.NotificationType = NotificationType = {}));

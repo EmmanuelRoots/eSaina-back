@@ -26,6 +26,21 @@ export const roleSeed = async ()=>{
                 })
               )
           ]
+        },
+        {
+          name : 'USER',
+          authorizations:[
+              TABLE_NAME.map(
+                table => ({
+                  tableName: table,
+                  create: false,
+                  read: true,
+                  update: false,
+                  delete: false,
+                  visibleFields: []
+                })
+              )
+          ]
         }
       ]
     });

@@ -252,7 +252,8 @@
 					"NEW_CONVERSATION",
 					"BROADCAST",
 					"NOTIFICATION",
-					"CONNECTED"
+					"CONNECTED",
+					"NEW_POST"
 				],
 				"type": "string"
 			},
@@ -285,6 +286,17 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"_36_Enums.ReactionType": {
+				"type": "string",
+				"enum": [
+					"LIKE",
+					"LOVE",
+					"HAHA",
+					"WOW",
+					"SAD",
+					"ANGRY"
+				]
 			},
 			"_36_Enums.PostType": {
 				"type": "string",
@@ -934,50 +946,222 @@
 							"application/json": {
 								"schema": {
 									"properties": {
+										"pagination": {
+											"properties": {
+												"hasMore": {
+													"type": "boolean"
+												},
+												"total": {
+													"type": "number",
+													"format": "double"
+												},
+												"limit": {
+													"type": "number",
+													"format": "double"
+												},
+												"page": {
+													"type": "number",
+													"format": "double"
+												}
+											},
+											"required": [
+												"hasMore",
+												"total",
+												"limit",
+												"page"
+											],
+											"type": "object"
+										},
 										"data": {
 											"items": {
-												"properties": {
-													"salonId": {
-														"type": "string"
-													},
-													"authorId": {
-														"type": "string"
-													},
-													"mediaUrls": {
-														"items": {
-															"type": "string"
+												"allOf": [
+													{
+														"properties": {
+															"author": {
+																"properties": {
+																	"roleId": {
+																		"type": "string"
+																	},
+																	"pdpUrl": {
+																		"type": "string"
+																	},
+																	"connected": {
+																		"type": "boolean"
+																	},
+																	"phoneNumber": {
+																		"type": "string"
+																	},
+																	"birthDate": {
+																		"type": "string",
+																		"format": "date-time"
+																	},
+																	"active": {
+																		"type": "boolean"
+																	},
+																	"createdAt": {
+																		"type": "string",
+																		"format": "date-time"
+																	},
+																	"firstName": {
+																		"type": "string"
+																	},
+																	"lastName": {
+																		"type": "string"
+																	},
+																	"id": {
+																		"type": "string"
+																	},
+																	"password": {
+																		"type": "string"
+																	},
+																	"email": {
+																		"type": "string"
+																	}
+																},
+																"required": [
+																	"roleId",
+																	"pdpUrl",
+																	"connected",
+																	"phoneNumber",
+																	"birthDate",
+																	"active",
+																	"createdAt",
+																	"firstName",
+																	"lastName",
+																	"id",
+																	"password",
+																	"email"
+																],
+																"type": "object"
+															},
+															"reactions": {
+																"items": {
+																	"properties": {
+																		"commentId": {
+																			"type": "string"
+																		},
+																		"postId": {
+																			"type": "string"
+																		},
+																		"userId": {
+																			"type": "string"
+																		},
+																		"type": {
+																			"$ref": "#/components/schemas/_36_Enums.ReactionType"
+																		},
+																		"createdAt": {
+																			"type": "string",
+																			"format": "date-time"
+																		},
+																		"id": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"commentId",
+																		"postId",
+																		"userId",
+																		"type",
+																		"createdAt",
+																		"id"
+																	],
+																	"type": "object"
+																},
+																"type": "array"
+															},
+															"comments": {
+																"items": {
+																	"properties": {
+																		"parentId": {
+																			"type": "string"
+																		},
+																		"postId": {
+																			"type": "string"
+																		},
+																		"authorId": {
+																			"type": "string"
+																		},
+																		"content": {
+																			"type": "string"
+																		},
+																		"updatedAt": {
+																			"type": "string",
+																			"format": "date-time"
+																		},
+																		"createdAt": {
+																			"type": "string",
+																			"format": "date-time"
+																		},
+																		"id": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"parentId",
+																		"postId",
+																		"authorId",
+																		"content",
+																		"updatedAt",
+																		"createdAt",
+																		"id"
+																	],
+																	"type": "object"
+																},
+																"type": "array"
+															}
 														},
-														"type": "array"
+														"required": [
+															"author",
+															"reactions",
+															"comments"
+														],
+														"type": "object"
 													},
-													"content": {
-														"type": "string"
-													},
-													"updatedAt": {
-														"type": "string",
-														"format": "date-time"
-													},
-													"type": {
-														"$ref": "#/components/schemas/_36_Enums.PostType"
-													},
-													"createdAt": {
-														"type": "string",
-														"format": "date-time"
-													},
-													"id": {
-														"type": "string"
+													{
+														"properties": {
+															"salonId": {
+																"type": "string"
+															},
+															"authorId": {
+																"type": "string"
+															},
+															"mediaUrls": {
+																"items": {
+																	"type": "string"
+																},
+																"type": "array"
+															},
+															"content": {
+																"type": "string"
+															},
+															"updatedAt": {
+																"type": "string",
+																"format": "date-time"
+															},
+															"type": {
+																"$ref": "#/components/schemas/_36_Enums.PostType"
+															},
+															"createdAt": {
+																"type": "string",
+																"format": "date-time"
+															},
+															"id": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"salonId",
+															"authorId",
+															"mediaUrls",
+															"content",
+															"updatedAt",
+															"type",
+															"createdAt",
+															"id"
+														],
+														"type": "object"
 													}
-												},
-												"required": [
-													"salonId",
-													"authorId",
-													"mediaUrls",
-													"content",
-													"updatedAt",
-													"type",
-													"createdAt",
-													"id"
-												],
-												"type": "object"
+												]
 											},
 											"type": "array"
 										},
@@ -986,6 +1170,7 @@
 										}
 									},
 									"required": [
+										"pagination",
 										"data",
 										"success"
 									],
@@ -1007,8 +1192,243 @@
 						"schema": {
 							"type": "string"
 						}
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
 					}
 				]
+			}
+		},
+		"/post/create-post": {
+			"post": {
+				"operationId": "CreatePost",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"allOf": [
+												{
+													"properties": {
+														"author": {
+															"properties": {
+																"roleId": {
+																	"type": "string"
+																},
+																"pdpUrl": {
+																	"type": "string"
+																},
+																"connected": {
+																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
+																},
+																"birthDate": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"active": {
+																	"type": "boolean"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"firstName": {
+																	"type": "string"
+																},
+																"lastName": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "string"
+																},
+																"password": {
+																	"type": "string"
+																},
+																"email": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"roleId",
+																"pdpUrl",
+																"connected",
+																"phoneNumber",
+																"birthDate",
+																"active",
+																"createdAt",
+																"firstName",
+																"lastName",
+																"id",
+																"password",
+																"email"
+															],
+															"type": "object"
+														}
+													},
+													"required": [
+														"author"
+													],
+													"type": "object"
+												},
+												{
+													"properties": {
+														"salonId": {
+															"type": "string"
+														},
+														"authorId": {
+															"type": "string"
+														},
+														"mediaUrls": {
+															"items": {
+																"type": "string"
+															},
+															"type": "array"
+														},
+														"content": {
+															"type": "string"
+														},
+														"updatedAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"type": {
+															"$ref": "#/components/schemas/_36_Enums.PostType"
+														},
+														"createdAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"id": {
+															"type": "string"
+														}
+													},
+													"required": [
+														"salonId",
+														"authorId",
+														"mediaUrls",
+														"content",
+														"updatedAt",
+														"type",
+														"createdAt",
+														"id"
+													],
+													"type": "object"
+												}
+											]
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/post/add-reaction": {
+			"post": {
+				"operationId": "AddReaction",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"properties": {
+												"commentId": {
+													"type": "string"
+												},
+												"postId": {
+													"type": "string"
+												},
+												"userId": {
+													"type": "string"
+												},
+												"type": {
+													"$ref": "#/components/schemas/_36_Enums.ReactionType"
+												},
+												"createdAt": {
+													"type": "string",
+													"format": "date-time"
+												},
+												"id": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"commentId",
+												"postId",
+												"userId",
+												"type",
+												"createdAt",
+												"id"
+											],
+											"type": "object"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": []
 			}
 		},
 		"/conversation/all-conversation": {

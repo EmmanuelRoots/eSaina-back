@@ -1,10 +1,11 @@
 import { randomUUID } from 'crypto';
 import { Response } from 'express';
 
-import { NotificationDTO } from '../../data/dto/notification.dto';
+import { NotificationDTO, NotificationType } from '../../data/dto/notification.dto';
 import { prisma } from '../../repository';
 import { PrismaExceptionHandler } from '../../data/exception/prisma.execption.handler';
 import { ApiError } from '../../data/exception/api.exception';
+import { UserDTO } from '../../data/dto/user.dto';
 
 type SSEClient = {
   userId: string;
@@ -50,20 +51,38 @@ const sendEventToUser = async ({userId, type, title, read, message, data}:Notifi
     }
     
   } catch (error) {
-    console.error({error});
-    
     const newError = PrismaExceptionHandler.handle(error)
     throw new ApiError(500,newError.message,'create notification')
   }
 }
 
-const broadcastEvent = (event: string, data: any) =>{
-  clients.forEach(({ res }) => {
-    if (!res.writableEnded) {
-      res.write(`event: ${event}\n`);
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
+const broadcastEvent = async (event: string, data: any, author:Partial<UserDTO>) =>{
+  try {
+    const notification = await prisma.notification.create({
+      data: {
+        userId:author.id,
+        type: NotificationType.BROADCAST,
+        title : 'BROADCAST',
+        read:false,
+        message:'',
+        data,
+      },
+    }) as NotificationDTO
+    clients.forEach(({ res }) => {
+      if (!res.writableEnded) {
+        res.write(`event: ${event}\n`);
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      }
+    })
+
+    return {
+      success : true,
+      data : notification
     }
-  });
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500,newError.message,'create notification')
+  }
 }
 
 const getUserNotifications = async (userId : string, limit: number) => {

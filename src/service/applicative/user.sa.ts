@@ -134,7 +134,7 @@ const logGoogleUser = async({email,given_name,family_name,deviceInfo, picture} :
           roleId: userRole?.id!,
           salonMembers: {
             create : {
-              role : 'ADMIN',
+              role : 'MEMBER',
               salonId: salonOfficiel?.id!
             }
           }
@@ -302,9 +302,7 @@ export const searchUsersWithPagination = async (
       totalCount = Number(rawCount[0].count)
     }
     const totalPages = Math.ceil(totalCount / pageSize)
-    // console.log({users});
-    
-
+   
     return {
       success: true,
       statusCode: 200,

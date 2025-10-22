@@ -148,7 +148,7 @@ let UserController = class UserController extends tsoa_1.Controller {
      * }
      */
     async getUserFromProfile(req) {
-        return await user_sa_1.default.getUserProfile(req.user.id);
+        return user_sa_1.default.getUserProfile(req.user.id);
     }
     /**
      * Invalide un refresh token et met fin à la session utilisateur.

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto_1 = require("crypto");
+const notification_dto_1 = require("../../data/dto/notification.dto");
 const repository_1 = require("../../repository");
 const prisma_execption_handler_1 = require("../../data/exception/prisma.execption.handler");
 const api_exception_1 = require("../../data/exception/api.exception");
@@ -37,18 +38,37 @@ const sendEventToUser = async ({ userId, type, title, read, message, data }) => 
         };
     }
     catch (error) {
-        console.error({ error });
         const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
         throw new api_exception_1.ApiError(500, newError.message, 'create notification');
     }
 };
-const broadcastEvent = (event, data) => {
-    clients.forEach(({ res }) => {
-        if (!res.writableEnded) {
-            res.write(`event: ${event}\n`);
-            res.write(`data: ${JSON.stringify(data)}\n\n`);
-        }
-    });
+const broadcastEvent = async (event, data, author) => {
+    try {
+        const notification = await repository_1.prisma.notification.create({
+            data: {
+                userId: author.id,
+                type: notification_dto_1.NotificationType.BROADCAST,
+                title: 'BROADCAST',
+                read: false,
+                message: '',
+                data,
+            },
+        });
+        clients.forEach(({ res }) => {
+            if (!res.writableEnded) {
+                res.write(`event: ${event}\n`);
+                res.write(`data: ${JSON.stringify(data)}\n\n`);
+            }
+        });
+        return {
+            success: true,
+            data: notification
+        };
+    }
+    catch (error) {
+        const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
+        throw new api_exception_1.ApiError(500, newError.message, 'create notification');
+    }
 };
 const getUserNotifications = async (userId, limit) => {
     try {

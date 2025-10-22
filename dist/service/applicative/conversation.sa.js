@@ -17,7 +17,6 @@ const sse_sa_1 = __importDefault(require("./sse.sa"));
  * @returns
  */
 const getAllConversationByUser = async (id, page, limit) => {
-    console.log({ id, page, limit });
     if (!id)
         throw new api_exception_1.ApiError(500, "user id missing");
     const skip = (page - 1) * limit;
@@ -37,12 +36,6 @@ const getAllConversationByUser = async (id, page, limit) => {
                             lastName: true
                         }
                     },
-                    // messages: {
-                    //   include : {
-                    //     user : true
-                    //   },
-                    //   take : 10
-                    // },
                     members: {
                         include: {
                             user: true

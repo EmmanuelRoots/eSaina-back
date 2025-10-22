@@ -7,6 +7,10 @@ const user_controller_1 = require("./../controllers/user.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const sse_controller_1 = require("./../controllers/sse.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+const salon_controller_1 = require("./../controllers/salon.controller");
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+const post_controller_1 = require("./../controllers/post.controller");
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const conversation_controller_1 = require("./../controllers/conversation.controller");
 const swagger_middleware_1 = require("./../middleware/swagger.middleware");
 const expressAuthenticationRecasted = swagger_middleware_1.expressAuthentication;
@@ -116,7 +120,7 @@ const models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "NotificationType": {
         "dataType": "refEnum",
-        "enums": ["NEW_MESSAGE", "NEW_CONVERSATION", "BROADCAST", "NOTIFICATION", "CONNECTED"],
+        "enums": ["NEW_MESSAGE", "NEW_CONVERSATION", "BROADCAST", "NOTIFICATION", "CONNECTED", "NEW_POST"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "NotificationDTO": {
@@ -130,6 +134,16 @@ const models = {
             "read": { "dataType": "boolean", "required": true },
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.ReactionType": {
+        "dataType": "refAlias",
+        "type": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["LIKE"] }, { "dataType": "enum", "enums": ["LOVE"] }, { "dataType": "enum", "enums": ["HAHA"] }, { "dataType": "enum", "enums": ["WOW"] }, { "dataType": "enum", "enums": ["SAD"] }, { "dataType": "enum", "enums": ["ANGRY"] }], "validators": {} },
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.PostType": {
+        "dataType": "refAlias",
+        "type": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["TEXT"] }, { "dataType": "enum", "enums": ["IMAGE"] }, { "dataType": "enum", "enums": ["VIDEO"] }], "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "_36_Enums.ConversationType": {
@@ -330,6 +344,77 @@ function RegisterRoutes(app) {
             const controller = new sse_controller_1.SSEController();
             await templateService.apiHandler({
                 methodName: 'sendNotification',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsSalonController_getUserSalon = {
+        req: { "in": "request", "name": "req", "required": true, "dataType": "object" },
+    };
+    app.get('/salon/get-user-salon', ...((0, runtime_1.fetchMiddlewares)(salon_controller_1.SalonController)), ...((0, runtime_1.fetchMiddlewares)(salon_controller_1.SalonController.prototype.getUserSalon)), async function SalonController_getUserSalon(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsSalonController_getUserSalon, request, response });
+            const controller = new salon_controller_1.SalonController();
+            await templateService.apiHandler({
+                methodName: 'getUserSalon',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsPostController_getSalonPost = {
+        salonId: { "in": "query", "name": "salonId", "required": true, "dataType": "string" },
+        page: { "default": 1, "in": "query", "name": "page", "dataType": "double" },
+        limit: { "default": 20, "in": "query", "name": "limit", "dataType": "double" },
+    };
+    app.get('/post/get-salon-post', ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController)), ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController.prototype.getSalonPost)), async function PostController_getSalonPost(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsPostController_getSalonPost, request, response });
+            const controller = new post_controller_1.PostController();
+            await templateService.apiHandler({
+                methodName: 'getSalonPost',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsPostController_createPost = {
+        body: { "in": "body", "name": "body", "required": true, "dataType": "any" },
+    };
+    app.post('/post/create-post', ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController)), ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController.prototype.createPost)), async function PostController_createPost(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsPostController_createPost, request, response });
+            const controller = new post_controller_1.PostController();
+            await templateService.apiHandler({
+                methodName: 'createPost',
                 controller,
                 response,
                 next,

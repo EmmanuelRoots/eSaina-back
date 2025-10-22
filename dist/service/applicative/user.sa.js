@@ -131,7 +131,7 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, pictu
                     roleId: userRole?.id,
                     salonMembers: {
                         create: {
-                            role: 'ADMIN',
+                            role: 'MEMBER',
                             salonId: salonOfficiel?.id
                         }
                     }
@@ -292,7 +292,6 @@ const searchUsersWithPagination = async (keyword, page = 1, pageSize = 10, userI
             totalCount = Number(rawCount[0].count);
         }
         const totalPages = Math.ceil(totalCount / pageSize);
-        // console.log({users});
         return {
             success: true,
             statusCode: 200,
