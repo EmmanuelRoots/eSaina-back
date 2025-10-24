@@ -148,7 +148,7 @@ let UserController = class UserController extends tsoa_1.Controller {
      * }
      */
     async getUserFromProfile(req) {
-        return { success: true, data: req.body }; // Le middleware d'authentification injecte `req.user`
+        return user_sa_1.default.getUserProfile(req.user.id);
     }
     /**
      * Invalide un refresh token et met fin à la session utilisateur.
@@ -170,6 +170,17 @@ let UserController = class UserController extends tsoa_1.Controller {
      */
     async logOut(body) {
         return user_sa_1.default.logOut(body.refreshToken);
+    }
+    /**
+     * Recherche utilisateur par mot cle
+     * @param req requete qui contient le current user depuis le middleware
+     * @param page numero de page
+     * @param limit nombre d'element par page
+     * @param searchTerm mot a chercher
+     * @returns les user correspondant a la recherche
+     */
+    async searChUser(req, page = 1, limit = 20, searchTerm = '') {
+        return user_sa_1.default.searchUsersWithPagination(searchTerm, page, limit, req.user.id);
     }
 };
 exports.UserController = UserController;
@@ -226,6 +237,17 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "logOut", null);
+__decorate([
+    (0, tsoa_1.Get)('search-user'),
+    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
+    __param(0, (0, tsoa_1.Request)()),
+    __param(1, (0, tsoa_1.Query)()),
+    __param(2, (0, tsoa_1.Query)()),
+    __param(3, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "searChUser", null);
 exports.UserController = UserController = __decorate([
     (0, tsoa_1.Route)('user'),
     (0, tsoa_1.Tags)('user')

@@ -16,7 +16,7 @@ const authMiddleware = (req, res, next) => {
     try {
         const token = hdr.split(' ')[1];
         const payload = (0, jwt_1.verifyAccess)(token); //jeton expiré ? jwt jette une erreur
-        req.body = payload.user;
+        req.user = payload.user;
         next();
     }
     catch (err) {

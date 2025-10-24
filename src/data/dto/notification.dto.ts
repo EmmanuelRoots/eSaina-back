@@ -3,7 +3,8 @@ export enum NotificationType {
   NEW_CONVERSATION = 'NEW_CONVERSATION',
   BROADCAST = 'BROADCAST',
   NOTIFICATION = 'NOTIFICATION',
-  CONNECTED = 'CONNECTED'
+  CONNECTED = 'CONNECTED',
+  NEW_POST = 'NEW_POST'
 }
 
 export interface NotificationDTO {

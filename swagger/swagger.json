@@ -120,13 +120,17 @@
 					},
 					"pdpUrl": {
 						"type": "string"
+					},
+					"roleId": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"email",
 					"lastName",
 					"firstName",
-					"phoneNumber"
+					"phoneNumber",
+					"roleId"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -229,6 +233,9 @@
 					},
 					"picture": {
 						"type": "string"
+					},
+					"roleId": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -245,7 +252,8 @@
 					"NEW_CONVERSATION",
 					"BROADCAST",
 					"NOTIFICATION",
-					"CONNECTED"
+					"CONNECTED",
+					"NEW_POST"
 				],
 				"type": "string"
 			},
@@ -278,6 +286,25 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"_36_Enums.ReactionType": {
+				"type": "string",
+				"enum": [
+					"LIKE",
+					"LOVE",
+					"HAHA",
+					"WOW",
+					"SAD",
+					"ANGRY"
+				]
+			},
+			"_36_Enums.PostType": {
+				"type": "string",
+				"enum": [
+					"TEXT",
+					"IMAGE",
+					"VIDEO"
+				]
 			},
 			"_36_Enums.ConversationType": {
 				"type": "string",
@@ -612,7 +639,9 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"data": {},
+										"data": {
+											"$ref": "#/components/schemas/UserDTO"
+										},
 										"success": {
 											"type": "boolean"
 										}
@@ -842,6 +871,950 @@
 						}
 					}
 				}
+			}
+		},
+		"/salon/get-user-salon": {
+			"get": {
+				"operationId": "GetUserSalon",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"description": {
+														"type": "string"
+													},
+													"updatedAt": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"title": {
+														"type": "string"
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"id": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"description",
+													"updatedAt",
+													"title",
+													"createdAt",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"salon"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/post/get-salon-post": {
+			"get": {
+				"operationId": "GetSalonPost",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"pagination": {
+											"properties": {
+												"hasMore": {
+													"type": "boolean"
+												},
+												"total": {
+													"type": "number",
+													"format": "double"
+												},
+												"limit": {
+													"type": "number",
+													"format": "double"
+												},
+												"page": {
+													"type": "number",
+													"format": "double"
+												}
+											},
+											"required": [
+												"hasMore",
+												"total",
+												"limit",
+												"page"
+											],
+											"type": "object"
+										},
+										"data": {
+											"items": {
+												"allOf": [
+													{
+														"properties": {
+															"author": {
+																"properties": {
+																	"roleId": {
+																		"type": "string"
+																	},
+																	"pdpUrl": {
+																		"type": "string"
+																	},
+																	"connected": {
+																		"type": "boolean"
+																	},
+																	"phoneNumber": {
+																		"type": "string"
+																	},
+																	"birthDate": {
+																		"type": "string",
+																		"format": "date-time"
+																	},
+																	"active": {
+																		"type": "boolean"
+																	},
+																	"createdAt": {
+																		"type": "string",
+																		"format": "date-time"
+																	},
+																	"firstName": {
+																		"type": "string"
+																	},
+																	"lastName": {
+																		"type": "string"
+																	},
+																	"id": {
+																		"type": "string"
+																	},
+																	"password": {
+																		"type": "string"
+																	},
+																	"email": {
+																		"type": "string"
+																	}
+																},
+																"required": [
+																	"roleId",
+																	"pdpUrl",
+																	"connected",
+																	"phoneNumber",
+																	"birthDate",
+																	"active",
+																	"createdAt",
+																	"firstName",
+																	"lastName",
+																	"id",
+																	"password",
+																	"email"
+																],
+																"type": "object"
+															},
+															"reactions": {
+																"items": {
+																	"allOf": [
+																		{
+																			"properties": {
+																				"user": {
+																					"properties": {
+																						"roleId": {
+																							"type": "string"
+																						},
+																						"pdpUrl": {
+																							"type": "string"
+																						},
+																						"connected": {
+																							"type": "boolean"
+																						},
+																						"phoneNumber": {
+																							"type": "string"
+																						},
+																						"birthDate": {
+																							"type": "string",
+																							"format": "date-time"
+																						},
+																						"active": {
+																							"type": "boolean"
+																						},
+																						"createdAt": {
+																							"type": "string",
+																							"format": "date-time"
+																						},
+																						"firstName": {
+																							"type": "string"
+																						},
+																						"lastName": {
+																							"type": "string"
+																						},
+																						"id": {
+																							"type": "string"
+																						},
+																						"password": {
+																							"type": "string"
+																						},
+																						"email": {
+																							"type": "string"
+																						}
+																					},
+																					"required": [
+																						"roleId",
+																						"pdpUrl",
+																						"connected",
+																						"phoneNumber",
+																						"birthDate",
+																						"active",
+																						"createdAt",
+																						"firstName",
+																						"lastName",
+																						"id",
+																						"password",
+																						"email"
+																					],
+																					"type": "object"
+																				}
+																			},
+																			"required": [
+																				"user"
+																			],
+																			"type": "object"
+																		},
+																		{
+																			"properties": {
+																				"commentId": {
+																					"type": "string"
+																				},
+																				"postId": {
+																					"type": "string"
+																				},
+																				"userId": {
+																					"type": "string"
+																				},
+																				"type": {
+																					"$ref": "#/components/schemas/_36_Enums.ReactionType"
+																				},
+																				"createdAt": {
+																					"type": "string",
+																					"format": "date-time"
+																				},
+																				"id": {
+																					"type": "string"
+																				}
+																			},
+																			"required": [
+																				"commentId",
+																				"postId",
+																				"userId",
+																				"type",
+																				"createdAt",
+																				"id"
+																			],
+																			"type": "object"
+																		}
+																	]
+																},
+																"type": "array"
+															},
+															"comments": {
+																"items": {
+																	"properties": {
+																		"id": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id"
+																	],
+																	"type": "object"
+																},
+																"type": "array"
+															}
+														},
+														"required": [
+															"author",
+															"reactions",
+															"comments"
+														],
+														"type": "object"
+													},
+													{
+														"properties": {
+															"salonId": {
+																"type": "string"
+															},
+															"authorId": {
+																"type": "string"
+															},
+															"mediaUrls": {
+																"items": {
+																	"type": "string"
+																},
+																"type": "array"
+															},
+															"content": {
+																"type": "string"
+															},
+															"updatedAt": {
+																"type": "string",
+																"format": "date-time"
+															},
+															"type": {
+																"$ref": "#/components/schemas/_36_Enums.PostType"
+															},
+															"createdAt": {
+																"type": "string",
+																"format": "date-time"
+															},
+															"id": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"salonId",
+															"authorId",
+															"mediaUrls",
+															"content",
+															"updatedAt",
+															"type",
+															"createdAt",
+															"id"
+														],
+														"type": "object"
+													}
+												]
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"pagination",
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "salonId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/post/create-post": {
+			"post": {
+				"operationId": "CreatePost",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"allOf": [
+												{
+													"properties": {
+														"author": {
+															"properties": {
+																"roleId": {
+																	"type": "string"
+																},
+																"pdpUrl": {
+																	"type": "string"
+																},
+																"connected": {
+																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
+																},
+																"birthDate": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"active": {
+																	"type": "boolean"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"firstName": {
+																	"type": "string"
+																},
+																"lastName": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "string"
+																},
+																"password": {
+																	"type": "string"
+																},
+																"email": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"roleId",
+																"pdpUrl",
+																"connected",
+																"phoneNumber",
+																"birthDate",
+																"active",
+																"createdAt",
+																"firstName",
+																"lastName",
+																"id",
+																"password",
+																"email"
+															],
+															"type": "object"
+														}
+													},
+													"required": [
+														"author"
+													],
+													"type": "object"
+												},
+												{
+													"properties": {
+														"salonId": {
+															"type": "string"
+														},
+														"authorId": {
+															"type": "string"
+														},
+														"mediaUrls": {
+															"items": {
+																"type": "string"
+															},
+															"type": "array"
+														},
+														"content": {
+															"type": "string"
+														},
+														"updatedAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"type": {
+															"$ref": "#/components/schemas/_36_Enums.PostType"
+														},
+														"createdAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"id": {
+															"type": "string"
+														}
+													},
+													"required": [
+														"salonId",
+														"authorId",
+														"mediaUrls",
+														"content",
+														"updatedAt",
+														"type",
+														"createdAt",
+														"id"
+													],
+													"type": "object"
+												}
+											]
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/post/add-reaction": {
+			"post": {
+				"operationId": "AddReaction",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"allOf": [
+												{
+													"properties": {
+														"user": {
+															"properties": {
+																"roleId": {
+																	"type": "string"
+																},
+																"pdpUrl": {
+																	"type": "string"
+																},
+																"connected": {
+																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
+																},
+																"birthDate": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"active": {
+																	"type": "boolean"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"firstName": {
+																	"type": "string"
+																},
+																"lastName": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "string"
+																},
+																"password": {
+																	"type": "string"
+																},
+																"email": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"roleId",
+																"pdpUrl",
+																"connected",
+																"phoneNumber",
+																"birthDate",
+																"active",
+																"createdAt",
+																"firstName",
+																"lastName",
+																"id",
+																"password",
+																"email"
+															],
+															"type": "object"
+														}
+													},
+													"required": [
+														"user"
+													],
+													"type": "object"
+												},
+												{
+													"properties": {
+														"commentId": {
+															"type": "string"
+														},
+														"postId": {
+															"type": "string"
+														},
+														"userId": {
+															"type": "string"
+														},
+														"type": {
+															"$ref": "#/components/schemas/_36_Enums.ReactionType"
+														},
+														"createdAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"id": {
+															"type": "string"
+														}
+													},
+													"required": [
+														"commentId",
+														"postId",
+														"userId",
+														"type",
+														"createdAt",
+														"id"
+													],
+													"type": "object"
+												}
+											]
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/post/delete-reaction": {
+			"delete": {
+				"operationId": "DeleteReaction",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "reactionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/post/create-comment": {
+			"post": {
+				"operationId": "CreateComment",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"allOf": [
+												{
+													"properties": {
+														"post": {
+															"properties": {
+																"salonId": {
+																	"type": "string"
+																},
+																"authorId": {
+																	"type": "string"
+																},
+																"mediaUrls": {
+																	"items": {
+																		"type": "string"
+																	},
+																	"type": "array"
+																},
+																"content": {
+																	"type": "string"
+																},
+																"updatedAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"type": {
+																	"$ref": "#/components/schemas/_36_Enums.PostType"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"salonId",
+																"authorId",
+																"mediaUrls",
+																"content",
+																"updatedAt",
+																"type",
+																"createdAt",
+																"id"
+															],
+															"type": "object"
+														},
+														"author": {
+															"properties": {
+																"roleId": {
+																	"type": "string"
+																},
+																"pdpUrl": {
+																	"type": "string"
+																},
+																"connected": {
+																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
+																},
+																"birthDate": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"active": {
+																	"type": "boolean"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"firstName": {
+																	"type": "string"
+																},
+																"lastName": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "string"
+																},
+																"password": {
+																	"type": "string"
+																},
+																"email": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"roleId",
+																"pdpUrl",
+																"connected",
+																"phoneNumber",
+																"birthDate",
+																"active",
+																"createdAt",
+																"firstName",
+																"lastName",
+																"id",
+																"password",
+																"email"
+															],
+															"type": "object"
+														}
+													},
+													"required": [
+														"post",
+														"author"
+													],
+													"type": "object"
+												},
+												{
+													"properties": {
+														"parentId": {
+															"type": "string"
+														},
+														"postId": {
+															"type": "string"
+														},
+														"authorId": {
+															"type": "string"
+														},
+														"content": {
+															"type": "string"
+														},
+														"updatedAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"createdAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"id": {
+															"type": "string"
+														}
+													},
+													"required": [
+														"parentId",
+														"postId",
+														"authorId",
+														"content",
+														"updatedAt",
+														"createdAt",
+														"id"
+													],
+													"type": "object"
+												}
+											]
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/post/get-comments": {
+			"get": {
+				"operationId": "GetComments",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"total": {
+											"type": "number",
+											"format": "double"
+										},
+										"data": {
+											"items": {},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"total",
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "postId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/conversation/all-conversation": {

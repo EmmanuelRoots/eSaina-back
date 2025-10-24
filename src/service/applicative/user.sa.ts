@@ -14,7 +14,7 @@ import { hashText } from '../technical/crypt.ts'
  * @param user informations sur l'utilisateur
  * @returns
  */
-export const addUser = async (user: UserRequestDTO) => {
+export const addUser = async (user: UserDTO) => {
   const localUser = await prisma.user.findFirst({ where: { email: user.email, active: true } }) 
   if(localUser) {
     throw new ApiError(400, 'account_already_exist')
@@ -38,7 +38,8 @@ export const addUser = async (user: UserRequestDTO) => {
               }
             }
           }
-        }
+        },
+        roleId : user.roleId
       }
     })
     if (newUser.active === false) {
@@ -94,8 +95,19 @@ export const logUser = async ({email,password,deviceInfo}: LoginDTO) => {
 }
 
 const logGoogleUser = async({email,given_name,family_name,deviceInfo, picture} : GoogleLoginDTO)=> {
+  const userRole = await prisma.role.findFirst({
+    where : {
+      name : 'USER'
+    }
+  })
+  
   let localUser = await prisma.user.findUnique({where : {email}})
   if(!localUser){ //create user
+    const salonOfficiel =  await prisma.salon.findFirst({
+      where : {
+        title : 'Annonce officielle'
+      }
+    })
     try {
       const newUser = await prisma.user.create({
         data: {
@@ -118,7 +130,14 @@ const logGoogleUser = async({email,given_name,family_name,deviceInfo, picture} :
               },
             }
           },
-          pdpUrl: picture
+          pdpUrl: picture,
+          roleId: userRole?.id!,
+          salonMembers: {
+            create : {
+              role : 'MEMBER',
+              salonId: salonOfficiel?.id!
+            }
+          }
         }
       })
       // if (newUser.active === false) {
@@ -130,6 +149,7 @@ const logGoogleUser = async({email,given_name,family_name,deviceInfo, picture} :
       // }
       localUser = newUser
     } catch (error) {
+      console.error(error)
       const newError = PrismaExceptionHandler.handle(error)
       throw new ApiError(500,newError.message,'create user error')
     }
@@ -282,9 +302,7 @@ export const searchUsersWithPagination = async (
       totalCount = Number(rawCount[0].count)
     }
     const totalPages = Math.ceil(totalCount / pageSize)
-    // console.log({users});
-    
-
+   
     return {
       success: true,
       statusCode: 200,
@@ -299,9 +317,29 @@ export const searchUsersWithPagination = async (
       },
     }
   } catch (error) {
-    console.error(error)
     const newError = PrismaExceptionHandler.handle(error)
     throw new ApiError(500, newError.message, 'search_users_error')
+  }
+}
+
+const getUserProfile = async (userId:string)=>{
+  try {
+    const res = await prisma.user.findFirst({
+      where : {
+        id:userId
+      },
+      include : {
+        role : true
+      }
+    })
+
+    return {
+      success : true,
+      data : res as unknown as UserDTO
+    }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'error on get user profile')
   }
 }
 
@@ -311,5 +349,6 @@ export default {
   refreshToken,
   logOut,
   logGoogleUser,
-  searchUsersWithPagination
+  searchUsersWithPagination,
+  getUserProfile
 }

@@ -1,5 +1,5 @@
-import { Session as PrismaSession } from '../../../../generated/prisma';
-import { User } from '../../../../generated/prisma';
+import { Session as PrismaSession } from '@prisma/client'
+import { User } from '@prisma/client'
 import { toISO } from '../../../utils/date.utils';
 import { SessionDTO } from '../session.dto';
 import { toUserDTO } from './user.mappers';
