@@ -34,7 +34,6 @@ const createPost = async ({ author, content, mediaUrls, salon, type }) => {
     }
 };
 const getPostSalon = async (salonId, page, limit) => {
-    console.log({ page, limit });
     if (!salonId)
         throw new api_exception_1.ApiError(500, "salon id missing");
     const skip = (page - 1) * limit;
@@ -45,9 +44,12 @@ const getPostSalon = async (salonId, page, limit) => {
                     salonId
                 },
                 include: {
-                    reactions: true,
+                    reactions: {
+                        include: {
+                            user: true
+                        }
+                    },
                     author: true,
-                    comments: true,
                 },
                 orderBy: {
                     createdAt: "desc"
@@ -78,9 +80,53 @@ const createReaction = async (payload, userId) => {
         const res = await repository_1.prisma.reaction.create({
             data: {
                 type: payload.type,
-                commentId: payload.comment.id ?? '',
+                commentId: payload.comment?.id ?? undefined,
                 userId,
-                postId: payload.post.id ?? '',
+                postId: payload.post?.id ?? undefined,
+            },
+            include: {
+                user: true
+            }
+        });
+        return {
+            success: true,
+            data: res
+        };
+    }
+    catch (error) {
+        console.error(error);
+        const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
+        throw new api_exception_1.ApiError(500, newError.message, 'error on create reaction');
+    }
+};
+const deleteReaction = async (id) => {
+    try {
+        const res = await repository_1.prisma.reaction.delete({
+            where: {
+                id
+            }
+        });
+        return {
+            success: true,
+            message: 'reaction deleted with success'
+        };
+    }
+    catch (error) {
+        const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
+        throw new api_exception_1.ApiError(500, newError.message, 'error on delete reaction');
+    }
+};
+const createComment = async (payload, authorId) => {
+    try {
+        const res = await repository_1.prisma.comment.create({
+            data: {
+                content: payload.content,
+                authorId,
+                parentId: payload.parent?.id ?? undefined,
+                postId: payload.post.id,
+            },
+            include: {
+                author: true,
             }
         });
         return {
@@ -90,11 +136,32 @@ const createReaction = async (payload, userId) => {
     }
     catch (error) {
         const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
-        throw new api_exception_1.ApiError(500, newError.message, 'error on create reaction');
+        throw new api_exception_1.ApiError(500, newError.message, 'error on create comment');
+    }
+};
+const getComments = async (postId) => {
+    try {
+        const res = await repository_1.prisma.comment.findMany({
+            where: {
+                postId
+            }
+        });
+        return {
+            success: true,
+            data: res,
+            total: res.length
+        };
+    }
+    catch (error) {
+        const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
+        throw new api_exception_1.ApiError(500, newError.message, 'error on create comment');
     }
 };
 exports.default = {
     createPost,
     getPostSalon,
-    createReaction
+    createReaction,
+    deleteReaction,
+    createComment,
+    getComments
 };

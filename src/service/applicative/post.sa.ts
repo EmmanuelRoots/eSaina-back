@@ -1,8 +1,9 @@
 import { NotificationType } from "../../data/dto/notification.dto";
-import { PostDTO, ReactionDTO } from "../../data/dto/post.dto";
+import { CommentDTO, PostDTO, ReactionDTO } from "../../data/dto/post.dto";
 import { ApiError } from "../../data/exception/api.exception";
 import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.handler";
 import { prisma } from "../../repository";
+import { buildTree } from "../../utils/tree.utils";
 import sseSa from "./sse.sa";
 
 const createPost = async ({author, content, mediaUrls, salon, type}:Partial<PostDTO>)=> {
@@ -34,7 +35,6 @@ const createPost = async ({author, content, mediaUrls, salon, type}:Partial<Post
 
 
 const getPostSalon = async (salonId:string, page: number, limit: number)=>{
-  console.log({page,limit});
   
   if (!salonId) throw new ApiError(500,"salon id missing");
   const skip = (page - 1) * limit;
@@ -45,9 +45,17 @@ const getPostSalon = async (salonId:string, page: number, limit: number)=>{
           salonId
         },
         include : {
-          reactions : true,
+          reactions : {
+            include : {
+              user : true
+            }
+          },
           author : true,
-          comments : true,
+          comments : {
+            select :{
+              id:true
+            }
+          }
         },
         orderBy: {
           createdAt : "desc"
@@ -79,9 +87,12 @@ const createReaction = async (payload:ReactionDTO, userId : string)=> {
     const res = await prisma.reaction.create({
       data:{
         type : payload.type,
-        commentId : payload.comment.id ?? '',
+        commentId : payload.comment?.id ?? undefined,
         userId,
-        postId : payload.post.id ?? '',
+        postId : payload.post?.id ?? undefined,
+      },
+      include : {
+        user : true
       }
     })
 
@@ -90,13 +101,84 @@ const createReaction = async (payload:ReactionDTO, userId : string)=> {
       data : res
     }
   } catch (error) {
+    console.error(error);
+    
     const newError = PrismaExceptionHandler.handle(error)
     throw new ApiError(500, newError.message, 'error on create reaction')
+  }
+}
+
+const deleteReaction = async (id:string) =>{
+  try {
+    const res = await prisma.reaction.delete({
+      where : {
+        id
+      }
+    })
+
+    return {
+      success : true,
+      message : 'reaction deleted with success'
+    }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'error on delete reaction')
+  }
+}
+
+const createComment = async (payload:CommentDTO, authorId:string)=>{
+  try {
+    const res = await prisma.comment.create({
+      data : {
+        content : payload.content,
+        authorId,
+        parentId : payload.parent?.id ?? undefined,
+        postId : payload.post.id!,
+      },
+      include : {
+        author : true,
+        post : true
+      }
+    })
+
+    return {
+      success: true,
+      data : res
+    }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'error on create comment')
+  }
+}
+
+const getComments = async (postId:string)=>{
+  try {
+    const res = await prisma.comment.findMany({
+      where : {
+        postId
+      },
+      include : {
+        post : true,
+        author : true
+      },
+    })
+
+    return {
+      success :  true,
+      data : buildTree(res),
+      total : res.length
+    }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'error on create comment')
   }
 }
 
 export default {
   createPost,
   getPostSalon,
-  createReaction
+  createReaction,
+  deleteReaction,
+  createComment,
+  getComments
 }

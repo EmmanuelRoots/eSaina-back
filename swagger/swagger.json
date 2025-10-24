@@ -1036,73 +1036,116 @@
 															},
 															"reactions": {
 																"items": {
-																	"properties": {
-																		"commentId": {
-																			"type": "string"
+																	"allOf": [
+																		{
+																			"properties": {
+																				"user": {
+																					"properties": {
+																						"roleId": {
+																							"type": "string"
+																						},
+																						"pdpUrl": {
+																							"type": "string"
+																						},
+																						"connected": {
+																							"type": "boolean"
+																						},
+																						"phoneNumber": {
+																							"type": "string"
+																						},
+																						"birthDate": {
+																							"type": "string",
+																							"format": "date-time"
+																						},
+																						"active": {
+																							"type": "boolean"
+																						},
+																						"createdAt": {
+																							"type": "string",
+																							"format": "date-time"
+																						},
+																						"firstName": {
+																							"type": "string"
+																						},
+																						"lastName": {
+																							"type": "string"
+																						},
+																						"id": {
+																							"type": "string"
+																						},
+																						"password": {
+																							"type": "string"
+																						},
+																						"email": {
+																							"type": "string"
+																						}
+																					},
+																					"required": [
+																						"roleId",
+																						"pdpUrl",
+																						"connected",
+																						"phoneNumber",
+																						"birthDate",
+																						"active",
+																						"createdAt",
+																						"firstName",
+																						"lastName",
+																						"id",
+																						"password",
+																						"email"
+																					],
+																					"type": "object"
+																				}
+																			},
+																			"required": [
+																				"user"
+																			],
+																			"type": "object"
 																		},
-																		"postId": {
-																			"type": "string"
-																		},
-																		"userId": {
-																			"type": "string"
-																		},
-																		"type": {
-																			"$ref": "#/components/schemas/_36_Enums.ReactionType"
-																		},
-																		"createdAt": {
-																			"type": "string",
-																			"format": "date-time"
-																		},
-																		"id": {
-																			"type": "string"
+																		{
+																			"properties": {
+																				"commentId": {
+																					"type": "string"
+																				},
+																				"postId": {
+																					"type": "string"
+																				},
+																				"userId": {
+																					"type": "string"
+																				},
+																				"type": {
+																					"$ref": "#/components/schemas/_36_Enums.ReactionType"
+																				},
+																				"createdAt": {
+																					"type": "string",
+																					"format": "date-time"
+																				},
+																				"id": {
+																					"type": "string"
+																				}
+																			},
+																			"required": [
+																				"commentId",
+																				"postId",
+																				"userId",
+																				"type",
+																				"createdAt",
+																				"id"
+																			],
+																			"type": "object"
 																		}
-																	},
-																	"required": [
-																		"commentId",
-																		"postId",
-																		"userId",
-																		"type",
-																		"createdAt",
-																		"id"
-																	],
-																	"type": "object"
+																	]
 																},
 																"type": "array"
 															},
 															"comments": {
 																"items": {
 																	"properties": {
-																		"parentId": {
-																			"type": "string"
-																		},
-																		"postId": {
-																			"type": "string"
-																		},
-																		"authorId": {
-																			"type": "string"
-																		},
-																		"content": {
-																			"type": "string"
-																		},
-																		"updatedAt": {
-																			"type": "string",
-																			"format": "date-time"
-																		},
-																		"createdAt": {
-																			"type": "string",
-																			"format": "date-time"
-																		},
 																		"id": {
 																			"type": "string"
 																		}
 																	},
 																	"required": [
-																		"parentId",
-																		"postId",
-																		"authorId",
-																		"content",
-																		"updatedAt",
-																		"createdAt",
 																		"id"
 																	],
 																	"type": "object"
@@ -1379,36 +1422,105 @@
 								"schema": {
 									"properties": {
 										"data": {
-											"properties": {
-												"commentId": {
-													"type": "string"
+											"allOf": [
+												{
+													"properties": {
+														"user": {
+															"properties": {
+																"roleId": {
+																	"type": "string"
+																},
+																"pdpUrl": {
+																	"type": "string"
+																},
+																"connected": {
+																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
+																},
+																"birthDate": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"active": {
+																	"type": "boolean"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"firstName": {
+																	"type": "string"
+																},
+																"lastName": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "string"
+																},
+																"password": {
+																	"type": "string"
+																},
+																"email": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"roleId",
+																"pdpUrl",
+																"connected",
+																"phoneNumber",
+																"birthDate",
+																"active",
+																"createdAt",
+																"firstName",
+																"lastName",
+																"id",
+																"password",
+																"email"
+															],
+															"type": "object"
+														}
+													},
+													"required": [
+														"user"
+													],
+													"type": "object"
 												},
-												"postId": {
-													"type": "string"
-												},
-												"userId": {
-													"type": "string"
-												},
-												"type": {
-													"$ref": "#/components/schemas/_36_Enums.ReactionType"
-												},
-												"createdAt": {
-													"type": "string",
-													"format": "date-time"
-												},
-												"id": {
-													"type": "string"
+												{
+													"properties": {
+														"commentId": {
+															"type": "string"
+														},
+														"postId": {
+															"type": "string"
+														},
+														"userId": {
+															"type": "string"
+														},
+														"type": {
+															"$ref": "#/components/schemas/_36_Enums.ReactionType"
+														},
+														"createdAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"id": {
+															"type": "string"
+														}
+													},
+													"required": [
+														"commentId",
+														"postId",
+														"userId",
+														"type",
+														"createdAt",
+														"id"
+													],
+													"type": "object"
 												}
-											},
-											"required": [
-												"commentId",
-												"postId",
-												"userId",
-												"type",
-												"createdAt",
-												"id"
-											],
-											"type": "object"
+											]
 										},
 										"success": {
 											"type": "boolean"
@@ -1429,6 +1541,280 @@
 				],
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/post/delete-reaction": {
+			"delete": {
+				"operationId": "DeleteReaction",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "reactionId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/post/create-comment": {
+			"post": {
+				"operationId": "CreateComment",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"allOf": [
+												{
+													"properties": {
+														"post": {
+															"properties": {
+																"salonId": {
+																	"type": "string"
+																},
+																"authorId": {
+																	"type": "string"
+																},
+																"mediaUrls": {
+																	"items": {
+																		"type": "string"
+																	},
+																	"type": "array"
+																},
+																"content": {
+																	"type": "string"
+																},
+																"updatedAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"type": {
+																	"$ref": "#/components/schemas/_36_Enums.PostType"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"salonId",
+																"authorId",
+																"mediaUrls",
+																"content",
+																"updatedAt",
+																"type",
+																"createdAt",
+																"id"
+															],
+															"type": "object"
+														},
+														"author": {
+															"properties": {
+																"roleId": {
+																	"type": "string"
+																},
+																"pdpUrl": {
+																	"type": "string"
+																},
+																"connected": {
+																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
+																},
+																"birthDate": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"active": {
+																	"type": "boolean"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"firstName": {
+																	"type": "string"
+																},
+																"lastName": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "string"
+																},
+																"password": {
+																	"type": "string"
+																},
+																"email": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"roleId",
+																"pdpUrl",
+																"connected",
+																"phoneNumber",
+																"birthDate",
+																"active",
+																"createdAt",
+																"firstName",
+																"lastName",
+																"id",
+																"password",
+																"email"
+															],
+															"type": "object"
+														}
+													},
+													"required": [
+														"post",
+														"author"
+													],
+													"type": "object"
+												},
+												{
+													"properties": {
+														"parentId": {
+															"type": "string"
+														},
+														"postId": {
+															"type": "string"
+														},
+														"authorId": {
+															"type": "string"
+														},
+														"content": {
+															"type": "string"
+														},
+														"updatedAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"createdAt": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"id": {
+															"type": "string"
+														}
+													},
+													"required": [
+														"parentId",
+														"postId",
+														"authorId",
+														"content",
+														"updatedAt",
+														"createdAt",
+														"id"
+													],
+													"type": "object"
+												}
+											]
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/post/get-comments": {
+			"get": {
+				"operationId": "GetComments",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"total": {
+											"type": "number",
+											"format": "double"
+										},
+										"data": {
+											"items": {},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"total",
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"post"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "postId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/conversation/all-conversation": {

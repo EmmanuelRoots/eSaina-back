@@ -29,11 +29,19 @@ let PostController = class PostController extends tsoa_1.Controller {
     async addReaction(req) {
         return post_sa_1.default.createReaction(req.body, req.user.id);
     }
+    async deleteReaction(reactionId) {
+        return post_sa_1.default.deleteReaction(reactionId);
+    }
+    async createComment(req) {
+        return post_sa_1.default.createComment(req.body, req.user.id);
+    }
+    async getComments(postId) {
+        return post_sa_1.default.getComments(postId);
+    }
 };
 exports.PostController = PostController;
 __decorate([
     (0, tsoa_1.Get)('get-salon-post'),
-    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
     __param(0, (0, tsoa_1.Query)()),
     __param(1, (0, tsoa_1.Query)()),
     __param(2, (0, tsoa_1.Query)()),
@@ -43,7 +51,6 @@ __decorate([
 ], PostController.prototype, "getSalonPost", null);
 __decorate([
     (0, tsoa_1.Post)('create-post'),
-    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
     __param(0, (0, tsoa_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -51,13 +58,34 @@ __decorate([
 ], PostController.prototype, "createPost", null);
 __decorate([
     (0, tsoa_1.Post)('add-reaction'),
-    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
     __param(0, (0, tsoa_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], PostController.prototype, "addReaction", null);
+__decorate([
+    (0, tsoa_1.Delete)('delete-reaction'),
+    __param(0, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], PostController.prototype, "deleteReaction", null);
+__decorate([
+    (0, tsoa_1.Post)('create-comment'),
+    __param(0, (0, tsoa_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PostController.prototype, "createComment", null);
+__decorate([
+    (0, tsoa_1.Get)('get-comments'),
+    __param(0, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], PostController.prototype, "getComments", null);
 exports.PostController = PostController = __decorate([
     (0, tsoa_1.Route)('post'),
-    (0, tsoa_1.Tags)('post')
+    (0, tsoa_1.Tags)('post'),
+    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware])
 ], PostController);

@@ -427,6 +427,98 @@ function RegisterRoutes(app) {
         }
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsPostController_addReaction = {
+        req: { "in": "request", "name": "req", "required": true, "dataType": "object" },
+    };
+    app.post('/post/add-reaction', ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController)), ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController.prototype.addReaction)), async function PostController_addReaction(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsPostController_addReaction, request, response });
+            const controller = new post_controller_1.PostController();
+            await templateService.apiHandler({
+                methodName: 'addReaction',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsPostController_deleteReaction = {
+        reactionId: { "in": "query", "name": "reactionId", "required": true, "dataType": "string" },
+    };
+    app.delete('/post/delete-reaction', ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController)), ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController.prototype.deleteReaction)), async function PostController_deleteReaction(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsPostController_deleteReaction, request, response });
+            const controller = new post_controller_1.PostController();
+            await templateService.apiHandler({
+                methodName: 'deleteReaction',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsPostController_createComment = {
+        req: { "in": "request", "name": "req", "required": true, "dataType": "object" },
+    };
+    app.post('/post/create-comment', ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController)), ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController.prototype.createComment)), async function PostController_createComment(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsPostController_createComment, request, response });
+            const controller = new post_controller_1.PostController();
+            await templateService.apiHandler({
+                methodName: 'createComment',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsPostController_getComments = {
+        postId: { "in": "query", "name": "postId", "required": true, "dataType": "string" },
+    };
+    app.get('/post/get-comments', ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController)), ...((0, runtime_1.fetchMiddlewares)(post_controller_1.PostController.prototype.getComments)), async function PostController_getComments(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsPostController_getComments, request, response });
+            const controller = new post_controller_1.PostController();
+            await templateService.apiHandler({
+                methodName: 'getComments',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     const argsConversationController_getAllConversationByUser = {
         req: { "in": "request", "name": "req", "required": true, "dataType": "object" },
         page: { "default": 1, "in": "query", "name": "page", "dataType": "double" },
