@@ -162,7 +162,8 @@ const getComments = async (postId:string)=>{
         author : true,
         reactions :{
           include : {
-            user : true
+            user : true,
+            comment : true
           }
         }
       },
