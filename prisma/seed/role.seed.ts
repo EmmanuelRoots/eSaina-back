@@ -25,7 +25,7 @@ export const roleSeed = async ()=>{
                   visibleFields: []
                 })
               )
-          ]
+          ].flat()
         },
         {
           name : 'USER',

@@ -7,6 +7,7 @@ const notification_dto_1 = require("../../data/dto/notification.dto");
 const api_exception_1 = require("../../data/exception/api.exception");
 const prisma_execption_handler_1 = require("../../data/exception/prisma.execption.handler");
 const repository_1 = require("../../repository");
+const tree_utils_1 = require("../../utils/tree.utils");
 const sse_sa_1 = __importDefault(require("./sse.sa"));
 const createPost = async ({ author, content, mediaUrls, salon, type }) => {
     try {
@@ -50,6 +51,11 @@ const getPostSalon = async (salonId, page, limit) => {
                         }
                     },
                     author: true,
+                    comments: {
+                        select: {
+                            id: true
+                        }
+                    }
                 },
                 orderBy: {
                     createdAt: "desc"
@@ -127,6 +133,7 @@ const createComment = async (payload, authorId) => {
             },
             include: {
                 author: true,
+                post: true
             }
         });
         return {
@@ -144,11 +151,21 @@ const getComments = async (postId) => {
         const res = await repository_1.prisma.comment.findMany({
             where: {
                 postId
-            }
+            },
+            include: {
+                post: true,
+                author: true,
+                reactions: {
+                    include: {
+                        user: true,
+                        comment: true
+                    }
+                }
+            },
         });
         return {
             success: true,
-            data: res,
+            data: (0, tree_utils_1.buildTree)(res),
             total: res.length
         };
     }
