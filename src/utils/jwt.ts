@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import ms from 'ms'
 
 import { UserDTO } from '../data/dto/user.dto';

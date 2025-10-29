@@ -20,6 +20,7 @@ const sendRequest = async (data:string,userId:string)=>{
     const dataRes = await res.json() as {output:string}
     return dataRes.output
   } catch (error) {
+    console.error(error)
     throw new ApiError(500,JSON.stringify(error),'error from n8n')
   }
   

@@ -11,6 +11,7 @@ import { verifyAccess } from '../../utils/jwt';
 
 export const  authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const hdr = req.headers.authorization
+  
   if (!hdr) return res.status(401).json({ message: 'Missing token' });
 
   try {

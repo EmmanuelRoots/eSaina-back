@@ -343,6 +343,38 @@ const getUserProfile = async (userId:string)=>{
   }
 }
 
+const getUsersByName = async (keys:string[])=>{
+  try {
+    // console.log({keys});
+    // console.log(keys.length);
+    
+    if(!keys.length || !keys[0].length) return {success: true, data:[]}
+    const keysNamw = keys.map(k=>k.toLocaleLowerCase())
+    const patterns = keysNamw.map(k => `%${k}%`)
+
+    const users = await prisma.$queryRaw<UserDTO[]>`
+      SELECT id, "firstName", "lastName", email, "phoneNumber", "birthDate", "createdAt"
+      FROM   "User"
+      WHERE  EXISTS (
+              SELECT 1
+              FROM   UNNEST(ARRAY[${patterns}]::text[]) AS pat
+              WHERE  LOWER("firstName") LIKE pat
+              OR     LOWER("lastName")  LIKE pat
+              OR     LOWER(email)       LIKE pat
+              OR     "phoneNumber"      LIKE pat
+            )
+      ORDER  BY "firstName" ASC, "lastName" ASC`
+    return {
+      success: true,
+      data : users
+    }
+  } catch (error) {
+    console.error(error)
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'error on get user by name')
+  }
+}
+
 export default {
   addUser,
   logUser,
@@ -350,5 +382,6 @@ export default {
   logOut,
   logGoogleUser,
   searchUsersWithPagination,
-  getUserProfile
+  getUserProfile,
+  getUsersByName
 }

@@ -214,4 +214,13 @@ export class UserController extends Controller {
     return userSA.searchUsersWithPagination(searchTerm,page,limit,(req as any).user.id)
   }
 
+  @Get('get-users-by-name')
+  @Middlewares([authMiddleware])
+  public async getUsersByName(@Query() keys:string[]){
+    console.log({keys});
+    
+
+    return userSA.getUsersByName(keys)
+  }
+
 }
