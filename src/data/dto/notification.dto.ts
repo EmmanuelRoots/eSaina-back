@@ -4,14 +4,14 @@ export enum NotificationType {
   BROADCAST = 'BROADCAST',
   NOTIFICATION = 'NOTIFICATION',
   CONNECTED = 'CONNECTED',
-  NEW_POST = 'NEW_POST'
+  NEW_POST = 'NEW_POST',
 }
 
 export interface NotificationDTO {
-  userId: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  data: any;
-  read: boolean;
+  userId: string
+  type: NotificationType
+  title: string
+  message: string
+  data: any
+  read: boolean
 }

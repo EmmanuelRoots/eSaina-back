@@ -1,4 +1,7 @@
-import { ConversationDTO, ConversationType } from '../../data/dto/conversation.dto'
+import {
+  ConversationDTO,
+  ConversationType,
+} from '../../data/dto/conversation.dto'
 import LoginDTO, { GoogleLoginDTO } from '../../data/dto/login.dto'
 import { toUserDTO } from '../../data/dto/mappers/user.mappers'
 import { UserDTO, UserRequestDTO } from '../../data/dto/user.dto'
@@ -15,8 +18,10 @@ import { hashText } from '../technical/crypt.ts'
  * @returns
  */
 export const addUser = async (user: UserDTO) => {
-  const localUser = await prisma.user.findFirst({ where: { email: user.email, active: true } }) 
-  if(localUser) {
+  const localUser = await prisma.user.findFirst({
+    where: { email: user.email, active: true },
+  })
+  if (localUser) {
     throw new ApiError(400, 'account_already_exist')
   }
   const hashed = await hashText(user.password ?? '')
@@ -24,42 +29,41 @@ export const addUser = async (user: UserDTO) => {
     const newUser = await prisma.user.create({
       data: {
         ...user,
-        password : hashed,
-        birthDate: user.birthDate? new Date(user.birthDate) : new Date(),
-        ownedConversations : {
-          create : {
-            title : 'Assistant IA',
-            type : 'AI_CHAT',
-            messages : {
-              create : {
-                content : 'Bonjour, comment puis-je vous aidez aujourd\'hui?',
-                sender : 'AI',
-                type : 'TEXT',
-              }
-            }
-          }
+        password: hashed,
+        birthDate: user.birthDate ? new Date(user.birthDate) : new Date(),
+        ownedConversations: {
+          create: {
+            title: 'Assistant IA',
+            type: 'AI_CHAT',
+            messages: {
+              create: {
+                content: "Bonjour, comment puis-je vous aidez aujourd'hui?",
+                sender: 'AI',
+                type: 'TEXT',
+              },
+            },
+          },
         },
-        roleId : user.roleId
-      }
+        roleId: user.roleId,
+      },
     })
     if (newUser.active === false) {
       return {
         success: false,
         statusCode: 403,
-        message: `L'utilisateur ${newUser.lastName} est inactif. Veuillez contacter l'administrateur pour l'activation!!`
+        message: `L'utilisateur ${newUser.lastName} est inactif. Veuillez contacter l'administrateur pour l'activation!!`,
       }
     }
 
     return {
       success: true,
       statusCode: 200,
-      data: newUser.id
+      data: newUser.id,
     }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create user error')
+    throw new ApiError(500, newError.message, 'create user error')
   }
-  
 }
 
 /**
@@ -67,78 +71,85 @@ export const addUser = async (user: UserDTO) => {
  * @param credentials informations de connexion de l'utilisateur
  * @returns
  */
-export const logUser = async ({email,password,deviceInfo}: LoginDTO) => {
-  const user  = await prisma.user.findUnique({ where: { email } });
+export const logUser = async ({ email, password, deviceInfo }: LoginDTO) => {
+  const user = await prisma.user.findUnique({ where: { email } })
   if (!user) {
-    throw new ApiError(401,'User not found','Invalid credentials');
+    throw new ApiError(401, 'User not found', 'Invalid credentials')
   }
-  const hashPass = await hashText(password);
-  
-  if (! (hashPass === user.password)){
-    throw new ApiError(401,'Wrong password','Invalid credentials')
+  const hashPass = await hashText(password)
+
+  if (!(hashPass === user.password)) {
+    throw new ApiError(401, 'Wrong password', 'Invalid credentials')
   }
-  const refreshToken = genRefresh();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+  const refreshToken = genRefresh()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000)
   try {
     await prisma.session.create({
-      data: { refreshToken, userId: user.id, expiresAt,deviceInfo },
-    });
-    const accessToken = signAccess(toUserDTO(user));
+      data: { refreshToken, userId: user.id, expiresAt, deviceInfo },
+    })
+    const accessToken = signAccess(toUserDTO(user))
     return {
-      success : true,
-      data :  {accessToken, refreshToken}
-    };
+      success: true,
+      data: { accessToken, refreshToken },
+    }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create session')
+    throw new ApiError(500, newError.message, 'create session')
   }
 }
 
-const logGoogleUser = async({email,given_name,family_name,deviceInfo, picture} : GoogleLoginDTO)=> {
+const logGoogleUser = async ({
+  email,
+  given_name,
+  family_name,
+  deviceInfo,
+  picture,
+}: GoogleLoginDTO) => {
   const userRole = await prisma.role.findFirst({
-    where : {
-      name : 'USER'
-    }
+    where: {
+      name: 'USER',
+    },
   })
-  
-  let localUser = await prisma.user.findUnique({where : {email}})
-  if(!localUser){ //create user
-    const salonOfficiel =  await prisma.salon.findFirst({
-      where : {
-        title : 'Annonce officielle'
-      }
+
+  let localUser = await prisma.user.findUnique({ where: { email } })
+  if (!localUser) {
+    //create user
+    const salonOfficiel = await prisma.salon.findFirst({
+      where: {
+        title: 'Annonce officielle',
+      },
     })
     try {
       const newUser = await prisma.user.create({
         data: {
-          firstName : family_name,
-          lastName : given_name,
-          password : '',
-          phoneNumber : '+261000000',
-          email : email,
+          firstName: family_name,
+          lastName: given_name,
+          password: '',
+          phoneNumber: '+261000000',
+          email: email,
           birthDate: new Date(),
-          ownedConversations : {
-            create : {
-              title : 'Assistant IA',
-              type : 'AI_CHAT',
-              messages : {
-                create : {
-                  content : 'Bonjour, comment puis-je vous aidez aujourd\'hui?',
-                  sender : 'AI',
-                  type : 'TEXT',
-                }
+          ownedConversations: {
+            create: {
+              title: 'Assistant IA',
+              type: 'AI_CHAT',
+              messages: {
+                create: {
+                  content: "Bonjour, comment puis-je vous aidez aujourd'hui?",
+                  sender: 'AI',
+                  type: 'TEXT',
+                },
               },
-            }
+            },
           },
           pdpUrl: picture,
           roleId: userRole?.id!,
           salonMembers: {
-            create : {
-              role : 'MEMBER',
-              salonId: salonOfficiel?.id!
-            }
-          }
-        }
+            create: {
+              role: 'MEMBER',
+              salonId: salonOfficiel?.id!,
+            },
+          },
+        },
       })
       // if (newUser.active === false) {
       //   return {
@@ -151,23 +162,23 @@ const logGoogleUser = async({email,given_name,family_name,deviceInfo, picture} :
     } catch (error) {
       console.error(error)
       const newError = PrismaExceptionHandler.handle(error)
-      throw new ApiError(500,newError.message,'create user error')
+      throw new ApiError(500, newError.message, 'create user error')
     }
   }
-  const refreshToken = genRefresh();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+  const refreshToken = genRefresh()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000)
   try {
     await prisma.session.create({
-      data: { refreshToken, userId: localUser.id, expiresAt,deviceInfo },
-    });
-    const accessToken = signAccess(toUserDTO(localUser));
+      data: { refreshToken, userId: localUser.id, expiresAt, deviceInfo },
+    })
+    const accessToken = signAccess(toUserDTO(localUser))
     return {
-      success : true,
-      data :  {accessToken, refreshToken}
-    };
+      success: true,
+      data: { accessToken, refreshToken },
+    }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create session')
+    throw new ApiError(500, newError.message, 'create session')
   }
 }
 
@@ -180,41 +191,41 @@ export const refreshToken = async (oldRefresh: string) => {
   const session = await prisma.session.findUnique({
     where: { refreshToken: oldRefresh },
     include: { user: true },
-  });
-  
-  if (!session || session.expiresAt < new Date())
-    throw new ApiError(401,'Invalid or expired refresh token','Token error');
-
-  // Nouvelle session
-  const newRefresh = genRefresh();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
-  await prisma.session.update({
-    where:{id:session.id},
-    data : {
-      refreshToken : newRefresh,
-      expiresAt
-    }
   })
 
-  const accessToken = signAccess(toUserDTO(session.user));
-  return { accessToken, refreshToken: newRefresh };
+  if (!session || session.expiresAt < new Date())
+    throw new ApiError(401, 'Invalid or expired refresh token', 'Token error')
+
+  // Nouvelle session
+  const newRefresh = genRefresh()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000)
+  await prisma.session.update({
+    where: { id: session.id },
+    data: {
+      refreshToken: newRefresh,
+      expiresAt,
+    },
+  })
+
+  const accessToken = signAccess(toUserDTO(session.user))
+  return { accessToken, refreshToken: newRefresh }
 }
 
 /**
  * fonction de deconnexion
- * @param refreshToken 
- * @returns 
+ * @param refreshToken
+ * @returns
  */
-export const logOut = async (refreshToken:string) => {
+export const logOut = async (refreshToken: string) => {
   try {
-    await prisma.session.delete({ where: { refreshToken } });
+    await prisma.session.delete({ where: { refreshToken } })
     return {
       success: true,
-      message : 'user logged out with success'
+      message: 'user logged out with success',
     }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create session')
+    throw new ApiError(500, newError.message, 'create session')
   }
 }
 
@@ -233,20 +244,24 @@ export const searchUsersWithPagination = async (
   userId: string
 ) => {
   // console.log({userId});
-  
+
   if (page < 1) {
-    throw new ApiError(400, 'Le numéro de page doit être supérieur à 0', 'pagination_error')
+    throw new ApiError(
+      400,
+      'Le numéro de page doit être supérieur à 0',
+      'pagination_error'
+    )
   }
   const searchTerm = keyword?.trim().toLocaleLowerCase()
   const isEmptySearch = !searchTerm || searchTerm.length === 0
   const skip = (page - 1) * pageSize
-  
+
   let users
-  let totalCount =0
+  let totalCount = 0
   try {
     const whereClause: any = {
-      active : true,
-      NOT : { id: userId }
+      active: true,
+      NOT: { id: userId },
     }
     if (isEmptySearch) {
       users = await prisma.user.findMany({
@@ -262,16 +277,13 @@ export const searchUsersWithPagination = async (
         },
         skip,
         take: pageSize,
-        orderBy: isEmptySearch 
+        orderBy: isEmptySearch
           ? { createdAt: 'desc' } // Les derniers utilisateurs créés si recherche vide
-          : [
-              { firstName: 'asc' },
-              { lastName: 'asc' },
-            ],
+          : [{ firstName: 'asc' }, { lastName: 'asc' }],
       })
       totalCount = await prisma.user.count({ where: whereClause })
-    }else {
-      const pattern   = `%${searchTerm}%`;
+    } else {
+      const pattern = `%${searchTerm}%`
       users = await prisma.$queryRaw`
         SELECT "id", "firstName", "lastName", "email", "phoneNumber", "birthDate", "createdAt"
         FROM   "User"
@@ -302,7 +314,7 @@ export const searchUsersWithPagination = async (
       totalCount = Number(rawCount[0].count)
     }
     const totalPages = Math.ceil(totalCount / pageSize)
-   
+
     return {
       success: true,
       statusCode: 200,
@@ -322,20 +334,20 @@ export const searchUsersWithPagination = async (
   }
 }
 
-const getUserProfile = async (userId:string)=>{
+const getUserProfile = async (userId: string) => {
   try {
     const res = await prisma.user.findFirst({
-      where : {
-        id:userId
+      where: {
+        id: userId,
       },
-      include : {
-        role : true
-      }
+      include: {
+        role: true,
+      },
     })
 
     return {
-      success : true,
-      data : res as unknown as UserDTO
+      success: true,
+      data: res as unknown as UserDTO,
     }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
@@ -343,13 +355,13 @@ const getUserProfile = async (userId:string)=>{
   }
 }
 
-const getUsersByName = async (keys:string[])=>{
+const getUsersByName = async (keys: string[]) => {
   try {
     // console.log({keys});
     // console.log(keys.length);
-    
-    if(!keys.length || !keys[0].length) return {success: true, data:[]}
-    const keysNamw = keys.map(k=>k.toLocaleLowerCase())
+
+    if (!keys.length || !keys[0].length) return { success: true, data: [] }
+    const keysNamw = keys.map(k => k.toLocaleLowerCase())
     const patterns = keysNamw.map(k => `%${k}%`)
 
     const users = await prisma.$queryRaw<UserDTO[]>`
@@ -366,7 +378,7 @@ const getUsersByName = async (keys:string[])=>{
       ORDER  BY "firstName" ASC, "lastName" ASC`
     return {
       success: true,
-      data : users
+      data: users,
     }
   } catch (error) {
     console.error(error)
@@ -383,5 +395,5 @@ export default {
   logGoogleUser,
   searchUsersWithPagination,
   getUserProfile,
-  getUsersByName
+  getUsersByName,
 }

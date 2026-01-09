@@ -1,7 +1,12 @@
-import {NextFunction, Request, Response} from 'express';
-import {ApiError} from '../../data/exception/api.exception';
+import { NextFunction, Request, Response } from 'express'
+import { ApiError } from '../../data/exception/api.exception'
 
-export const ExceptionMiddleware = (error: any, req: Request, res: Response, next: NextFunction): Response | void => {
+export const ExceptionMiddleware = (
+  error: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   // console.log(error, req.body)
   if (error) {
     try {
@@ -13,18 +18,22 @@ export const ExceptionMiddleware = (error: any, req: Request, res: Response, nex
         })
       } else {
         switch (error.status) {
-        case 400:
-          return res.status(400).json({
-            success: false,
-            statusCode: 400,
-            message: error.fields ? Object.keys(error.fields).map((key: string) => error.fields[key].message) : 'Données au mauvais format',
-          })
-        default:
-          return res.status(error.status).json({
-            success: false,
-            statusCode: error.status,
-            message: error.message,
-          })
+          case 400:
+            return res.status(400).json({
+              success: false,
+              statusCode: 400,
+              message: error.fields
+                ? Object.keys(error.fields).map(
+                    (key: string) => error.fields[key].message
+                  )
+                : 'Données au mauvais format',
+            })
+          default:
+            return res.status(error.status).json({
+              success: false,
+              statusCode: error.status,
+              message: error.message,
+            })
         }
       }
     } catch (_) {

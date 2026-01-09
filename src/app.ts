@@ -18,39 +18,42 @@ app.get('/', (req, res) => {
   res.send('Hello')
 })
 
-app.get('/notification/stream',async (req, res) => {
-  const userId = req.query.userId as string;
-  if (!userId) return res.status(400).send('userId manquant');
+app.get('/notification/stream', async (req, res) => {
+  const userId = req.query.userId as string
+  if (!userId) return res.status(400).send('userId manquant')
 
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
 
-  const clientId = sseSa.addClient(userId, res);
+  const clientId = sseSa.addClient(userId, res)
   await prisma.user.update({
-    where:{id:userId},
-    data :{
-      connected : true
-    }
+    where: { id: userId },
+    data: {
+      connected: true,
+    },
   })
-  res.write(`event: CONNECTED\ndata: ${JSON.stringify({ userId, clientId })}\n\n`);
-  console.log('Client connecte');
-  
+  res.write(
+    `event: CONNECTED\ndata: ${JSON.stringify({ userId, clientId })}\n\n`
+  )
+  console.log('Client connecte')
 
   req.on('close', async () => {
     await prisma.user.update({
-      where:{id:userId},
-      data :{
-        connected : false
-      }
+      where: { id: userId },
+      data: {
+        connected: false,
+      },
     })
-    console.log('client deconnecte');
-    
-    sseSa.removeClient(clientId);
-  });
-});
+    console.log('client deconnecte')
 
-const swaggerDocument = JSON.parse(fs.readFileSync('swagger/swagger.json', 'utf8'))
+    sseSa.removeClient(clientId)
+  })
+})
+
+const swaggerDocument = JSON.parse(
+  fs.readFileSync('swagger/swagger.json', 'utf8')
+)
 app.use(
   '/swagger',
   swaggerUI.serve as unknown[] as Express.RequestHandler[],

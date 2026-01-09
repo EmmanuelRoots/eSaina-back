@@ -10,7 +10,7 @@ import {
   Get,
   Query,
 } from 'tsoa'
-import { Request as ExpressRequest} from 'express'
+import { Request as ExpressRequest } from 'express'
 
 import LoginDTO, { GoogleLoginDTO } from '../../data/dto/login.dto'
 import { UserDTO } from '../../data/dto/user.dto'
@@ -20,10 +20,9 @@ import { authMiddleware } from '../middleware/auth.middleware'
 
 //import { TokenMiddleware } from '../middleware/token.middleware'
 
-
 /**
  * Contrôleur pour la gestion des utilisateurs dans le système.
- * 
+ *
  * Ce contrôleur permet de créer, authentifier, récupérer, mettre à jour et supprimer
  * des utilisateurs. Il gère également les fonctionnalités liées aux comptes utilisateurs
  * comme la réinitialisation de mot de passe, l'authentification multifacteur, la liaison
@@ -34,12 +33,12 @@ import { authMiddleware } from '../middleware/auth.middleware'
 export class UserController extends Controller {
   /**
    * Inscrit un nouvel utilisateur dans le système.
-   * 
+   *
    * Cet endpoint permet de créer un nouveau compte utilisateur avec
    * les informations fournies. Une fois inscrit, l'utilisateur pourra
    * se connecter au système et accéder aux fonctionnalités correspondant
    * à son niveau d'autorisation.
-   * 
+   *
    * @param body Les données de l'utilisateur à inscrire
    * @returns Les informations de l'utilisateur créé et un jeton d'authentification
    * @example body {
@@ -70,19 +69,19 @@ export class UserController extends Controller {
   @Post('subscribe')
   @Response(201, 'Utilisateur inscrit avec succès')
   @Response(400, 'Données invalides')
-  @Response(409, 'L\'utilisateur existe déjà')
+  @Response(409, "L'utilisateur existe déjà")
   public async subscribe(@Body() body: UserDTO) {
     return userSA.addUser(body)
   }
 
   /**
    * Authentifie un utilisateur existant.
-   * 
+   *
    * Cet endpoint permet à un utilisateur de se connecter au système en
    * fournissant ses identifiants (email et mot de passe). En cas de succès,
    * un jeton d'authentification est généré et retourné pour les requêtes
    * ultérieures.
-   * 
+   *
    * @param body Les identifiants de connexion de l'utilisateur
    * @returns Les informations de l'utilisateur et un jeton d'authentification
    * @example body {
@@ -109,23 +108,21 @@ export class UserController extends Controller {
   @Response(401, 'Identifiants invalides')
   @Response(403, 'Compte désactivé')
   public async login(@Body() body: LoginDTO) {
-
     return userSA.logUser(body)
   }
 
   @Post('googleLogin')
   public async googleLogin(@Body() body: GoogleLoginDTO) {
-  
     return userSA.logGoogleUser(body)
   }
 
   /**
    * Génère un nouveau jeton d'accès à l'aide d'un refresh token valide.
-   * 
+   *
    * Cet endpoint permet de prolonger la session d'un utilisateur sans
    * avoir à se reconnecter. Le refresh token fourni doit être valide
    * et non expiré. Une fois utilisé, il est révoqué (rotation du token).
-   * 
+   *
    * @param body Le refresh token actuel
    * @returns Un nouveau access token et un nouveau refresh token
    * @example body {
@@ -143,20 +140,23 @@ export class UserController extends Controller {
   @Post('refresh')
   @Middlewares([sessionMiddleware])
   @Response(200, 'Tokens renouvelés avec succès')
-  @Response(401, 'Refresh token invalide ou expiré', { success: false, message: 'Invalid or expired refresh token', data: null })
-  public async refresh(@Body() body: {refreshToken:string}) {
-    
-    return userSA.refreshToken(body.refreshToken);
+  @Response(401, 'Refresh token invalide ou expiré', {
+    success: false,
+    message: 'Invalid or expired refresh token',
+    data: null,
+  })
+  public async refresh(@Body() body: { refreshToken: string }) {
+    return userSA.refreshToken(body.refreshToken)
   }
 
   /**
    * Récupère les informations du profil de l'utilisateur connecté.
-   * 
+   *
    * Cet endpoint renvoie les données du profil de l'utilisateur authentifié,
    * extraites directement du token JWT décodé par le middleware d'authentification.
    * Aucune donnée supplémentaire n'est requise dans la requête : l'identité de
    * l'utilisateur est déduite du token d'accès fourni dans l'en-tête `Authorization`.
-   * 
+   *
    * @returns Les données du profil utilisateur
    * @example {
    *   "success": true,
@@ -172,17 +172,16 @@ export class UserController extends Controller {
   @Get('me')
   @Middlewares([authMiddleware])
   public async getUserFromProfile(@Request() req: ExpressRequest) {
-
     return userSA.getUserProfile((req as any).user.id)
   }
 
   /**
    * Invalide un refresh token et met fin à la session utilisateur.
-   * 
+   *
    * Cet endpoint permet à un utilisateur de se déconnecter proprement en révoquant
    * son refresh token actuel. Une fois appelé, ce token ne peut plus être utilisé
    * pour générer de nouveaux access tokens, même s’il n’est pas encore expiré.
-   * 
+   *
    * @param body Le refresh token à révoquer
    * @returns Un message de confirmation de déconnexion
    * @example body {
@@ -197,9 +196,9 @@ export class UserController extends Controller {
   @Post('logout')
   @Middlewares([sessionMiddleware])
   public async logOut(@Body() body: { refreshToken: string }) {
-    return userSA.logOut(body.refreshToken);
+    return userSA.logOut(body.refreshToken)
   }
-  
+
   /**
    * Recherche utilisateur par mot cle
    * @param req requete qui contient le current user depuis le middleware
@@ -210,17 +209,25 @@ export class UserController extends Controller {
    */
   @Get('search-user')
   @Middlewares([authMiddleware])
-  public async searChUser(@Request() req : ExpressRequest,@Query() page = 1, @Query() limit = 20, @Query() searchTerm ='' ) {
-    return userSA.searchUsersWithPagination(searchTerm,page,limit,(req as any).user.id)
+  public async searChUser(
+    @Request() req: ExpressRequest,
+    @Query() page = 1,
+    @Query() limit = 20,
+    @Query() searchTerm = ''
+  ) {
+    return userSA.searchUsersWithPagination(
+      searchTerm,
+      page,
+      limit,
+      (req as any).user.id
+    )
   }
 
   @Get('get-users-by-name')
   @Middlewares([authMiddleware])
-  public async getUsersByName(@Query() keys:string[]){
-    console.log({keys});
-    
+  public async getUsersByName(@Query() keys: string[]) {
+    console.log({ keys })
 
     return userSA.getUsersByName(keys)
   }
-
 }

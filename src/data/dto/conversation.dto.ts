@@ -1,32 +1,31 @@
-import { MessageDTO } from "./message.dto"
+import { MessageDTO } from './message.dto'
 
 export enum ConversationType {
   AI_CHAT = 'AI_CHAT',
   DIRECT = 'DIRECT',
-  GROUP = 'GROUP'
+  GROUP = 'GROUP',
 }
 
 export enum MemberRole {
   ADMIN = 'ADMIN',
-  MEMBER = 'MEMBER'
+  MEMBER = 'MEMBER',
 }
 
 export interface ConversationDTO {
-  id : string
-  title? : string
-  type : ConversationType
-  userId : string
-  ownerId : string
-  messages : MessageDTO []
-  members : ConversationMember []
-  read : boolean
+  id: string
+  title?: string
+  type: ConversationType
+  userId: string
+  ownerId: string
+  messages: MessageDTO[]
+  members: ConversationMember[]
+  read: boolean
 }
 
 export interface ConversationMember {
-  id : string
+  id: string
   conversationId: string
-  userId :string
-  role : MemberRole
-  joinedAt : string
+  userId: string
+  role: MemberRole
+  joinedAt: string
 }
-

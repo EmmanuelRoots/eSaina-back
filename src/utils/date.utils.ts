@@ -1,2 +1,2 @@
-export const toISO = (date: Date | null | undefined): string | null => 
-  date ? date.toISOString() : null;
+export const toISO = (date: Date | null | undefined): string | null =>
+  date ? date.toISOString() : null

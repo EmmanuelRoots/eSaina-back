@@ -1,33 +1,42 @@
-import { randomUUID } from 'crypto';
-import { Response } from 'express';
+import { randomUUID } from 'crypto'
+import { Response } from 'express'
 
-import { NotificationDTO, NotificationType } from '../../data/dto/notification.dto';
-import { prisma } from '../../repository';
-import { PrismaExceptionHandler } from '../../data/exception/prisma.execption.handler';
-import { ApiError } from '../../data/exception/api.exception';
-import { UserDTO } from '../../data/dto/user.dto';
+import {
+  NotificationDTO,
+  NotificationType,
+} from '../../data/dto/notification.dto'
+import { prisma } from '../../repository'
+import { PrismaExceptionHandler } from '../../data/exception/prisma.execption.handler'
+import { ApiError } from '../../data/exception/api.exception'
+import { UserDTO } from '../../data/dto/user.dto'
 
 type SSEClient = {
-  userId: string;
-  res: Response;
-};
+  userId: string
+  res: Response
+}
 
-const clients = new Map<string, SSEClient>();
+const clients = new Map<string, SSEClient>()
 
-const addClient = (userId: string, res: Response): string =>{
+const addClient = (userId: string, res: Response): string => {
   const clientId = randomUUID()
-  clients.set(clientId, { userId, res });
-  return clientId;
+  clients.set(clientId, { userId, res })
+  return clientId
 }
 
-const removeClient = (clientId: string) =>{
-  clients.delete(clientId);
+const removeClient = (clientId: string) => {
+  clients.delete(clientId)
 }
 
-const sendEventToUser = async ({userId, type, title, read, message, data}:NotificationDTO) =>{
-  
+const sendEventToUser = async ({
+  userId,
+  type,
+  title,
+  read,
+  message,
+  data,
+}: NotificationDTO) => {
   try {
-    const notification = await prisma.notification.create({
+    const notification = (await prisma.notification.create({
       data: {
         userId,
         type,
@@ -36,73 +45,74 @@ const sendEventToUser = async ({userId, type, title, read, message, data}:Notifi
         message,
         data,
       },
-    }) as NotificationDTO
+    })) as NotificationDTO
 
     clients.forEach(({ userId: clientUserId, res }) => {
-      if (clientUserId === userId && !res.writableEnded) { 
-        res.write(`event: ${type}\n`);
-        res.write(`data: ${JSON.stringify(data)}\n\n`);
+      if (clientUserId === userId && !res.writableEnded) {
+        res.write(`event: ${type}\n`)
+        res.write(`data: ${JSON.stringify(data)}\n\n`)
       }
     })
 
     return {
-      success : true,
-      data : notification
+      success: true,
+      data: notification,
     }
-    
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create notification')
+    throw new ApiError(500, newError.message, 'create notification')
   }
 }
 
-const broadcastEvent = async (event: string, data: any, author:Partial<UserDTO>) =>{
+const broadcastEvent = async (
+  event: string,
+  data: any,
+  author: Partial<UserDTO>
+) => {
   try {
-    const notification = await prisma.notification.create({
+    const notification = (await prisma.notification.create({
       data: {
-        userId:author.id,
+        userId: author.id,
         type: NotificationType.BROADCAST,
-        title : 'BROADCAST',
-        read:false,
-        message:'',
+        title: 'BROADCAST',
+        read: false,
+        message: '',
         data,
       },
-    }) as NotificationDTO
+    })) as NotificationDTO
     clients.forEach(({ res }) => {
       if (!res.writableEnded) {
-        res.write(`event: ${event}\n`);
-        res.write(`data: ${JSON.stringify(data)}\n\n`);
+        res.write(`event: ${event}\n`)
+        res.write(`data: ${JSON.stringify(data)}\n\n`)
       }
     })
 
     return {
-      success : true,
-      data : notification
+      success: true,
+      data: notification,
     }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create notification')
+    throw new ApiError(500, newError.message, 'create notification')
   }
 }
 
-const getUserNotifications = async (userId : string, limit: number) => {
+const getUserNotifications = async (userId: string, limit: number) => {
   try {
     const notifications = await prisma.notification.findMany({
       where: { userId },
-      take : limit,
+      take: limit,
       orderBy: { createdAt: 'desc' },
     })
 
     return {
-      success : true,
-      data : notifications
+      success: true,
+      data: notifications,
     }
-    
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
-    throw new ApiError(500,newError.message,'create session')
+    throw new ApiError(500, newError.message, 'create session')
   }
-  
 }
 
 export default {
@@ -110,5 +120,5 @@ export default {
   removeClient,
   sendEventToUser,
   broadcastEvent,
-  getUserNotifications
+  getUserNotifications,
 }
