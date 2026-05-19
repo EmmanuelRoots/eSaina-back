@@ -332,6 +332,37 @@ const getUserProfile = async (userId) => {
         throw new api_exception_1.ApiError(500, newError.message, 'error on get user profile');
     }
 };
+const getUsersByName = async (keys) => {
+    try {
+        // console.log({keys});
+        // console.log(keys.length);
+        if (!keys.length || !keys[0].length)
+            return { success: true, data: [] };
+        const keysNamw = keys.map(k => k.toLocaleLowerCase());
+        const patterns = keysNamw.map(k => `%${k}%`);
+        const users = await repository_1.prisma.$queryRaw `
+      SELECT id, "firstName", "lastName", email, "phoneNumber", "birthDate", "createdAt"
+      FROM   "User"
+      WHERE  EXISTS (
+              SELECT 1
+              FROM   UNNEST(ARRAY[${patterns}]::text[]) AS pat
+              WHERE  LOWER("firstName") LIKE pat
+              OR     LOWER("lastName")  LIKE pat
+              OR     LOWER(email)       LIKE pat
+              OR     "phoneNumber"      LIKE pat
+            )
+      ORDER  BY "firstName" ASC, "lastName" ASC`;
+        return {
+            success: true,
+            data: users
+        };
+    }
+    catch (error) {
+        console.error(error);
+        const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
+        throw new api_exception_1.ApiError(500, newError.message, 'error on get user by name');
+    }
+};
 exports.default = {
     addUser: exports.addUser,
     logUser: exports.logUser,
@@ -339,5 +370,6 @@ exports.default = {
     logOut: exports.logOut,
     logGoogleUser,
     searchUsersWithPagination: exports.searchUsersWithPagination,
-    getUserProfile
+    getUserProfile,
+    getUsersByName
 };
