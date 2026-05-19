@@ -33,7 +33,7 @@ app.get("/notification/stream", async (req, res) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const clientId = sseSa.addClient(userId, res);
+  const clientId = sseSa.addClient(userId, res)
   await prisma.user.update({
     where: { id: userId },
     data: {

@@ -1,5 +1,4 @@
-import { UserDTO } from "./user.dto"
-
+import { UserDTO } from './user.dto'
 
 export interface AuthorizationDto {
   tableName: string
@@ -9,11 +8,11 @@ export interface AuthorizationDto {
   delete: boolean
   visibleFields: string[]
   // ajoutez ici les propriétés que vous stockez dans le JSON
-  [key: string]: unknown;
+  [key: string]: unknown
 }
 export interface RoleDTO {
-  id? : string
-  name : string
-  authorizations : AuthorizationDto[]
-  members : UserDTO[]
+  id?: string
+  name: string
+  authorizations: AuthorizationDto[]
+  members: UserDTO[]
 }

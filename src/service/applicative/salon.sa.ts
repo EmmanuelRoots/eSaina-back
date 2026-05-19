@@ -1,22 +1,22 @@
-import { ApiError } from "../../data/exception/api.exception"
-import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.handler"
-import { prisma } from "../../repository"
+import { ApiError } from '../../data/exception/api.exception'
+import { PrismaExceptionHandler } from '../../data/exception/prisma.execption.handler'
+import { prisma } from '../../repository'
 
-const getSalonListByUser = async (userId:string)=>{
+const getSalonListByUser = async (userId: string) => {
   try {
     const res = await prisma.salon.findMany({
-      where : {
-        members : {
-          some : {
-            userId
-          }
-        }
-      }
+      where: {
+        members: {
+          some: {
+            userId,
+          },
+        },
+      },
     })
 
     return {
-      success:true,
-      data : res
+      success: true,
+      data: res,
     }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
@@ -25,5 +25,5 @@ const getSalonListByUser = async (userId:string)=>{
 }
 
 export default {
-  getSalonListByUser
+  getSalonListByUser,
 }

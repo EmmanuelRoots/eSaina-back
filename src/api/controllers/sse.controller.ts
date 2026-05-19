@@ -1,17 +1,16 @@
-import { Body, Controller, Get, Middlewares, Post, Route, Tags } from "tsoa";
+import { Body, Controller, Get, Middlewares, Post, Route, Tags } from 'tsoa'
 
-import { NotificationDTO } from "../../data/dto/notification.dto";
-import { authMiddleware } from "../middleware/auth.middleware";
-import sseSa from "../../service/applicative/sse.sa";
+import { NotificationDTO } from '../../data/dto/notification.dto'
+import { authMiddleware } from '../middleware/auth.middleware'
+import sseSa from '../../service/applicative/sse.sa'
 
 @Route('notification')
 @Tags('notification')
 export class SSEController extends Controller {
-
   @Post('send')
   @Middlewares([authMiddleware])
   public async sendNotification(@Body() body: NotificationDTO) {
-    return sseSa.sendEventToUser({...body})
+    return sseSa.sendEventToUser({ ...body })
   }
 
   // @Get('stream')
@@ -31,5 +30,4 @@ export class SSEController extends Controller {
   //     sseSa.removeClient(clientId);
   //   });
   // }
-
 }
