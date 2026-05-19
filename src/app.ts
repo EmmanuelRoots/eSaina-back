@@ -13,7 +13,7 @@ export const app = Express();
 app.use(
   cors({
     origin: "http://localhost:5173", // Ton frontend Vite
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Autoriser explicitement la méthode OPTIONS pour le preflight
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Autoriser explicitement la méthode OPTIONS pour le preflight
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true, // Indispensable si ton frontend envoie des cookies ou des tokens d'autorisation
   }),

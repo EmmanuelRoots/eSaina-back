@@ -56,9 +56,3 @@ export interface AddProjectMemberRequestDTO {
   userId: string
   role?: ProjectMemberRole
 }
-
-export interface CreateLabelRequestDTO {
-  projectId: string
-  name: string
-  color: string
-}

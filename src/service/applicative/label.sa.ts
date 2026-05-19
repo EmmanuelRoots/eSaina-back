@@ -1,4 +1,4 @@
-import { CreateLabelRequestDTO } from "../../data/dto/project.dto";
+import { CreateLabelRequestDTO } from "../../data/dto/label.dto";
 import { ApiError } from "../../data/exception/api.exception";
 import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.handler";
 import { prisma } from "../../repository";

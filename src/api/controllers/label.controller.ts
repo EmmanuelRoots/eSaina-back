@@ -13,7 +13,7 @@ import {
 
 import { authMiddleware } from "../middleware/auth.middleware";
 import labelSa from "../../service/applicative/label.sa";
-import { CreateLabelRequestDTO } from "../../data/dto/project.dto";
+import { CreateLabelRequestDTO } from "../../data/dto/label.dto";
 
 @Route("label")
 @Tags("label")

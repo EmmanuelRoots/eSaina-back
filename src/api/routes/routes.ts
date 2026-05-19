@@ -739,7 +739,7 @@ export function RegisterRoutes(app: Router) {
         "properties": {
             "projectId": {"dataType":"string","required":true},
             "name": {"dataType":"string","required":true},
-            "color": {"dataType":"string","required":true},
+            "color": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
