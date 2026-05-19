@@ -21,6 +21,7 @@ const sendRequest = async (data, userId) => {
         return dataRes.output;
     }
     catch (error) {
+        console.error(error);
         throw new api_exception_1.ApiError(500, JSON.stringify(error), 'error from n8n');
     }
 };

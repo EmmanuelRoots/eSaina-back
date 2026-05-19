@@ -102,6 +102,12 @@ model User {
   comments                    Comment[]
   reactions                   Reaction[]
   salonMembers                SalonMember[]
+  ownedProjects               Project[] @relation("ProjectOwner")
+  projectMembers              ProjectMember[]
+  assignedIssues              Issue[]   @relation("IssueAssignee")
+  reportedIssues              Issue[]   @relation("IssueReporter")
+  issueComments               IssueComment[]
+  issueAttachments            IssueAttachment[]
   roleId                      String
   role                        Role      @relation(fields: [roleId], references: [id])
 }
@@ -155,6 +161,7 @@ model Salon {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @default(now())
   members      SalonMember[]
+  projects     Project[]
 }
 
 model SalonMember {
@@ -174,6 +181,147 @@ model Session {
   deviceInfo   String?  // "iPhone 12", "Chrome Windows", etc.
   expiresAt    DateTime
   createdAt    DateTime @default(now())
+}
+
+model Project {
+  id            String          @id @default(cuid())
+  key           String          @unique
+  name          String
+  description   String?
+  ownerId       String
+  owner         User            @relation("ProjectOwner", fields: [ownerId], references: [id])
+  salonId       String?
+  salon         Salon?          @relation(fields: [salonId], references: [id], onDelete: SetNull)
+  issueCounter  Int             @default(0)
+  members       ProjectMember[]
+  sprints       Sprint[]
+  issues        Issue[]
+  labels        Label[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([ownerId])
+  @@index([salonId])
+}
+
+model ProjectMember {
+  id         String            @id @default(cuid())
+  projectId  String
+  project    Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       ProjectMemberRole @default(MEMBER)
+  joinedAt   DateTime          @default(now())
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+model Sprint {
+  id         String       @id @default(cuid())
+  projectId  String
+  project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name       String
+  goal       String?
+  startDate  DateTime?
+  endDate    DateTime?
+  status     SprintStatus @default(PLANNED)
+  issues     Issue[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model Issue {
+  id             String            @id @default(cuid())
+  projectId      String
+  project        Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  number         Int
+  title          String
+  description    String?
+  type           IssueType         @default(TASK)
+  status         IssueStatus       @default(TODO)
+  priority       IssuePriority     @default(MEDIUM)
+  storyPoints    Int?
+  position       Float             @default(0)
+  sprintId       String?
+  sprint         Sprint?           @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  assigneeId     String?
+  assignee       User?             @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  reporterId     String
+  reporter       User              @relation("IssueReporter", fields: [reporterId], references: [id])
+  parentIssueId  String?
+  parentIssue    Issue?            @relation("IssueChildren", fields: [parentIssueId], references: [id], onDelete: SetNull)
+  childIssues    Issue[]           @relation("IssueChildren")
+  comments       IssueComment[]
+  labels         IssueLabel[]
+  attachments    IssueAttachment[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@unique([projectId, number])
+  @@index([projectId])
+  @@index([sprintId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([type])
+}
+
+model IssueComment {
+  id        String         @id @default(cuid())
+  content   String
+  issueId   String
+  issue     Issue          @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    IssueComment?  @relation("IssueCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   IssueComment[] @relation("IssueCommentReplies")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([issueId])
+  @@index([authorId])
+}
+
+model Label {
+  id         String       @id @default(cuid())
+  projectId  String
+  project    Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name       String
+  color      String       @default("#6B7280")
+  issues     IssueLabel[]
+  createdAt  DateTime     @default(now())
+
+  @@unique([projectId, name])
+  @@index([projectId])
+}
+
+model IssueLabel {
+  issueId  String
+  issue    Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  labelId  String
+  label    Label  @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([issueId, labelId])
+  @@index([labelId])
+}
+
+model IssueAttachment {
+  id          String   @id @default(cuid())
+  issueId     String
+  issue       Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  url         String
+  filename    String
+  mimeType    String?
+  size        Int?
+  uploadedBy  String
+  uploader    User     @relation(fields: [uploadedBy], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([issueId])
 }
 
 
@@ -217,6 +365,40 @@ enum ReactionType {
   WOW
   SAD
   ANGRY
+}
+
+enum ProjectMemberRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum SprintStatus {
+  PLANNED
+  ACTIVE
+  CLOSED
+}
+
+enum IssueType {
+  STORY
+  TASK
+  BUG
+  EPIC
+}
+
+enum IssueStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 datasource db {

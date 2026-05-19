@@ -2,11 +2,13 @@ import {prisma} from '../../src/repository'
 import { roleSeed } from './role.seed';
 import { salonSeed } from './salon.seed';
 import { userSeed } from './user.seed';
+import { projectSeed } from './project.seed';
 
 const main = async ()=>{
   await roleSeed()
   await salonSeed()
   await userSeed()
+  await projectSeed()
 }
 
 main()

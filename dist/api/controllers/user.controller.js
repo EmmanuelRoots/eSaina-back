@@ -182,6 +182,10 @@ let UserController = class UserController extends tsoa_1.Controller {
     async searChUser(req, page = 1, limit = 20, searchTerm = '') {
         return user_sa_1.default.searchUsersWithPagination(searchTerm, page, limit, req.user.id);
     }
+    async getUsersByName(keys) {
+        console.log({ keys });
+        return user_sa_1.default.getUsersByName(keys);
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -248,6 +252,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "searChUser", null);
+__decorate([
+    (0, tsoa_1.Get)('get-users-by-name'),
+    (0, tsoa_1.Middlewares)([auth_middleware_1.authMiddleware]),
+    __param(0, (0, tsoa_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Array]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getUsersByName", null);
 exports.UserController = UserController = __decorate([
     (0, tsoa_1.Route)('user'),
     (0, tsoa_1.Tags)('user')
