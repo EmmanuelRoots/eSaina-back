@@ -7,3 +7,4 @@ node_modules
 docker-compose.yaml
 Dockerfile
 dist/
+scr/api/routes
