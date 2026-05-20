@@ -688,6 +688,14 @@
 						"format": "double",
 						"nullable": true
 					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"dueDate": {
+						"type": "string",
+						"nullable": true
+					},
 					"position": {
 						"type": "number",
 						"format": "double"
@@ -811,6 +819,12 @@
 						"type": "number",
 						"format": "double"
 					},
+					"startDate": {
+						"type": "string"
+					},
+					"dueDate": {
+						"type": "string"
+					},
 					"sprintId": {
 						"type": "string"
 					},
@@ -855,6 +869,14 @@
 					"storyPoints": {
 						"type": "number",
 						"format": "double",
+						"nullable": true
+					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"dueDate": {
+						"type": "string",
 						"nullable": true
 					},
 					"position": {

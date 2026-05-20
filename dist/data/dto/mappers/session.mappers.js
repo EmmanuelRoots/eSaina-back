@@ -9,6 +9,6 @@ const toSessionDTO = (session) => ({
     expiresAt: (0, date_utils_1.toISO)(session.expiresAt),
     userId: session.userId,
     user: (0, user_mappers_1.toUserDTO)(session.user),
-    createdAt: (0, date_utils_1.toISO)(session.createdAt)
+    createdAt: (0, date_utils_1.toISO)(session.createdAt),
 });
 exports.toSessionDTO = toSessionDTO;

@@ -18,38 +18,34 @@ const sse_sa_1 = __importDefault(require("./sse.sa"));
  */
 const getAllConversationByUser = async (id, page, limit) => {
     if (!id)
-        throw new api_exception_1.ApiError(500, "user id missing");
+        throw new api_exception_1.ApiError(500, 'user id missing');
     const skip = (page - 1) * limit;
     try {
         const [conversations, total] = await repository_1.prisma.$transaction([
             repository_1.prisma.conversation.findMany({
                 where: {
-                    OR: [
-                        { ownerId: id },
-                        { members: { some: { userId: id } } },
-                    ]
+                    OR: [{ ownerId: id }, { members: { some: { userId: id } } }],
                 },
                 include: {
                     owner: {
                         select: {
                             firstName: true,
-                            lastName: true
-                        }
+                            lastName: true,
+                        },
                     },
                     members: {
                         include: {
-                            user: true
-                        }
-                    }
+                            user: true,
+                        },
+                    },
                 },
-                orderBy: { updatedAt: "desc" }, // ou createdAt
+                orderBy: { updatedAt: 'desc' }, // ou createdAt
                 skip,
                 take: limit,
             }),
-            repository_1.prisma.conversation.count({ where: { OR: [
-                        { ownerId: id },
-                        { members: { some: { userId: id } } },
-                    ] } }),
+            repository_1.prisma.conversation.count({
+                where: { OR: [{ ownerId: id }, { members: { some: { userId: id } } }] },
+            }),
         ]);
         return {
             success: true,
@@ -59,7 +55,7 @@ const getAllConversationByUser = async (id, page, limit) => {
                 limit,
                 total,
                 hasMore: skip + limit < total,
-            }
+            },
         };
     }
     catch (error) {
@@ -76,19 +72,26 @@ const createConversation = async (ownerId, payload) => {
                     create: payload.members.map(m => {
                         return {
                             userId: m.userId,
-                            role: m.role
+                            role: m.role,
                         };
-                    })
+                    }),
                 },
                 ownerId: ownerId,
                 title: payload.title,
                 read: true,
-            }
+            },
         });
-        sse_sa_1.default.sendEventToUser({ title: "Nouvelle conversation", userId: payload.userId, read: false, type: notification_dto_1.NotificationType.NEW_CONVERSATION, data: res, message: "vous avez une nouvelle conversation" });
+        sse_sa_1.default.sendEventToUser({
+            title: 'Nouvelle conversation',
+            userId: payload.userId,
+            read: false,
+            type: notification_dto_1.NotificationType.NEW_CONVERSATION,
+            data: res,
+            message: 'vous avez une nouvelle conversation',
+        });
         return {
             success: true,
-            data: res
+            data: res,
         };
     }
     catch (error) {
@@ -125,12 +128,12 @@ const createMessage = async (payload) => {
             });
             // 4. Notification à l’utilisateur (propriétaire de la conversation)
             sse_sa_1.default.sendEventToUser({
-                title: "Nouveau message",
+                title: 'Nouveau message',
                 userId: payload.conversation.ownerId,
                 read: false,
                 type: notification_dto_1.NotificationType.NEW_MESSAGE,
                 data: aiMessage,
-                message: "L’IA a répondu à votre message",
+                message: 'L’IA a répondu à votre message',
             });
             return {
                 success: true,
@@ -138,15 +141,15 @@ const createMessage = async (payload) => {
             };
         }
         // 5. Si c’est un message humain → notifie les autres membres
-        const otherMembers = payload.conversation.members.filter((m) => m.userId !== payload.user.id);
-        otherMembers.forEach((m) => {
+        const otherMembers = payload.conversation.members.filter(m => m.userId !== payload.user.id);
+        otherMembers.forEach(m => {
             sse_sa_1.default.sendEventToUser({
-                title: "Nouveau message",
+                title: 'Nouveau message',
                 userId: m.userId,
                 read: false,
                 type: notification_dto_1.NotificationType.NEW_MESSAGE,
                 data: userMessage,
-                message: "Vous avez un nouveau message",
+                message: 'Vous avez un nouveau message',
             });
         });
         return {
@@ -156,7 +159,7 @@ const createMessage = async (payload) => {
     }
     catch (error) {
         const newError = prisma_execption_handler_1.PrismaExceptionHandler.handle(error);
-        throw new api_exception_1.ApiError(500, newError.message, "Erreur lors de la création du message");
+        throw new api_exception_1.ApiError(500, newError.message, 'Erreur lors de la création du message');
     }
 };
 const getAllMessagesByConversation = async (conversationId, page, limit) => {
@@ -167,19 +170,19 @@ const getAllMessagesByConversation = async (conversationId, page, limit) => {
         const [messages, total] = await repository_1.prisma.$transaction([
             repository_1.prisma.message.findMany({
                 where: {
-                    conversationId
+                    conversationId,
                 },
                 include: {
-                    user: true
+                    user: true,
                 },
-                orderBy: { createdAt: "desc" },
+                orderBy: { createdAt: 'desc' },
                 skip,
                 take: limit,
             }),
             repository_1.prisma.message.count({
                 where: {
-                    conversationId
-                }
+                    conversationId,
+                },
             }),
         ]);
         return {
@@ -190,7 +193,7 @@ const getAllMessagesByConversation = async (conversationId, page, limit) => {
                 limit,
                 total,
                 hasMore: skip + limit < total,
-            }
+            },
         };
     }
     catch (error) {

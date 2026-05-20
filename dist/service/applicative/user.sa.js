@@ -14,7 +14,9 @@ const crypt_ts_1 = require("../technical/crypt.ts");
  * @returns
  */
 const addUser = async (user) => {
-    const localUser = await repository_1.prisma.user.findFirst({ where: { email: user.email, active: true } });
+    const localUser = await repository_1.prisma.user.findFirst({
+        where: { email: user.email, active: true },
+    });
     if (localUser) {
         throw new api_exception_1.ApiError(400, 'account_already_exist');
     }
@@ -31,27 +33,27 @@ const addUser = async (user) => {
                         type: 'AI_CHAT',
                         messages: {
                             create: {
-                                content: 'Bonjour, comment puis-je vous aidez aujourd\'hui?',
+                                content: "Bonjour, comment puis-je vous aidez aujourd'hui?",
                                 sender: 'AI',
                                 type: 'TEXT',
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
-                roleId: user.roleId
-            }
+                roleId: user.roleId,
+            },
         });
         if (newUser.active === false) {
             return {
                 success: false,
                 statusCode: 403,
-                message: `L'utilisateur ${newUser.lastName} est inactif. Veuillez contacter l'administrateur pour l'activation!!`
+                message: `L'utilisateur ${newUser.lastName} est inactif. Veuillez contacter l'administrateur pour l'activation!!`,
             };
         }
         return {
             success: true,
             statusCode: 200,
-            data: newUser.id
+            data: newUser.id,
         };
     }
     catch (error) {
@@ -83,7 +85,7 @@ const logUser = async ({ email, password, deviceInfo }) => {
         const accessToken = (0, jwt_1.signAccess)((0, user_mappers_1.toUserDTO)(user));
         return {
             success: true,
-            data: { accessToken, refreshToken }
+            data: { accessToken, refreshToken },
         };
     }
     catch (error) {
@@ -92,18 +94,19 @@ const logUser = async ({ email, password, deviceInfo }) => {
     }
 };
 exports.logUser = logUser;
-const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, picture }) => {
+const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, picture, }) => {
     const userRole = await repository_1.prisma.role.findFirst({
         where: {
-            name: 'USER'
-        }
+            name: 'USER',
+        },
     });
     let localUser = await repository_1.prisma.user.findUnique({ where: { email } });
-    if (!localUser) { //create user
+    if (!localUser) {
+        //create user
         const salonOfficiel = await repository_1.prisma.salon.findFirst({
             where: {
-                title: 'Annonce officielle'
-            }
+                title: 'Annonce officielle',
+            },
         });
         try {
             const newUser = await repository_1.prisma.user.create({
@@ -120,22 +123,22 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, pictu
                             type: 'AI_CHAT',
                             messages: {
                                 create: {
-                                    content: 'Bonjour, comment puis-je vous aidez aujourd\'hui?',
+                                    content: "Bonjour, comment puis-je vous aidez aujourd'hui?",
                                     sender: 'AI',
                                     type: 'TEXT',
-                                }
+                                },
                             },
-                        }
+                        },
                     },
                     pdpUrl: picture,
                     roleId: userRole?.id,
                     salonMembers: {
                         create: {
                             role: 'MEMBER',
-                            salonId: salonOfficiel?.id
-                        }
-                    }
-                }
+                            salonId: salonOfficiel?.id,
+                        },
+                    },
+                },
             });
             // if (newUser.active === false) {
             //   return {
@@ -161,7 +164,7 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, pictu
         const accessToken = (0, jwt_1.signAccess)((0, user_mappers_1.toUserDTO)(localUser));
         return {
             success: true,
-            data: { accessToken, refreshToken }
+            data: { accessToken, refreshToken },
         };
     }
     catch (error) {
@@ -188,8 +191,8 @@ const refreshToken = async (oldRefresh) => {
         where: { id: session.id },
         data: {
             refreshToken: newRefresh,
-            expiresAt
-        }
+            expiresAt,
+        },
     });
     const accessToken = (0, jwt_1.signAccess)((0, user_mappers_1.toUserDTO)(session.user));
     return { accessToken, refreshToken: newRefresh };
@@ -205,7 +208,7 @@ const logOut = async (refreshToken) => {
         await repository_1.prisma.session.delete({ where: { refreshToken } });
         return {
             success: true,
-            message: 'user logged out with success'
+            message: 'user logged out with success',
         };
     }
     catch (error) {
@@ -235,7 +238,7 @@ const searchUsersWithPagination = async (keyword, page = 1, pageSize = 10, userI
     try {
         const whereClause = {
             active: true,
-            NOT: { id: userId }
+            NOT: { id: userId },
         };
         if (isEmptySearch) {
             users = await repository_1.prisma.user.findMany({
@@ -253,10 +256,7 @@ const searchUsersWithPagination = async (keyword, page = 1, pageSize = 10, userI
                 take: pageSize,
                 orderBy: isEmptySearch
                     ? { createdAt: 'desc' } // Les derniers utilisateurs créés si recherche vide
-                    : [
-                        { firstName: 'asc' },
-                        { lastName: 'asc' },
-                    ],
+                    : [{ firstName: 'asc' }, { lastName: 'asc' }],
             });
             totalCount = await repository_1.prisma.user.count({ where: whereClause });
         }
@@ -316,15 +316,15 @@ const getUserProfile = async (userId) => {
     try {
         const res = await repository_1.prisma.user.findFirst({
             where: {
-                id: userId
+                id: userId,
             },
             include: {
-                role: true
-            }
+                role: true,
+            },
         });
         return {
             success: true,
-            data: res
+            data: res,
         };
     }
     catch (error) {
@@ -354,7 +354,7 @@ const getUsersByName = async (keys) => {
       ORDER  BY "firstName" ASC, "lastName" ASC`;
         return {
             success: true,
-            data: users
+            data: users,
         };
     }
     catch (error) {
@@ -371,5 +371,5 @@ exports.default = {
     logGoogleUser,
     searchUsersWithPagination: exports.searchUsersWithPagination,
     getUserProfile,
-    getUsersByName
+    getUsersByName,
 };

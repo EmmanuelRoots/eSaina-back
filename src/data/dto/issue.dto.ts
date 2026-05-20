@@ -50,6 +50,8 @@ export interface IssueDTO {
   status: IssueStatus
   priority: IssuePriority
   storyPoints?: number | null
+  startDate?: string | null
+  dueDate?: string | null
   position?: number
   sprintId?: string | null
   assigneeId?: string | null
@@ -69,6 +71,8 @@ export interface CreateIssueRequestDTO {
   type?: IssueType
   priority?: IssuePriority
   storyPoints?: number
+  startDate?: string
+  dueDate?: string
   sprintId?: string
   assigneeId?: string
   parentIssueId?: string
@@ -82,6 +86,8 @@ export interface UpdateIssueRequestDTO {
   status?: IssueStatus
   priority?: IssuePriority
   storyPoints?: number | null
+  startDate?: string | null
+  dueDate?: string | null
   position?: number
   sprintId?: string | null
   assigneeId?: string | null

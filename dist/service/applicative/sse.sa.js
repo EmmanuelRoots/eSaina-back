@@ -14,9 +14,9 @@ const addClient = (userId, res) => {
 const removeClient = (clientId) => {
     clients.delete(clientId);
 };
-const sendEventToUser = async ({ userId, type, title, read, message, data }) => {
+const sendEventToUser = async ({ userId, type, title, read, message, data, }) => {
     try {
-        const notification = await repository_1.prisma.notification.create({
+        const notification = (await repository_1.prisma.notification.create({
             data: {
                 userId,
                 type,
@@ -25,7 +25,7 @@ const sendEventToUser = async ({ userId, type, title, read, message, data }) => 
                 message,
                 data,
             },
-        });
+        }));
         clients.forEach(({ userId: clientUserId, res }) => {
             if (clientUserId === userId && !res.writableEnded) {
                 res.write(`event: ${type}\n`);
@@ -34,7 +34,7 @@ const sendEventToUser = async ({ userId, type, title, read, message, data }) => 
         });
         return {
             success: true,
-            data: notification
+            data: notification,
         };
     }
     catch (error) {
@@ -44,7 +44,7 @@ const sendEventToUser = async ({ userId, type, title, read, message, data }) => 
 };
 const broadcastEvent = async (event, data, author) => {
     try {
-        const notification = await repository_1.prisma.notification.create({
+        const notification = (await repository_1.prisma.notification.create({
             data: {
                 userId: author.id,
                 type: notification_dto_1.NotificationType.BROADCAST,
@@ -53,7 +53,7 @@ const broadcastEvent = async (event, data, author) => {
                 message: '',
                 data,
             },
-        });
+        }));
         clients.forEach(({ res }) => {
             if (!res.writableEnded) {
                 res.write(`event: ${event}\n`);
@@ -62,7 +62,7 @@ const broadcastEvent = async (event, data, author) => {
         });
         return {
             success: true,
-            data: notification
+            data: notification,
         };
     }
     catch (error) {
@@ -79,7 +79,7 @@ const getUserNotifications = async (userId, limit) => {
         });
         return {
             success: true,
-            data: notifications
+            data: notifications,
         };
     }
     catch (error) {
@@ -92,5 +92,5 @@ exports.default = {
     removeClient,
     sendEventToUser,
     broadcastEvent,
-    getUserNotifications
+    getUserNotifications,
 };

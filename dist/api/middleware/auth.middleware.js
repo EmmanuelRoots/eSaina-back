@@ -15,7 +15,8 @@ const authMiddleware = (req, res, next) => {
         return res.status(401).json({ message: 'Missing token' });
     try {
         const token = hdr.split(' ')[1];
-        const payload = (0, jwt_1.verifyAccess)(token); //jeton expiré ? jwt jette une erreur
+        const payload = (0, jwt_1.verifyAccess)(token) //jeton expiré ? jwt jette une erreur
+        ;
         req.user = payload.user;
         next();
     }

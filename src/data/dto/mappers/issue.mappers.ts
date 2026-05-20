@@ -47,6 +47,8 @@ export const toIssueDTO = (
     status: issue.status as IssueStatus,
     priority: issue.priority as IssuePriority,
     storyPoints: issue.storyPoints,
+    startDate: issue.startDate ? toISO(issue.startDate) : undefined,
+    dueDate: issue.dueDate ? toISO(issue.dueDate) : undefined,
     position: issue.position,
     sprintId: issue.sprintId,
     assigneeId: issue.assigneeId,

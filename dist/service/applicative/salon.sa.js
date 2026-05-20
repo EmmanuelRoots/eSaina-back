@@ -9,14 +9,14 @@ const getSalonListByUser = async (userId) => {
             where: {
                 members: {
                     some: {
-                        userId
-                    }
-                }
-            }
+                        userId,
+                    },
+                },
+            },
         });
         return {
             success: true,
-            data: res
+            data: res,
         };
     }
     catch (error) {
@@ -25,5 +25,5 @@ const getSalonListByUser = async (userId) => {
     }
 };
 exports.default = {
-    getSalonListByUser
+    getSalonListByUser,
 };

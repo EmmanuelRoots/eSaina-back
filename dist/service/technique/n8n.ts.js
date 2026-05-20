@@ -11,13 +11,13 @@ const sendRequest = async (data, userId) => {
             },
             body: JSON.stringify({
                 data: data,
-                userId: userId
-            })
+                userId: userId,
+            }),
         });
         if (!res.ok) {
             throw new api_exception_1.ApiError(res.status, res.statusText, 'n8n error');
         }
-        const dataRes = await res.json();
+        const dataRes = (await res.json());
         return dataRes.output;
     }
     catch (error) {
@@ -26,5 +26,5 @@ const sendRequest = async (data, userId) => {
     }
 };
 exports.default = {
-    sendRequest
+    sendRequest,
 };

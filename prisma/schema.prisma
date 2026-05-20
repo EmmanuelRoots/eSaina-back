@@ -244,6 +244,8 @@ model Issue {
   type           IssueType         @default(TASK)
   status         IssueStatus       @default(TODO)
   priority       IssuePriority     @default(MEDIUM)
+  startDate      DateTime?
+  dueDate        DateTime?
   storyPoints    Int?
   position       Float             @default(0)
   sprintId       String?

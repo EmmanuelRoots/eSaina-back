@@ -9,7 +9,7 @@ const prisma_execption_handler_1 = require("../../data/exception/prisma.execptio
 const repository_1 = require("../../repository");
 const tree_utils_1 = require("../../utils/tree.utils");
 const sse_sa_1 = __importDefault(require("./sse.sa"));
-const createPost = async ({ author, content, mediaUrls, salon, type }) => {
+const createPost = async ({ author, content, mediaUrls, salon, type, }) => {
     try {
         const res = await repository_1.prisma.post.create({
             data: {
@@ -17,16 +17,20 @@ const createPost = async ({ author, content, mediaUrls, salon, type }) => {
                 authorId: author?.id,
                 salonId: salon?.id,
                 type,
-                mediaUrls
+                mediaUrls,
             },
             include: {
-                author: true
-            }
+                author: true,
+            },
         });
-        sse_sa_1.default.broadcastEvent(notification_dto_1.NotificationType.BROADCAST, { title: `${author?.firstName + ' ' + author?.lastName}'s post`, post: res, type: notification_dto_1.NotificationType.NEW_POST }, author);
+        sse_sa_1.default.broadcastEvent(notification_dto_1.NotificationType.BROADCAST, {
+            title: `${author?.firstName + ' ' + author?.lastName}'s post`,
+            post: res,
+            type: notification_dto_1.NotificationType.NEW_POST,
+        }, author);
         return {
             success: true,
-            data: res
+            data: res,
         };
     }
     catch (error) {
@@ -36,29 +40,29 @@ const createPost = async ({ author, content, mediaUrls, salon, type }) => {
 };
 const getPostSalon = async (salonId, page, limit) => {
     if (!salonId)
-        throw new api_exception_1.ApiError(500, "salon id missing");
+        throw new api_exception_1.ApiError(500, 'salon id missing');
     const skip = (page - 1) * limit;
     try {
         const [posts, total] = await repository_1.prisma.$transaction([
             repository_1.prisma.post.findMany({
                 where: {
-                    salonId
+                    salonId,
                 },
                 include: {
                     reactions: {
                         include: {
-                            user: true
-                        }
+                            user: true,
+                        },
                     },
                     author: true,
                     comments: {
                         select: {
-                            id: true
-                        }
-                    }
+                            id: true,
+                        },
+                    },
                 },
                 orderBy: {
-                    createdAt: "desc"
+                    createdAt: 'desc',
                 },
                 skip,
                 take: limit,
@@ -73,7 +77,7 @@ const getPostSalon = async (salonId, page, limit) => {
                 limit,
                 total,
                 hasMore: skip + limit < total,
-            }
+            },
         };
     }
     catch (error) {
@@ -91,12 +95,12 @@ const createReaction = async (payload, userId) => {
                 postId: payload.post?.id ?? undefined,
             },
             include: {
-                user: true
-            }
+                user: true,
+            },
         });
         return {
             success: true,
-            data: res
+            data: res,
         };
     }
     catch (error) {
@@ -109,12 +113,12 @@ const deleteReaction = async (id) => {
     try {
         const res = await repository_1.prisma.reaction.delete({
             where: {
-                id
-            }
+                id,
+            },
         });
         return {
             success: true,
-            message: 'reaction deleted with success'
+            message: 'reaction deleted with success',
         };
     }
     catch (error) {
@@ -133,12 +137,12 @@ const createComment = async (payload, authorId) => {
             },
             include: {
                 author: true,
-                post: true
-            }
+                post: true,
+            },
         });
         return {
             success: true,
-            data: res
+            data: res,
         };
     }
     catch (error) {
@@ -150,7 +154,7 @@ const getComments = async (postId) => {
     try {
         const res = await repository_1.prisma.comment.findMany({
             where: {
-                postId
+                postId,
             },
             include: {
                 post: true,
@@ -158,15 +162,15 @@ const getComments = async (postId) => {
                 reactions: {
                     include: {
                         user: true,
-                        comment: true
-                    }
-                }
+                        comment: true,
+                    },
+                },
             },
         });
         return {
             success: true,
             data: (0, tree_utils_1.buildTree)(res),
-            total: res.length
+            total: res.length,
         };
     }
     catch (error) {
@@ -180,5 +184,5 @@ exports.default = {
     createReaction,
     deleteReaction,
     createComment,
-    getComments
+    getComments,
 };

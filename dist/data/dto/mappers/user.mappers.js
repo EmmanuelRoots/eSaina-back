@@ -11,6 +11,6 @@ const toUserDTO = (user) => ({
     birthDate: (0, date_utils_1.toISO)(user.birthDate),
     createdAt: (0, date_utils_1.toISO)(user.createdAt),
     pdpUrl: user.pdpUrl ?? '',
-    roleId: user.roleId
+    roleId: user.roleId,
 });
 exports.toUserDTO = toUserDTO;

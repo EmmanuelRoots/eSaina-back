@@ -19,7 +19,9 @@ const ExceptionMiddleware = (error, req, res, next) => {
                         return res.status(400).json({
                             success: false,
                             statusCode: 400,
-                            message: error.fields ? Object.keys(error.fields).map((key) => error.fields[key].message) : 'Données au mauvais format',
+                            message: error.fields
+                                ? Object.keys(error.fields).map((key) => error.fields[key].message)
+                                : 'Données au mauvais format',
                         });
                     default:
                         return res.status(error.status).json({

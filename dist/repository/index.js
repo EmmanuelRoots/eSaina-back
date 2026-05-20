@@ -5,7 +5,7 @@ const client_1 = require("@prisma/client");
 exports.prisma = new client_1.PrismaClient({
     datasources: {
         db: {
-            url: process.env.DATABASE_URL
-        }
-    }
+            url: process.env.DATABASE_URL,
+        },
+    },
 });

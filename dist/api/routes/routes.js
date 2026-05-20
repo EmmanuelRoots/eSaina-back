@@ -15,6 +15,8 @@ const project_controller_1 = require("./../controllers/project.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const post_controller_1 = require("./../controllers/post.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+const label_controller_1 = require("./../controllers/label.controller");
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const issue_controller_1 = require("./../controllers/issue.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const conversation_controller_1 = require("./../controllers/conversation.controller");
@@ -267,25 +269,6 @@ const models = {
         "type": { "dataType": "nestedObjectLiteral", "nestedProperties": {}, "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "AddProjectMemberRequestDTO": {
-        "dataType": "refObject",
-        "properties": {
-            "userId": { "dataType": "string", "required": true },
-            "role": { "ref": "ProjectMemberRole" },
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "_36_Enums.ReactionType": {
-        "dataType": "refAlias",
-        "type": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["LIKE"] }, { "dataType": "enum", "enums": ["LOVE"] }, { "dataType": "enum", "enums": ["HAHA"] }, { "dataType": "enum", "enums": ["WOW"] }, { "dataType": "enum", "enums": ["SAD"] }, { "dataType": "enum", "enums": ["ANGRY"] }], "validators": {} },
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "_36_Enums.PostType": {
-        "dataType": "refAlias",
-        "type": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["TEXT"] }, { "dataType": "enum", "enums": ["IMAGE"] }, { "dataType": "enum", "enums": ["VIDEO"] }], "validators": {} },
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "IssueType": {
         "dataType": "refEnum",
         "enums": ["STORY", "TASK", "BUG", "EPIC"],
@@ -324,6 +307,8 @@ const models = {
             "status": { "ref": "IssueStatus", "required": true },
             "priority": { "ref": "IssuePriority", "required": true },
             "storyPoints": { "dataType": "union", "subSchemas": [{ "dataType": "double" }, { "dataType": "enum", "enums": [null] }] },
+            "startDate": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
+            "dueDate": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
             "position": { "dataType": "double" },
             "sprintId": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
             "assigneeId": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
@@ -338,6 +323,35 @@ const models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AddProjectMemberRequestDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "userId": { "dataType": "string", "required": true },
+            "role": { "ref": "ProjectMemberRole" },
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.ReactionType": {
+        "dataType": "refAlias",
+        "type": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["LIKE"] }, { "dataType": "enum", "enums": ["LOVE"] }, { "dataType": "enum", "enums": ["HAHA"] }, { "dataType": "enum", "enums": ["WOW"] }, { "dataType": "enum", "enums": ["SAD"] }, { "dataType": "enum", "enums": ["ANGRY"] }], "validators": {} },
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.PostType": {
+        "dataType": "refAlias",
+        "type": { "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["TEXT"] }, { "dataType": "enum", "enums": ["IMAGE"] }, { "dataType": "enum", "enums": ["VIDEO"] }], "validators": {} },
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateLabelRequestDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "projectId": { "dataType": "string", "required": true },
+            "name": { "dataType": "string", "required": true },
+            "color": { "dataType": "string" },
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CreateIssueRequestDTO": {
         "dataType": "refObject",
         "properties": {
@@ -347,6 +361,8 @@ const models = {
             "type": { "ref": "IssueType" },
             "priority": { "ref": "IssuePriority" },
             "storyPoints": { "dataType": "double" },
+            "startDate": { "dataType": "string" },
+            "dueDate": { "dataType": "string" },
             "sprintId": { "dataType": "string" },
             "assigneeId": { "dataType": "string" },
             "parentIssueId": { "dataType": "string" },
@@ -364,6 +380,8 @@ const models = {
             "status": { "ref": "IssueStatus" },
             "priority": { "ref": "IssuePriority" },
             "storyPoints": { "dataType": "union", "subSchemas": [{ "dataType": "double" }, { "dataType": "enum", "enums": [null] }] },
+            "startDate": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
+            "dueDate": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
             "position": { "dataType": "double" },
             "sprintId": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
             "assigneeId": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
@@ -932,6 +950,29 @@ function RegisterRoutes(app) {
         }
     });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsProjectController_getBacklog = {
+        projectId: { "in": "path", "name": "projectId", "required": true, "dataType": "string" },
+    };
+    app.get('/project/:projectId/backlog', ...((0, runtime_1.fetchMiddlewares)(project_controller_1.ProjectController)), ...((0, runtime_1.fetchMiddlewares)(project_controller_1.ProjectController.prototype.getBacklog)), async function ProjectController_getBacklog(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsProjectController_getBacklog, request, response });
+            const controller = new project_controller_1.ProjectController();
+            await templateService.apiHandler({
+                methodName: 'getBacklog',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     const argsProjectController_addMember = {
         projectId: { "in": "path", "name": "projectId", "required": true, "dataType": "string" },
         body: { "in": "body", "name": "body", "required": true, "ref": "AddProjectMemberRequestDTO" },
@@ -1108,6 +1149,75 @@ function RegisterRoutes(app) {
             const controller = new post_controller_1.PostController();
             await templateService.apiHandler({
                 methodName: 'getComments',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsLabelController_create = {
+        body: { "in": "body", "name": "body", "required": true, "ref": "CreateLabelRequestDTO" },
+    };
+    app.post('/label/create', ...((0, runtime_1.fetchMiddlewares)(label_controller_1.LabelController)), ...((0, runtime_1.fetchMiddlewares)(label_controller_1.LabelController.prototype.create)), async function LabelController_create(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsLabelController_create, request, response });
+            const controller = new label_controller_1.LabelController();
+            await templateService.apiHandler({
+                methodName: 'create',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsLabelController_list = {
+        projectId: { "in": "query", "name": "projectId", "required": true, "dataType": "string" },
+    };
+    app.get('/label/list', ...((0, runtime_1.fetchMiddlewares)(label_controller_1.LabelController)), ...((0, runtime_1.fetchMiddlewares)(label_controller_1.LabelController.prototype.list)), async function LabelController_list(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsLabelController_list, request, response });
+            const controller = new label_controller_1.LabelController();
+            await templateService.apiHandler({
+                methodName: 'list',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsLabelController_remove = {
+        labelId: { "in": "path", "name": "labelId", "required": true, "dataType": "string" },
+    };
+    app.delete('/label/:labelId', ...((0, runtime_1.fetchMiddlewares)(label_controller_1.LabelController)), ...((0, runtime_1.fetchMiddlewares)(label_controller_1.LabelController.prototype.remove)), async function LabelController_remove(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsLabelController_remove, request, response });
+            const controller = new label_controller_1.LabelController();
+            await templateService.apiHandler({
+                methodName: 'remove',
                 controller,
                 response,
                 next,
