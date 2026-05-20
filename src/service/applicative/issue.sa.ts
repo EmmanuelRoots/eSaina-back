@@ -32,7 +32,7 @@ const createIssue = async (
           title: payload.title,
           description: payload.description,
           type: payload.type ?? IssueType.TASK,
-          status: IssueStatus.TODO,
+          status: payload.status ?? IssueStatus.TODO,
           priority: payload.priority ?? IssuePriority.MEDIUM,
           storyPoints: payload.storyPoints,
           startDate: payload.startDate ? new Date(payload.startDate) : undefined,

@@ -812,6 +812,9 @@
 					"type": {
 						"$ref": "#/components/schemas/IssueType"
 					},
+					"status": {
+						"$ref": "#/components/schemas/IssueStatus"
+					},
 					"priority": {
 						"$ref": "#/components/schemas/IssuePriority"
 					},

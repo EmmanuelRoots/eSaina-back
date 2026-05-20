@@ -366,6 +366,7 @@ const models: TsoaRoute.Models = {
             "title": {"dataType":"string","required":true},
             "description": {"dataType":"string"},
             "type": {"ref":"IssueType"},
+            "status": {"ref":"IssueStatus"},
             "priority": {"ref":"IssuePriority"},
             "storyPoints": {"dataType":"double"},
             "startDate": {"dataType":"string"},

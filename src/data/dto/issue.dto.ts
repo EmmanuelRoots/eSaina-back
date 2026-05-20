@@ -69,6 +69,7 @@ export interface CreateIssueRequestDTO {
   title: string
   description?: string
   type?: IssueType
+  status?: IssueStatus
   priority?: IssuePriority
   storyPoints?: number
   startDate?: string
