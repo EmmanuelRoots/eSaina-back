@@ -3035,50 +3035,6 @@
 											"allOf": [
 												{
 													"properties": {
-														"post": {
-															"properties": {
-																"mediaUrls": {
-																	"items": {
-																		"type": "string"
-																	},
-																	"type": "array"
-																},
-																"authorId": {
-																	"type": "string"
-																},
-																"salonId": {
-																	"type": "string"
-																},
-																"content": {
-																	"type": "string"
-																},
-																"updatedAt": {
-																	"type": "string",
-																	"format": "date-time"
-																},
-																"type": {
-																	"$ref": "#/components/schemas/_36_Enums.PostType"
-																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
-																},
-																"id": {
-																	"type": "string"
-																}
-															},
-															"required": [
-																"mediaUrls",
-																"authorId",
-																"salonId",
-																"content",
-																"updatedAt",
-																"type",
-																"createdAt",
-																"id"
-															],
-															"type": "object"
-														},
 														"author": {
 															"properties": {
 																"roleId": {
@@ -3135,11 +3091,55 @@
 																"email"
 															],
 															"type": "object"
+														},
+														"post": {
+															"properties": {
+																"mediaUrls": {
+																	"items": {
+																		"type": "string"
+																	},
+																	"type": "array"
+																},
+																"authorId": {
+																	"type": "string"
+																},
+																"salonId": {
+																	"type": "string"
+																},
+																"content": {
+																	"type": "string"
+																},
+																"updatedAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"type": {
+																	"$ref": "#/components/schemas/_36_Enums.PostType"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"mediaUrls",
+																"authorId",
+																"salonId",
+																"content",
+																"updatedAt",
+																"type",
+																"createdAt",
+																"id"
+															],
+															"type": "object"
 														}
 													},
 													"required": [
-														"post",
-														"author"
+														"author",
+														"post"
 													],
 													"type": "object"
 												},
