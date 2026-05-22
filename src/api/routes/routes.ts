@@ -31,6 +31,43 @@ const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "SubscribeDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "email": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "phoneNumber": {"dataType":"string","required":true},
+            "birthDate": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
+            "deviceInfo": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "LoginDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "email": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true},
+            "deviceInfo": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "GoogleLoginDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "email": {"dataType":"string","required":true},
+            "family_name": {"dataType":"string","required":true},
+            "given_name": {"dataType":"string","required":true},
+            "deviceInfo": {"dataType":"string"},
+            "picture": {"dataType":"string"},
+            "roleId": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ConversationType": {
         "dataType": "refEnum",
         "enums": ["AI_CHAT","DIRECT","GROUP"],
@@ -106,29 +143,6 @@ const models: TsoaRoute.Models = {
             "userId": {"dataType":"string","required":true},
             "role": {"ref":"MemberRole","required":true},
             "joinedAt": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "LoginDTO": {
-        "dataType": "refObject",
-        "properties": {
-            "email": {"dataType":"string","required":true},
-            "password": {"dataType":"string","required":true},
-            "deviceInfo": {"dataType":"string"},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "GoogleLoginDTO": {
-        "dataType": "refObject",
-        "properties": {
-            "email": {"dataType":"string","required":true},
-            "family_name": {"dataType":"string","required":true},
-            "given_name": {"dataType":"string","required":true},
-            "deviceInfo": {"dataType":"string"},
-            "picture": {"dataType":"string"},
-            "roleId": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -456,7 +470,7 @@ export function RegisterRoutes(app: Router) {
 
     
         const argsUserController_subscribe: Record<string, TsoaRoute.ParameterSchema> = {
-                body: {"in":"body","name":"body","required":true,"ref":"UserDTO"},
+                body: {"in":"body","name":"body","required":true,"ref":"SubscribeDTO"},
         };
         app.post('/user/subscribe',
             ...(fetchMiddlewares<RequestHandler>(UserController)),

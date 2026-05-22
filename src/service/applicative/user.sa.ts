@@ -13,24 +13,42 @@ import { genRefresh } from '../../utils/token'
 import { hashText } from '../technical/crypt.ts'
 
 /**
- * Ajout d'un nouvel utilisateur
+ * Ajout d'un nouvel utilisateur (self-signup)
+ * Crée le compte, ouvre une session et retourne les tokens directement
+ * pour que le client puisse enchaîner sans repasser par /login.
  * @param user informations sur l'utilisateur
- * @returns
+ * @returns { accessToken, refreshToken }
  */
-export const addUser = async (user: UserDTO) => {
-  const localUser = await prisma.user.findFirst({
-    where: { email: user.email, active: true },
-  })
-  if (localUser) {
-    throw new ApiError(400, 'account_already_exist')
+export const addUser = async (user: UserDTO & { deviceInfo?: string }) => {
+  const existing = await prisma.user.findUnique({ where: { email: user.email } })
+  if (existing) {
+    throw new ApiError(409, 'account_already_exist', 'Inscription error')
   }
+
+  let roleId = user.roleId
+  if (!roleId) {
+    const userRole = await prisma.role.findFirst({ where: { name: 'USER' } })
+    if (!userRole)
+      throw new ApiError(500, 'USER role not seeded', 'role_missing')
+    roleId = userRole.id
+  }
+
+  const salonOfficiel = await prisma.salon.findFirst({
+    where: { title: 'Annonce officielle' },
+  })
+
   const hashed = await hashText(user.password ?? '')
   try {
     const newUser = await prisma.user.create({
       data: {
-        ...user,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
         password: hashed,
+        active: true,
         birthDate: user.birthDate ? new Date(user.birthDate) : new Date(),
+        roleId,
         ownedConversations: {
           create: {
             title: 'Assistant IA',
@@ -44,21 +62,31 @@ export const addUser = async (user: UserDTO) => {
             },
           },
         },
-        roleId: user.roleId,
+        ...(salonOfficiel
+          ? {
+              salonMembers: {
+                create: { role: 'MEMBER', salonId: salonOfficiel.id },
+              },
+            }
+          : {}),
       },
     })
-    if (newUser.active === false) {
-      return {
-        success: false,
-        statusCode: 403,
-        message: `L'utilisateur ${newUser.lastName} est inactif. Veuillez contacter l'administrateur pour l'activation!!`,
-      }
-    }
+
+    const refreshToken = genRefresh()
+    const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000)
+    await prisma.session.create({
+      data: {
+        refreshToken,
+        userId: newUser.id,
+        expiresAt,
+        deviceInfo: user.deviceInfo,
+      },
+    })
+    const accessToken = signAccess(toUserDTO(newUser))
 
     return {
       success: true,
-      statusCode: 200,
-      data: newUser.id,
+      data: { accessToken, refreshToken },
     }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)

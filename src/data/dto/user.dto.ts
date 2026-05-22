@@ -29,3 +29,13 @@ export interface UserRequestDTO {
   active?: boolean
   roleId: string
 }
+
+export interface SubscribeDTO {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  birthDate?: string | null
+  deviceInfo?: string
+}

@@ -7,6 +7,89 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"SubscribeDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"birthDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"deviceInfo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password",
+					"firstName",
+					"lastName",
+					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LoginDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"deviceInfo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GoogleLoginDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"family_name": {
+						"type": "string"
+					},
+					"given_name": {
+						"type": "string"
+					},
+					"deviceInfo": {
+						"type": "string"
+					},
+					"picture": {
+						"type": "string"
+					},
+					"roleId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"family_name",
+					"given_name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"ConversationType": {
 				"enum": [
 					"AI_CHAT",
@@ -194,54 +277,6 @@
 					"userId",
 					"role",
 					"joinedAt"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"LoginDTO": {
-				"properties": {
-					"email": {
-						"type": "string"
-					},
-					"password": {
-						"type": "string"
-					},
-					"deviceInfo": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"email",
-					"password"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"GoogleLoginDTO": {
-				"properties": {
-					"email": {
-						"type": "string"
-					},
-					"family_name": {
-						"type": "string"
-					},
-					"given_name": {
-						"type": "string"
-					},
-					"deviceInfo": {
-						"type": "string"
-					},
-					"picture": {
-						"type": "string"
-					},
-					"roleId": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"email",
-					"family_name",
-					"given_name"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1008,50 +1043,31 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"anyOf": [
-										{
+									"properties": {
+										"data": {
 											"properties": {
-												"data": {},
-												"message": {
+												"refreshToken": {
 													"type": "string"
 												},
-												"statusCode": {
-													"type": "number",
-													"format": "double"
-												},
-												"success": {
-													"type": "boolean"
+												"accessToken": {
+													"type": "string"
 												}
 											},
 											"required": [
-												"message",
-												"statusCode",
-												"success"
+												"refreshToken",
+												"accessToken"
 											],
 											"type": "object"
 										},
-										{
-											"properties": {
-												"message": {},
-												"data": {
-													"type": "string"
-												},
-												"statusCode": {
-													"type": "number",
-													"format": "double"
-												},
-												"success": {
-													"type": "boolean"
-												}
-											},
-											"required": [
-												"data",
-												"statusCode",
-												"success"
-											],
-											"type": "object"
+										"success": {
+											"type": "boolean"
 										}
-									]
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
 								}
 							}
 						}
@@ -1078,7 +1094,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UserDTO",
+								"$ref": "#/components/schemas/SubscribeDTO",
 								"description": "Les données de l'utilisateur à inscrire"
 							},
 							"example": {
@@ -2414,24 +2430,24 @@
 														"properties": {
 															"author": {
 																"properties": {
+																	"connected": {
+																		"type": "boolean"
+																	},
 																	"roleId": {
 																		"type": "string"
 																	},
 																	"pdpUrl": {
 																		"type": "string"
 																	},
-																	"connected": {
+																	"active": {
 																		"type": "boolean"
-																	},
-																	"phoneNumber": {
-																		"type": "string"
 																	},
 																	"birthDate": {
 																		"type": "string",
 																		"format": "date-time"
 																	},
-																	"active": {
-																		"type": "boolean"
+																	"phoneNumber": {
+																		"type": "string"
 																	},
 																	"createdAt": {
 																		"type": "string",
@@ -2454,12 +2470,12 @@
 																	}
 																},
 																"required": [
+																	"connected",
 																	"roleId",
 																	"pdpUrl",
-																	"connected",
-																	"phoneNumber",
-																	"birthDate",
 																	"active",
+																	"birthDate",
+																	"phoneNumber",
 																	"createdAt",
 																	"firstName",
 																	"lastName",
@@ -2476,24 +2492,24 @@
 																			"properties": {
 																				"user": {
 																					"properties": {
+																						"connected": {
+																							"type": "boolean"
+																						},
 																						"roleId": {
 																							"type": "string"
 																						},
 																						"pdpUrl": {
 																							"type": "string"
 																						},
-																						"connected": {
+																						"active": {
 																							"type": "boolean"
-																						},
-																						"phoneNumber": {
-																							"type": "string"
 																						},
 																						"birthDate": {
 																							"type": "string",
 																							"format": "date-time"
 																						},
-																						"active": {
-																							"type": "boolean"
+																						"phoneNumber": {
+																							"type": "string"
 																						},
 																						"createdAt": {
 																							"type": "string",
@@ -2516,12 +2532,12 @@
 																						}
 																					},
 																					"required": [
+																						"connected",
 																						"roleId",
 																						"pdpUrl",
-																						"connected",
-																						"phoneNumber",
-																						"birthDate",
 																						"active",
+																						"birthDate",
+																						"phoneNumber",
 																						"createdAt",
 																						"firstName",
 																						"lastName",
@@ -2545,11 +2561,11 @@
 																				"postId": {
 																					"type": "string"
 																				},
-																				"userId": {
-																					"type": "string"
-																				},
 																				"type": {
 																					"$ref": "#/components/schemas/_36_Enums.ReactionType"
+																				},
+																				"userId": {
+																					"type": "string"
 																				},
 																				"createdAt": {
 																					"type": "string",
@@ -2562,8 +2578,8 @@
 																			"required": [
 																				"commentId",
 																				"postId",
-																				"userId",
 																				"type",
+																				"userId",
 																				"createdAt",
 																				"id"
 																			],
@@ -2606,10 +2622,10 @@
 															"authorId": {
 																"type": "string"
 															},
-															"salonId": {
+															"content": {
 																"type": "string"
 															},
-															"content": {
+															"salonId": {
 																"type": "string"
 															},
 															"updatedAt": {
@@ -2630,8 +2646,8 @@
 														"required": [
 															"mediaUrls",
 															"authorId",
-															"salonId",
 															"content",
+															"salonId",
 															"updatedAt",
 															"type",
 															"createdAt",
@@ -2710,24 +2726,24 @@
 													"properties": {
 														"author": {
 															"properties": {
+																"connected": {
+																	"type": "boolean"
+																},
 																"roleId": {
 																	"type": "string"
 																},
 																"pdpUrl": {
 																	"type": "string"
 																},
-																"connected": {
+																"active": {
 																	"type": "boolean"
-																},
-																"phoneNumber": {
-																	"type": "string"
 																},
 																"birthDate": {
 																	"type": "string",
 																	"format": "date-time"
 																},
-																"active": {
-																	"type": "boolean"
+																"phoneNumber": {
+																	"type": "string"
 																},
 																"createdAt": {
 																	"type": "string",
@@ -2750,12 +2766,12 @@
 																}
 															},
 															"required": [
+																"connected",
 																"roleId",
 																"pdpUrl",
-																"connected",
-																"phoneNumber",
-																"birthDate",
 																"active",
+																"birthDate",
+																"phoneNumber",
 																"createdAt",
 																"firstName",
 																"lastName",
@@ -2782,10 +2798,10 @@
 														"authorId": {
 															"type": "string"
 														},
-														"salonId": {
+														"content": {
 															"type": "string"
 														},
-														"content": {
+														"salonId": {
 															"type": "string"
 														},
 														"updatedAt": {
@@ -2806,8 +2822,8 @@
 													"required": [
 														"mediaUrls",
 														"authorId",
-														"salonId",
 														"content",
+														"salonId",
 														"updatedAt",
 														"type",
 														"createdAt",
@@ -2862,24 +2878,24 @@
 													"properties": {
 														"user": {
 															"properties": {
+																"connected": {
+																	"type": "boolean"
+																},
 																"roleId": {
 																	"type": "string"
 																},
 																"pdpUrl": {
 																	"type": "string"
 																},
-																"connected": {
+																"active": {
 																	"type": "boolean"
-																},
-																"phoneNumber": {
-																	"type": "string"
 																},
 																"birthDate": {
 																	"type": "string",
 																	"format": "date-time"
 																},
-																"active": {
-																	"type": "boolean"
+																"phoneNumber": {
+																	"type": "string"
 																},
 																"createdAt": {
 																	"type": "string",
@@ -2902,12 +2918,12 @@
 																}
 															},
 															"required": [
+																"connected",
 																"roleId",
 																"pdpUrl",
-																"connected",
-																"phoneNumber",
-																"birthDate",
 																"active",
+																"birthDate",
+																"phoneNumber",
 																"createdAt",
 																"firstName",
 																"lastName",
@@ -2931,11 +2947,11 @@
 														"postId": {
 															"type": "string"
 														},
-														"userId": {
-															"type": "string"
-														},
 														"type": {
 															"$ref": "#/components/schemas/_36_Enums.ReactionType"
+														},
+														"userId": {
+															"type": "string"
 														},
 														"createdAt": {
 															"type": "string",
@@ -2948,8 +2964,8 @@
 													"required": [
 														"commentId",
 														"postId",
-														"userId",
 														"type",
+														"userId",
 														"createdAt",
 														"id"
 													],
@@ -3037,24 +3053,24 @@
 													"properties": {
 														"author": {
 															"properties": {
+																"connected": {
+																	"type": "boolean"
+																},
 																"roleId": {
 																	"type": "string"
 																},
 																"pdpUrl": {
 																	"type": "string"
 																},
-																"connected": {
+																"active": {
 																	"type": "boolean"
-																},
-																"phoneNumber": {
-																	"type": "string"
 																},
 																"birthDate": {
 																	"type": "string",
 																	"format": "date-time"
 																},
-																"active": {
-																	"type": "boolean"
+																"phoneNumber": {
+																	"type": "string"
 																},
 																"createdAt": {
 																	"type": "string",
@@ -3077,12 +3093,12 @@
 																}
 															},
 															"required": [
+																"connected",
 																"roleId",
 																"pdpUrl",
-																"connected",
-																"phoneNumber",
-																"birthDate",
 																"active",
+																"birthDate",
+																"phoneNumber",
 																"createdAt",
 																"firstName",
 																"lastName",
@@ -3103,10 +3119,10 @@
 																"authorId": {
 																	"type": "string"
 																},
-																"salonId": {
+																"content": {
 																	"type": "string"
 																},
-																"content": {
+																"salonId": {
 																	"type": "string"
 																},
 																"updatedAt": {
@@ -3127,8 +3143,8 @@
 															"required": [
 																"mediaUrls",
 																"authorId",
-																"salonId",
 																"content",
+																"salonId",
 																"updatedAt",
 																"type",
 																"createdAt",
@@ -3864,18 +3880,18 @@
 												"ownerId": {
 													"type": "string"
 												},
-												"read": {
-													"type": "boolean"
-												},
 												"updatedAt": {
 													"type": "string",
 													"format": "date-time"
 												},
-												"type": {
-													"$ref": "#/components/schemas/_36_Enums.ConversationType"
+												"read": {
+													"type": "boolean"
 												},
 												"title": {
 													"type": "string"
+												},
+												"type": {
+													"$ref": "#/components/schemas/_36_Enums.ConversationType"
 												},
 												"createdAt": {
 													"type": "string",
@@ -3887,10 +3903,10 @@
 											},
 											"required": [
 												"ownerId",
-												"read",
 												"updatedAt",
-												"type",
+												"read",
 												"title",
+												"type",
 												"createdAt",
 												"id"
 											],
@@ -3937,20 +3953,20 @@
 													"properties": {
 														"aiMessage": {
 															"properties": {
-																"conversationId": {
-																	"type": "string"
-																},
-																"userId": {
-																	"type": "string"
-																},
 																"sender": {
 																	"$ref": "#/components/schemas/_36_Enums.SenderType"
+																},
+																"conversationId": {
+																	"type": "string"
 																},
 																"content": {
 																	"type": "string"
 																},
 																"type": {
 																	"$ref": "#/components/schemas/_36_Enums.MessageType"
+																},
+																"userId": {
+																	"type": "string"
 																},
 																"createdAt": {
 																	"type": "string",
@@ -3961,11 +3977,11 @@
 																}
 															},
 															"required": [
-																"conversationId",
-																"userId",
 																"sender",
+																"conversationId",
 																"content",
 																"type",
+																"userId",
 																"createdAt",
 																"id"
 															],
@@ -3973,20 +3989,20 @@
 														},
 														"userMessage": {
 															"properties": {
-																"conversationId": {
-																	"type": "string"
-																},
-																"userId": {
-																	"type": "string"
-																},
 																"sender": {
 																	"$ref": "#/components/schemas/_36_Enums.SenderType"
+																},
+																"conversationId": {
+																	"type": "string"
 																},
 																"content": {
 																	"type": "string"
 																},
 																"type": {
 																	"$ref": "#/components/schemas/_36_Enums.MessageType"
+																},
+																"userId": {
+																	"type": "string"
 																},
 																"createdAt": {
 																	"type": "string",
@@ -3997,11 +4013,11 @@
 																}
 															},
 															"required": [
-																"conversationId",
-																"userId",
 																"sender",
+																"conversationId",
 																"content",
 																"type",
+																"userId",
 																"createdAt",
 																"id"
 															],
@@ -4028,20 +4044,20 @@
 											"properties": {
 												"data": {
 													"properties": {
-														"conversationId": {
-															"type": "string"
-														},
-														"userId": {
-															"type": "string"
-														},
 														"sender": {
 															"$ref": "#/components/schemas/_36_Enums.SenderType"
+														},
+														"conversationId": {
+															"type": "string"
 														},
 														"content": {
 															"type": "string"
 														},
 														"type": {
 															"$ref": "#/components/schemas/_36_Enums.MessageType"
+														},
+														"userId": {
+															"type": "string"
 														},
 														"createdAt": {
 															"type": "string",
@@ -4052,11 +4068,11 @@
 														}
 													},
 													"required": [
-														"conversationId",
-														"userId",
 														"sender",
+														"conversationId",
 														"content",
 														"type",
+														"userId",
 														"createdAt",
 														"id"
 													],
