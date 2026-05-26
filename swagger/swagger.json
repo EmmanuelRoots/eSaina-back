@@ -347,6 +347,345 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"TeamSummaryDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"createdById": {
+						"type": "string"
+					},
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"projectCount": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount",
+					"projectCount"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamListResponseDTO": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/TeamSummaryDTO"
+						},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"hasPreviousPage": {
+								"type": "boolean"
+							},
+							"hasNextPage": {
+								"type": "boolean"
+							},
+							"totalPages": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalCount": {
+								"type": "number",
+								"format": "double"
+							},
+							"pageSize": {
+								"type": "number",
+								"format": "double"
+							},
+							"currentPage": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"hasPreviousPage",
+							"hasNextPage",
+							"totalPages",
+							"totalCount",
+							"pageSize",
+							"currentPage"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"success",
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamMemberRoleDTO": {
+				"type": "string",
+				"enum": [
+					"LEAD",
+					"MEMBER"
+				],
+				"description": "DTO pour la gestion des équipes via la console d'administration.\nUne Team est une entité organisationnelle (LEAD + MEMBER) qui peut être\nrattachée à plusieurs projets (N-N via TeamProject)."
+			},
+			"TeamMemberDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/TeamMemberRoleDTO"
+					},
+					"joinedAt": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"pdpUrl": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"email": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"lastName",
+							"firstName",
+							"email",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"role",
+					"joinedAt",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamProjectDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"projectId": {
+						"type": "string"
+					},
+					"addedAt": {
+						"type": "string"
+					},
+					"project": {
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"key": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"name",
+							"key",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"projectId",
+					"addedAt",
+					"project"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamDetailDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"createdById": {
+						"type": "string"
+					},
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"projectCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/TeamMemberDTO"
+						},
+						"type": "array"
+					},
+					"projects": {
+						"items": {
+							"$ref": "#/components/schemas/TeamProjectDTO"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount",
+					"projectCount",
+					"members",
+					"projects"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamCreateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"memberIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"projectIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamUpdateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamAddMembersDTO": {
+				"properties": {
+					"userIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"userIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamUpdateMemberRoleDTO": {
+				"properties": {
+					"role": {
+						"$ref": "#/components/schemas/TeamMemberRoleDTO"
+					}
+				},
+				"required": [
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamAddProjectsDTO": {
+				"properties": {
+					"projectIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"projectIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"NotificationType": {
 				"enum": [
 					"NEW_MESSAGE",
@@ -1061,6 +1400,267 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"GroupSummaryDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"createdById": {
+						"type": "string"
+					},
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupListResponseDTO": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/GroupSummaryDTO"
+						},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"hasPreviousPage": {
+								"type": "boolean"
+							},
+							"hasNextPage": {
+								"type": "boolean"
+							},
+							"totalPages": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalCount": {
+								"type": "number",
+								"format": "double"
+							},
+							"pageSize": {
+								"type": "number",
+								"format": "double"
+							},
+							"currentPage": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"hasPreviousPage",
+							"hasNextPage",
+							"totalPages",
+							"totalCount",
+							"pageSize",
+							"currentPage"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"success",
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupMemberRoleDTO": {
+				"type": "string",
+				"enum": [
+					"OWNER",
+					"MEMBER"
+				],
+				"description": "DTO pour la gestion des groupes via la console d'administration.\nUn groupe regroupe des utilisateurs autour d'une thématique transverse\n(ex. \"Veille sécurité\", \"Recrutement\"). Indépendant des Salons/Projects."
+			},
+			"GroupMemberDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/GroupMemberRoleDTO"
+					},
+					"joinedAt": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"pdpUrl": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"email": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"lastName",
+							"firstName",
+							"email",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"role",
+					"joinedAt",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupDetailDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"createdById": {
+						"type": "string"
+					},
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/GroupMemberDTO"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount",
+					"members"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupCreateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"memberIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupUpdateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupAddMembersDTO": {
+				"properties": {
+					"userIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"userIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupUpdateMemberRoleDTO": {
+				"properties": {
+					"role": {
+						"$ref": "#/components/schemas/GroupMemberRoleDTO"
+					}
+				},
+				"required": [
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"_36_Enums.ConversationType": {
 				"type": "string",
 				"enum": [
@@ -1756,6 +2356,616 @@
 							"items": {
 								"type": "string"
 							}
+						}
+					}
+				]
+			}
+		},
+		"/admin/teams": {
+			"get": {
+				"operationId": "ListTeams",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TeamListResponseDTO"
+								}
+							}
+						}
+					}
+				},
+				"description": "Liste paginée des équipes avec recherche optionnelle.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée une équipe. Le créateur devient automatiquement LEAD.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamCreateDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/available-projects": {
+			"get": {
+				"operationId": "SearchProjects",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"name": {
+														"type": "string"
+													},
+													"key": {
+														"type": "string"
+													},
+													"id": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"name",
+													"key",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Recherche les projets disponibles pour rattachement à une équipe.\nRéservé SUPER_ADMIN / ADMIN.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/admin/teams/{id}": {
+			"get": {
+				"operationId": "GetTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Détail d'une équipe incluant ses membres et projets liés.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamSummaryDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour le nom et/ou la description d'une équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamUpdateDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime une équipe (cascade sur membres et liaisons projets).",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/teams/{id}/members": {
+			"post": {
+				"operationId": "AddMembers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Ajoute un ou plusieurs membres à l'équipe (rôle MEMBER par défaut).\nAutorisé pour SUPER_ADMIN, ADMIN, ou LEAD de l'équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamAddMembersDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/{id}/members/{userId}": {
+			"delete": {
+				"operationId": "RemoveMember",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retire un membre de l'équipe. Refuse si c'est le dernier LEAD.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateMemberRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Change le rôle (LEAD/MEMBER) d'un membre.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamUpdateMemberRoleDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/{id}/projects": {
+			"post": {
+				"operationId": "AddProjects",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Rattache un ou plusieurs projets à l'équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamAddProjectsDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/{id}/projects/{projectId}": {
+			"delete": {
+				"operationId": "RemoveProject",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Détache un projet de l'équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
 						}
 					}
 				]
@@ -4213,6 +5423,429 @@
 						}
 					}
 				]
+			}
+		},
+		"/admin/groups": {
+			"get": {
+				"operationId": "ListGroups",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GroupListResponseDTO"
+								}
+							}
+						}
+					}
+				},
+				"description": "Liste paginée des groupes avec recherche optionnelle.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée un groupe. Le créateur devient automatiquement OWNER.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupCreateDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/groups/{id}": {
+			"get": {
+				"operationId": "GetGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Détail d'un groupe incluant la liste de ses membres.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupSummaryDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour le nom et/ou la description d'un groupe.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupUpdateDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime un groupe et tous ses membres (cascade).",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/groups/{id}/members": {
+			"post": {
+				"operationId": "AddMembers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Ajoute un ou plusieurs membres (rôle MEMBER) au groupe.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupAddMembersDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/groups/{id}/members/{userId}": {
+			"delete": {
+				"operationId": "RemoveMember",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retire un membre du groupe. Refuse si c'est le dernier OWNER.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateMemberRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Change le rôle (OWNER/MEMBER) d'un membre.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupUpdateMemberRoleDTO"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/conversation/all-conversation": {

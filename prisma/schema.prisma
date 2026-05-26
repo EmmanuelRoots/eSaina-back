@@ -110,6 +110,75 @@ model User {
   issueAttachments            IssueAttachment[]
   roleId                      String
   role                        Role      @relation(fields: [roleId], references: [id])
+  groupMemberships            GroupMember[]
+  createdGroups               Group[]   @relation("GroupCreator")
+  teamMemberships             TeamMember[]
+  createdTeams                Team[]    @relation("TeamCreator")
+}
+
+model Group {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  createdById String
+  createdBy   User          @relation("GroupCreator", fields: [createdById], references: [id])
+  members     GroupMember[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([createdById])
+}
+
+model GroupMember {
+  id        String          @id @default(uuid())
+  groupId   String
+  group     Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      GroupMemberRole @default(MEMBER)
+  joinedAt  DateTime        @default(now())
+
+  @@unique([groupId, userId])
+  @@index([userId])
+}
+
+model Team {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  createdById String
+  createdBy   User          @relation("TeamCreator", fields: [createdById], references: [id])
+  members     TeamMember[]
+  projects    TeamProject[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([createdById])
+}
+
+model TeamMember {
+  id        String         @id @default(uuid())
+  teamId    String
+  team      Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      TeamMemberRole @default(MEMBER)
+  joinedAt  DateTime       @default(now())
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+model TeamProject {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  addedAt   DateTime @default(now())
+
+  @@unique([teamId, projectId])
+  @@index([projectId])
 }
 
 model Post {
@@ -197,6 +266,7 @@ model Project {
   sprints       Sprint[]
   issues        Issue[]
   labels        Label[]
+  teams         TeamProject[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -373,6 +443,16 @@ enum ProjectMemberRole {
   ADMIN
   MEMBER
   VIEWER
+}
+
+enum GroupMemberRole {
+  OWNER
+  MEMBER
+}
+
+enum TeamMemberRole {
+  LEAD
+  MEMBER
 }
 
 enum SprintStatus {
