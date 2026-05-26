@@ -9,24 +9,40 @@ const jwt_1 = require("../../utils/jwt");
 const token_1 = require("../../utils/token");
 const crypt_ts_1 = require("../technical/crypt.ts");
 /**
- * Ajout d'un nouvel utilisateur
+ * Ajout d'un nouvel utilisateur (self-signup)
+ * Crée le compte, ouvre une session et retourne les tokens directement
+ * pour que le client puisse enchaîner sans repasser par /login.
  * @param user informations sur l'utilisateur
- * @returns
+ * @returns { accessToken, refreshToken }
  */
 const addUser = async (user) => {
-    const localUser = await repository_1.prisma.user.findFirst({
-        where: { email: user.email, active: true },
-    });
-    if (localUser) {
-        throw new api_exception_1.ApiError(400, 'account_already_exist');
+    const existing = await repository_1.prisma.user.findUnique({ where: { email: user.email } });
+    if (existing) {
+        throw new api_exception_1.ApiError(409, 'account_already_exist', 'Inscription error');
     }
+    let roleId = user.roleId;
+    if (!roleId) {
+        const userRole = await repository_1.prisma.role.findFirst({ where: { name: 'USER' } });
+        if (!userRole)
+            throw new api_exception_1.ApiError(500, 'USER role not seeded', 'role_missing');
+        roleId = userRole.id;
+    }
+    const salonOfficiel = await repository_1.prisma.salon.findFirst({
+        where: { title: 'Annonce officielle' },
+    });
     const hashed = await (0, crypt_ts_1.hashText)(user.password ?? '');
     try {
         const newUser = await repository_1.prisma.user.create({
+            include: { role: true },
             data: {
-                ...user,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phoneNumber: user.phoneNumber,
                 password: hashed,
+                active: true,
                 birthDate: user.birthDate ? new Date(user.birthDate) : new Date(),
+                roleId,
                 ownedConversations: {
                     create: {
                         title: 'Assistant IA',
@@ -40,20 +56,29 @@ const addUser = async (user) => {
                         },
                     },
                 },
-                roleId: user.roleId,
+                ...(salonOfficiel
+                    ? {
+                        salonMembers: {
+                            create: { role: 'MEMBER', salonId: salonOfficiel.id },
+                        },
+                    }
+                    : {}),
             },
         });
-        if (newUser.active === false) {
-            return {
-                success: false,
-                statusCode: 403,
-                message: `L'utilisateur ${newUser.lastName} est inactif. Veuillez contacter l'administrateur pour l'activation!!`,
-            };
-        }
+        const refreshToken = (0, token_1.genRefresh)();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+        await repository_1.prisma.session.create({
+            data: {
+                refreshToken,
+                userId: newUser.id,
+                expiresAt,
+                deviceInfo: user.deviceInfo,
+            },
+        });
+        const accessToken = (0, jwt_1.signAccess)((0, user_mappers_1.toUserDTO)(newUser));
         return {
             success: true,
-            statusCode: 200,
-            data: newUser.id,
+            data: { accessToken, refreshToken },
         };
     }
     catch (error) {
@@ -68,7 +93,10 @@ exports.addUser = addUser;
  * @returns
  */
 const logUser = async ({ email, password, deviceInfo }) => {
-    const user = await repository_1.prisma.user.findUnique({ where: { email } });
+    const user = await repository_1.prisma.user.findUnique({
+        where: { email },
+        include: { role: true },
+    });
     if (!user) {
         throw new api_exception_1.ApiError(401, 'User not found', 'Invalid credentials');
     }
@@ -100,7 +128,10 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, pictu
             name: 'USER',
         },
     });
-    let localUser = await repository_1.prisma.user.findUnique({ where: { email } });
+    let localUser = await repository_1.prisma.user.findUnique({
+        where: { email },
+        include: { role: true },
+    });
     if (!localUser) {
         //create user
         const salonOfficiel = await repository_1.prisma.salon.findFirst({
@@ -110,6 +141,7 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, pictu
         });
         try {
             const newUser = await repository_1.prisma.user.create({
+                include: { role: true },
                 data: {
                     firstName: family_name,
                     lastName: given_name,
@@ -180,7 +212,7 @@ const logGoogleUser = async ({ email, given_name, family_name, deviceInfo, pictu
 const refreshToken = async (oldRefresh) => {
     const session = await repository_1.prisma.session.findUnique({
         where: { refreshToken: oldRefresh },
-        include: { user: true },
+        include: { user: { include: { role: true } } },
     });
     if (!session || session.expiresAt < new Date())
         throw new api_exception_1.ApiError(401, 'Invalid or expired refresh token', 'Token error');

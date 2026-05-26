@@ -40,6 +40,7 @@ export const addUser = async (user: UserDTO & { deviceInfo?: string }) => {
   const hashed = await hashText(user.password ?? '')
   try {
     const newUser = await prisma.user.create({
+      include: { role: true },
       data: {
         email: user.email,
         firstName: user.firstName,
@@ -100,7 +101,10 @@ export const addUser = async (user: UserDTO & { deviceInfo?: string }) => {
  * @returns
  */
 export const logUser = async ({ email, password, deviceInfo }: LoginDTO) => {
-  const user = await prisma.user.findUnique({ where: { email } })
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { role: true },
+  })
   if (!user) {
     throw new ApiError(401, 'User not found', 'Invalid credentials')
   }
@@ -139,7 +143,10 @@ const logGoogleUser = async ({
     },
   })
 
-  let localUser = await prisma.user.findUnique({ where: { email } })
+  let localUser = await prisma.user.findUnique({
+    where: { email },
+    include: { role: true },
+  })
   if (!localUser) {
     //create user
     const salonOfficiel = await prisma.salon.findFirst({
@@ -149,6 +156,7 @@ const logGoogleUser = async ({
     })
     try {
       const newUser = await prisma.user.create({
+        include: { role: true },
         data: {
           firstName: family_name,
           lastName: given_name,
@@ -218,7 +226,7 @@ const logGoogleUser = async ({
 export const refreshToken = async (oldRefresh: string) => {
   const session = await prisma.session.findUnique({
     where: { refreshToken: oldRefresh },
-    include: { user: true },
+    include: { user: { include: { role: true } } },
   })
 
   if (!session || session.expiresAt < new Date())

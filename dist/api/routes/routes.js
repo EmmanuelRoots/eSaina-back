@@ -11,6 +11,8 @@ const sprint_controller_1 = require("./../controllers/sprint.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const salon_controller_1 = require("./../controllers/salon.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+const role_controller_1 = require("./../controllers/role.controller");
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const project_controller_1 = require("./../controllers/project.controller");
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const post_controller_1 = require("./../controllers/post.controller");
@@ -24,6 +26,43 @@ const swagger_middleware_1 = require("./../middleware/swagger.middleware");
 const expressAuthenticationRecasted = swagger_middleware_1.expressAuthentication;
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 const models = {
+    "SubscribeDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "email": { "dataType": "string", "required": true },
+            "password": { "dataType": "string", "required": true },
+            "firstName": { "dataType": "string", "required": true },
+            "lastName": { "dataType": "string", "required": true },
+            "phoneNumber": { "dataType": "string", "required": true },
+            "birthDate": { "dataType": "union", "subSchemas": [{ "dataType": "string" }, { "dataType": "enum", "enums": [null] }] },
+            "deviceInfo": { "dataType": "string" },
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "LoginDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "email": { "dataType": "string", "required": true },
+            "password": { "dataType": "string", "required": true },
+            "deviceInfo": { "dataType": "string" },
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "GoogleLoginDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "email": { "dataType": "string", "required": true },
+            "family_name": { "dataType": "string", "required": true },
+            "given_name": { "dataType": "string", "required": true },
+            "deviceInfo": { "dataType": "string" },
+            "picture": { "dataType": "string" },
+            "roleId": { "dataType": "string" },
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ConversationType": {
         "dataType": "refEnum",
         "enums": ["AI_CHAT", "DIRECT", "GROUP"],
@@ -70,6 +109,7 @@ const models = {
             "messaages": { "dataType": "array", "array": { "dataType": "refObject", "ref": "MessageDTO" } },
             "pdpUrl": { "dataType": "string" },
             "roleId": { "dataType": "string", "required": true },
+            "role": { "ref": "RoleDTO" },
         },
         "additionalProperties": false,
     },
@@ -103,25 +143,26 @@ const models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "LoginDTO": {
+    "AuthorizationDto": {
         "dataType": "refObject",
         "properties": {
-            "email": { "dataType": "string", "required": true },
-            "password": { "dataType": "string", "required": true },
-            "deviceInfo": { "dataType": "string" },
+            "tableName": { "dataType": "string", "required": true },
+            "create": { "dataType": "boolean", "required": true },
+            "read": { "dataType": "boolean", "required": true },
+            "update": { "dataType": "boolean", "required": true },
+            "delete": { "dataType": "boolean", "required": true },
+            "visibleFields": { "dataType": "array", "array": { "dataType": "string" }, "required": true },
         },
-        "additionalProperties": false,
+        "additionalProperties": { "dataType": "any" },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "GoogleLoginDTO": {
+    "RoleDTO": {
         "dataType": "refObject",
         "properties": {
-            "email": { "dataType": "string", "required": true },
-            "family_name": { "dataType": "string", "required": true },
-            "given_name": { "dataType": "string", "required": true },
-            "deviceInfo": { "dataType": "string" },
-            "picture": { "dataType": "string" },
-            "roleId": { "dataType": "string" },
+            "id": { "dataType": "string" },
+            "name": { "dataType": "string", "required": true },
+            "authorizations": { "dataType": "array", "array": { "dataType": "refObject", "ref": "AuthorizationDto" }, "required": true },
+            "members": { "dataType": "array", "array": { "dataType": "refObject", "ref": "UserDTO" }, "required": true },
         },
         "additionalProperties": false,
     },
@@ -191,7 +232,7 @@ const models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserDTO_": {
         "dataType": "refAlias",
-        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "id": { "dataType": "string" }, "email": { "dataType": "string" }, "password": { "dataType": "string" }, "lastName": { "dataType": "string" }, "firstName": { "dataType": "string" }, "createdAt": { "dataType": "string" }, "phoneNumber": { "dataType": "string" }, "birthDate": { "dataType": "string" }, "active": { "dataType": "boolean" }, "conversations": { "dataType": "array", "array": { "dataType": "refObject", "ref": "ConversationDTO" } }, "messaages": { "dataType": "array", "array": { "dataType": "refObject", "ref": "MessageDTO" } }, "pdpUrl": { "dataType": "string" }, "roleId": { "dataType": "string" } }, "validators": {} },
+        "type": { "dataType": "nestedObjectLiteral", "nestedProperties": { "id": { "dataType": "string" }, "email": { "dataType": "string" }, "password": { "dataType": "string" }, "lastName": { "dataType": "string" }, "firstName": { "dataType": "string" }, "createdAt": { "dataType": "string" }, "phoneNumber": { "dataType": "string" }, "birthDate": { "dataType": "string" }, "active": { "dataType": "boolean" }, "conversations": { "dataType": "array", "array": { "dataType": "refObject", "ref": "ConversationDTO" } }, "messaages": { "dataType": "array", "array": { "dataType": "refObject", "ref": "MessageDTO" } }, "pdpUrl": { "dataType": "string" }, "roleId": { "dataType": "string" }, "role": { "ref": "RoleDTO" } }, "validators": {} },
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProjectMemberRole": {
@@ -359,6 +400,7 @@ const models = {
             "title": { "dataType": "string", "required": true },
             "description": { "dataType": "string" },
             "type": { "ref": "IssueType" },
+            "status": { "ref": "IssueStatus" },
             "priority": { "ref": "IssuePriority" },
             "storyPoints": { "dataType": "double" },
             "startDate": { "dataType": "string" },
@@ -439,7 +481,7 @@ function RegisterRoutes(app) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
     const argsUserController_subscribe = {
-        body: { "in": "body", "name": "body", "required": true, "ref": "UserDTO" },
+        body: { "in": "body", "name": "body", "required": true, "ref": "SubscribeDTO" },
     };
     app.post('/user/subscribe', ...((0, runtime_1.fetchMiddlewares)(user_controller_1.UserController)), ...((0, runtime_1.fetchMiddlewares)(user_controller_1.UserController.prototype.subscribe)), async function UserController_subscribe(request, response, next) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -798,6 +840,97 @@ function RegisterRoutes(app) {
             const controller = new salon_controller_1.SalonController();
             await templateService.apiHandler({
                 methodName: 'getUserSalon',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsRoleController_getAllRoles = {};
+    app.get('/roles', ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController)), ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController.prototype.getAllRoles)), async function RoleController_getAllRoles(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsRoleController_getAllRoles, request, response });
+            const controller = new role_controller_1.RoleController();
+            await templateService.apiHandler({
+                methodName: 'getAllRoles',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsRoleController_createRole = {
+        body: { "in": "body", "name": "body", "required": true, "ref": "RoleDTO" },
+    };
+    app.post('/roles', ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController)), ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController.prototype.createRole)), async function RoleController_createRole(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsRoleController_createRole, request, response });
+            const controller = new role_controller_1.RoleController();
+            await templateService.apiHandler({
+                methodName: 'createRole',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsRoleController_updateRole = {
+        id: { "in": "path", "name": "id", "required": true, "dataType": "string" },
+        body: { "in": "body", "name": "body", "required": true, "ref": "RoleDTO" },
+    };
+    app.put('/roles/:id', ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController)), ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController.prototype.updateRole)), async function RoleController_updateRole(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsRoleController_updateRole, request, response });
+            const controller = new role_controller_1.RoleController();
+            await templateService.apiHandler({
+                methodName: 'updateRole',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+            });
+        }
+        catch (err) {
+            return next(err);
+        }
+    });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsRoleController_deleteRole = {
+        id: { "in": "path", "name": "id", "required": true, "dataType": "string" },
+    };
+    app.delete('/roles/:id', ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController)), ...((0, runtime_1.fetchMiddlewares)(role_controller_1.RoleController.prototype.deleteRole)), async function RoleController_deleteRole(request, response, next) {
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        let validatedArgs = [];
+        try {
+            validatedArgs = templateService.getValidatedArgs({ args: argsRoleController_deleteRole, request, response });
+            const controller = new role_controller_1.RoleController();
+            await templateService.apiHandler({
+                methodName: 'deleteRole',
                 controller,
                 response,
                 next,

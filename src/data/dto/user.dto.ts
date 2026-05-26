@@ -1,5 +1,6 @@
 import { ConversationDTO } from './conversation.dto'
 import { MessageDTO } from './message.dto'
+import { RoleDTO } from './role.dto'
 
 export interface UserDTO {
   id?: string
@@ -15,6 +16,7 @@ export interface UserDTO {
   messaages?: MessageDTO[]
   pdpUrl?: string
   roleId: string
+  role?: RoleDTO
 }
 
 export interface UserRequestDTO {

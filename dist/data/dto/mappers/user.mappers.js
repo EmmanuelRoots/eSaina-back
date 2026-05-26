@@ -12,5 +12,13 @@ const toUserDTO = (user) => ({
     createdAt: (0, date_utils_1.toISO)(user.createdAt),
     pdpUrl: user.pdpUrl ?? '',
     roleId: user.roleId,
+    role: user.role
+        ? {
+            id: user.role.id,
+            name: user.role.name,
+            authorizations: user.role.authorizations,
+            members: [], // avoid circularity here
+        }
+        : undefined,
 });
 exports.toUserDTO = toUserDTO;

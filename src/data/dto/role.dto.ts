@@ -14,5 +14,5 @@ export interface RoleDTO {
   id?: string
   name: string
   authorizations: AuthorizationDto[]
-  members: UserDTO[]
+  members?: UserDTO[]
 }

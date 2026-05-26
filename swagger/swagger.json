@@ -206,6 +206,9 @@
 					},
 					"roleId": {
 						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/RoleDTO"
 					}
 				},
 				"required": [
@@ -277,6 +280,69 @@
 					"userId",
 					"role",
 					"joinedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AuthorizationDto": {
+				"properties": {
+					"tableName": {
+						"type": "string"
+					},
+					"create": {
+						"type": "boolean"
+					},
+					"read": {
+						"type": "boolean"
+					},
+					"update": {
+						"type": "boolean"
+					},
+					"delete": {
+						"type": "boolean"
+					},
+					"visibleFields": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"tableName",
+					"create",
+					"read",
+					"update",
+					"delete",
+					"visibleFields"
+				],
+				"type": "object",
+				"additionalProperties": {}
+			},
+			"RoleDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"authorizations": {
+						"items": {
+							"$ref": "#/components/schemas/AuthorizationDto"
+						},
+						"type": "array"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/UserDTO"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name",
+					"authorizations"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -466,6 +532,9 @@
 					},
 					"roleId": {
 						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/RoleDTO"
 					}
 				},
 				"type": "object",
@@ -1920,6 +1989,225 @@
 				],
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/roles": {
+			"get": {
+				"operationId": "GetAllRoles",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/RoleDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère tous les rôles.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/RoleDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée un nouveau rôle.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RoleDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/roles/tables": {
+			"get": {
+				"operationId": "GetTables",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère dynamiquement la liste des tables (modèles Prisma) disponibles\npour la définition des autorisations.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/roles/{id}": {
+			"put": {
+				"operationId": "UpdateRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/RoleDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour un rôle existant.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RoleDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime un rôle.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/project/create": {
