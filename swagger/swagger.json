@@ -7,6 +7,210 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"Pick_UserDTO.id-or-firstName-or-lastName-or-pdpUrl_": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"pdpUrl": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"lastName",
+					"firstName"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"WorkLogDTO": {
+				"description": "Projection d'un WorkLog exposée à l'API.",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"issueId": {
+						"type": "string"
+					},
+					"issueKey": {
+						"type": "string",
+						"description": "Clé lisible de l'issue (ex. \"PRJ-42\"), incluse pour l'affichage feuille de temps."
+					},
+					"issueTitle": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"user": {
+						"$ref": "#/components/schemas/Pick_UserDTO.id-or-firstName-or-lastName-or-pdpUrl_"
+					},
+					"date": {
+						"type": "string",
+						"description": "Jour du pointage au format ISO 8601 (date uniquement, heure = minuit UTC)."
+					},
+					"timeSpentMinutes": {
+						"type": "number",
+						"format": "double"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"issueId",
+					"userId",
+					"user",
+					"date",
+					"timeSpentMinutes",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateWorkLogDTO": {
+				"description": "Payload de création d'un WorkLog.",
+				"properties": {
+					"issueId": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string",
+						"description": "Jour du pointage au format ISO 8601 (ex. \"2026-05-29\")."
+					},
+					"timeSpentMinutes": {
+						"type": "number",
+						"format": "double",
+						"description": "Durée en minutes (doit être > 0)."
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"issueId",
+					"date",
+					"timeSpentMinutes"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateWorkLogDTO": {
+				"description": "Payload de mise à jour partielle d'un WorkLog (ownership requis).",
+				"properties": {
+					"date": {
+						"type": "string"
+					},
+					"timeSpentMinutes": {
+						"type": "number",
+						"format": "double"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SubscribeDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"birthDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"deviceInfo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password",
+					"firstName",
+					"lastName",
+					"phoneNumber"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LoginDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"deviceInfo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GoogleLoginDTO": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"family_name": {
+						"type": "string"
+					},
+					"given_name": {
+						"type": "string"
+					},
+					"deviceInfo": {
+						"type": "string"
+					},
+					"picture": {
+						"type": "string"
+					},
+					"roleId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"family_name",
+					"given_name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"ConversationType": {
 				"enum": [
 					"AI_CHAT",
@@ -123,6 +327,9 @@
 					},
 					"roleId": {
 						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/RoleDTO"
 					}
 				},
 				"required": [
@@ -198,50 +405,404 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"LoginDTO": {
+			"AuthorizationDto": {
 				"properties": {
-					"email": {
+					"tableName": {
 						"type": "string"
 					},
-					"password": {
-						"type": "string"
+					"create": {
+						"type": "boolean"
 					},
-					"deviceInfo": {
-						"type": "string"
+					"read": {
+						"type": "boolean"
+					},
+					"update": {
+						"type": "boolean"
+					},
+					"delete": {
+						"type": "boolean"
+					},
+					"visibleFields": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
-					"email",
-					"password"
+					"tableName",
+					"create",
+					"read",
+					"update",
+					"delete",
+					"visibleFields"
+				],
+				"type": "object",
+				"additionalProperties": {}
+			},
+			"RoleDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"authorizations": {
+						"items": {
+							"$ref": "#/components/schemas/AuthorizationDto"
+						},
+						"type": "array"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/UserDTO"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name",
+					"authorizations"
 				],
 				"type": "object",
 				"additionalProperties": false
 			},
-			"GoogleLoginDTO": {
+			"TeamSummaryDTO": {
 				"properties": {
-					"email": {
+					"id": {
 						"type": "string"
 					},
-					"family_name": {
+					"name": {
 						"type": "string"
 					},
-					"given_name": {
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
 						"type": "string"
 					},
-					"deviceInfo": {
+					"updatedAt": {
 						"type": "string"
 					},
-					"picture": {
+					"createdById": {
 						"type": "string"
 					},
-					"roleId": {
-						"type": "string"
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"projectCount": {
+						"type": "number",
+						"format": "double"
 					}
 				},
 				"required": [
-					"email",
-					"family_name",
-					"given_name"
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount",
+					"projectCount"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamListResponseDTO": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/TeamSummaryDTO"
+						},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"hasPreviousPage": {
+								"type": "boolean"
+							},
+							"hasNextPage": {
+								"type": "boolean"
+							},
+							"totalPages": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalCount": {
+								"type": "number",
+								"format": "double"
+							},
+							"pageSize": {
+								"type": "number",
+								"format": "double"
+							},
+							"currentPage": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"hasPreviousPage",
+							"hasNextPage",
+							"totalPages",
+							"totalCount",
+							"pageSize",
+							"currentPage"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"success",
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamMemberRoleDTO": {
+				"type": "string",
+				"enum": [
+					"LEAD",
+					"MEMBER"
+				],
+				"description": "DTO pour la gestion des équipes via la console d'administration.\nUne Team est une entité organisationnelle (LEAD + MEMBER) qui peut être\nrattachée à plusieurs projets (N-N via TeamProject)."
+			},
+			"TeamMemberDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/TeamMemberRoleDTO"
+					},
+					"joinedAt": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"pdpUrl": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"email": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"lastName",
+							"firstName",
+							"email",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"role",
+					"joinedAt",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamProjectDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"projectId": {
+						"type": "string"
+					},
+					"addedAt": {
+						"type": "string"
+					},
+					"project": {
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"key": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"name",
+							"key",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"projectId",
+					"addedAt",
+					"project"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamDetailDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"createdById": {
+						"type": "string"
+					},
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"projectCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/TeamMemberDTO"
+						},
+						"type": "array"
+					},
+					"projects": {
+						"items": {
+							"$ref": "#/components/schemas/TeamProjectDTO"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount",
+					"projectCount",
+					"members",
+					"projects"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamCreateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"memberIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"projectIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamUpdateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamAddMembersDTO": {
+				"properties": {
+					"userIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"userIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamUpdateMemberRoleDTO": {
+				"properties": {
+					"role": {
+						"$ref": "#/components/schemas/TeamMemberRoleDTO"
+					}
+				},
+				"required": [
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TeamAddProjectsDTO": {
+				"properties": {
+					"projectIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"projectIds"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -385,6 +946,91 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"_36_Enums.StatusCategory": {
+				"type": "string",
+				"enum": [
+					"TODO",
+					"IN_PROGRESS",
+					"DONE"
+				]
+			},
+			"StatusCategory": {
+				"$ref": "#/components/schemas/_36_Enums.StatusCategory"
+			},
+			"ProjectStatusDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"projectId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"color": {
+						"type": "string"
+					},
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
+					"category": {
+						"$ref": "#/components/schemas/StatusCategory"
+					}
+				},
+				"required": [
+					"id",
+					"projectId",
+					"name",
+					"color",
+					"position",
+					"category"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateProjectStatusRequestDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"color": {
+						"type": "string"
+					},
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
+					"category": {
+						"$ref": "#/components/schemas/StatusCategory"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateProjectStatusRequestDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"color": {
+						"type": "string"
+					},
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
+					"category": {
+						"$ref": "#/components/schemas/StatusCategory"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Partial_UserDTO_": {
 				"properties": {
 					"id": {
@@ -431,6 +1077,9 @@
 					},
 					"roleId": {
 						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/RoleDTO"
 					}
 				},
 				"type": "object",
@@ -537,6 +1186,12 @@
 					"labels": {
 						"items": {
 							"$ref": "#/components/schemas/ProjectLabelDTO"
+						},
+						"type": "array"
+					},
+					"statuses": {
+						"items": {
+							"$ref": "#/components/schemas/ProjectStatusDTO"
 						},
 						"type": "array"
 					},
@@ -680,12 +1335,33 @@
 					"status": {
 						"$ref": "#/components/schemas/IssueStatus"
 					},
+					"statusId": {
+						"type": "string",
+						"nullable": true
+					},
+					"projectStatus": {
+						"$ref": "#/components/schemas/ProjectStatusDTO"
+					},
 					"priority": {
 						"$ref": "#/components/schemas/IssuePriority"
 					},
 					"storyPoints": {
 						"type": "number",
 						"format": "double",
+						"nullable": true
+					},
+					"estimatedMinutes": {
+						"type": "number",
+						"format": "double",
+						"nullable": true,
+						"description": "Estimation de temps en minutes (ex. 300 = 5h)."
+					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"dueDate": {
+						"type": "string",
 						"nullable": true
 					},
 					"position": {
@@ -804,12 +1480,29 @@
 					"type": {
 						"$ref": "#/components/schemas/IssueType"
 					},
+					"status": {
+						"$ref": "#/components/schemas/IssueStatus"
+					},
+					"statusId": {
+						"type": "string"
+					},
 					"priority": {
 						"$ref": "#/components/schemas/IssuePriority"
 					},
 					"storyPoints": {
 						"type": "number",
 						"format": "double"
+					},
+					"estimatedMinutes": {
+						"type": "number",
+						"format": "double",
+						"description": "Estimation de temps en minutes à la création (ex. 300 = 5h)."
+					},
+					"startDate": {
+						"type": "string"
+					},
+					"dueDate": {
+						"type": "string"
 					},
 					"sprintId": {
 						"type": "string"
@@ -849,12 +1542,29 @@
 					"status": {
 						"$ref": "#/components/schemas/IssueStatus"
 					},
+					"statusId": {
+						"type": "string",
+						"nullable": true
+					},
 					"priority": {
 						"$ref": "#/components/schemas/IssuePriority"
 					},
 					"storyPoints": {
 						"type": "number",
 						"format": "double",
+						"nullable": true
+					},
+					"estimatedMinutes": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"dueDate": {
+						"type": "string",
 						"nullable": true
 					},
 					"position": {
@@ -932,6 +1642,267 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"GroupSummaryDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"createdById": {
+						"type": "string"
+					},
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupListResponseDTO": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/GroupSummaryDTO"
+						},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"hasPreviousPage": {
+								"type": "boolean"
+							},
+							"hasNextPage": {
+								"type": "boolean"
+							},
+							"totalPages": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalCount": {
+								"type": "number",
+								"format": "double"
+							},
+							"pageSize": {
+								"type": "number",
+								"format": "double"
+							},
+							"currentPage": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"hasPreviousPage",
+							"hasNextPage",
+							"totalPages",
+							"totalCount",
+							"pageSize",
+							"currentPage"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"success",
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupMemberRoleDTO": {
+				"type": "string",
+				"enum": [
+					"OWNER",
+					"MEMBER"
+				],
+				"description": "DTO pour la gestion des groupes via la console d'administration.\nUn groupe regroupe des utilisateurs autour d'une thématique transverse\n(ex. \"Veille sécurité\", \"Recrutement\"). Indépendant des Salons/Projects."
+			},
+			"GroupMemberDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/GroupMemberRoleDTO"
+					},
+					"joinedAt": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"pdpUrl": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"email": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"lastName",
+							"firstName",
+							"email",
+							"id"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"role",
+					"joinedAt",
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupDetailDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"createdById": {
+						"type": "string"
+					},
+					"memberCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"members": {
+						"items": {
+							"$ref": "#/components/schemas/GroupMemberDTO"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"createdAt",
+					"updatedAt",
+					"createdById",
+					"memberCount",
+					"members"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupCreateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"memberIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupUpdateDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupAddMembersDTO": {
+				"properties": {
+					"userIds": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"userIds"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GroupUpdateMemberRoleDTO": {
+				"properties": {
+					"role": {
+						"$ref": "#/components/schemas/GroupMemberRoleDTO"
+					}
+				},
+				"required": [
+					"role"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"_36_Enums.ConversationType": {
 				"type": "string",
 				"enum": [
@@ -955,6 +1926,381 @@
 					"AI",
 					"SYSTEM"
 				]
+			},
+			"SprintVelocity": {
+				"description": "Vélocité d'un sprint : points planifiés vs réalisés.",
+				"properties": {
+					"sprintId": {
+						"type": "string"
+					},
+					"sprintName": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"endDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"planned": {
+						"type": "number",
+						"format": "double",
+						"description": "Somme des storyPoints de toutes les issues du sprint."
+					},
+					"completed": {
+						"type": "number",
+						"format": "double",
+						"description": "Somme des storyPoints des issues dont le statut est DONE."
+					}
+				},
+				"required": [
+					"sprintId",
+					"sprintName",
+					"status",
+					"startDate",
+					"endDate",
+					"planned",
+					"completed"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IssueRepartition": {
+				"description": "Répartition d'issues par une dimension (type, priorité…).",
+				"properties": {
+					"label": {
+						"type": "string"
+					},
+					"count": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"label",
+					"count"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ActiveSprintProgress": {
+				"description": "Sprint actif : avancement TODO / IN_PROGRESS / DONE.",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"goal": {
+						"type": "string",
+						"nullable": true
+					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"endDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"todo": {
+						"type": "number",
+						"format": "double"
+					},
+					"inProgress": {
+						"type": "number",
+						"format": "double"
+					},
+					"done": {
+						"type": "number",
+						"format": "double"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"goal",
+					"startDate",
+					"endDate",
+					"todo",
+					"inProgress",
+					"done",
+					"total"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MemberWorkload": {
+				"description": "Charge d'un membre (issues assignées dans le projet).",
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"pdpUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"assigned": {
+						"type": "number",
+						"format": "double",
+						"description": "Issues assignées toutes catégories confondues."
+					},
+					"done": {
+						"type": "number",
+						"format": "double",
+						"description": "Issues assignées dont le statut est DONE."
+					}
+				},
+				"required": [
+					"userId",
+					"firstName",
+					"lastName",
+					"pdpUrl",
+					"assigned",
+					"done"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"WeeklyActivity": {
+				"description": "Charge hebdomadaire — issues closes et créées par semaine sur les N dernières semaines.",
+				"properties": {
+					"week": {
+						"type": "string",
+						"description": "Label de la semaine (ex. \"S01\", \"S12\")."
+					},
+					"created": {
+						"type": "number",
+						"format": "double"
+					},
+					"closed": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"week",
+					"created",
+					"closed"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ProjectAnalyticsDTO": {
+				"description": "Payload complet retourné par getProjectAnalytics.",
+				"properties": {
+					"velocity": {
+						"items": {
+							"$ref": "#/components/schemas/SprintVelocity"
+						},
+						"type": "array"
+					},
+					"issuesByType": {
+						"items": {
+							"$ref": "#/components/schemas/IssueRepartition"
+						},
+						"type": "array"
+					},
+					"issuesByPriority": {
+						"items": {
+							"$ref": "#/components/schemas/IssueRepartition"
+						},
+						"type": "array"
+					},
+					"activeSprint": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/ActiveSprintProgress"
+							}
+						],
+						"nullable": true
+					},
+					"memberWorkload": {
+						"items": {
+							"$ref": "#/components/schemas/MemberWorkload"
+						},
+						"type": "array"
+					},
+					"weeklyActivity": {
+						"items": {
+							"$ref": "#/components/schemas/WeeklyActivity"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"velocity",
+					"issuesByType",
+					"issuesByPriority",
+					"activeSprint",
+					"memberWorkload",
+					"weeklyActivity"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AdminUserListItemDTO": {
+				"description": "Représentation d'un utilisateur exposée dans la console d'administration.\nLe mot de passe n'est jamais sérialisé.",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"birthDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"pdpUrl": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"roleId": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/RoleDTO"
+					}
+				},
+				"required": [
+					"id",
+					"email",
+					"firstName",
+					"lastName",
+					"phoneNumber",
+					"active",
+					"createdAt",
+					"roleId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AdminUserListResponseDTO": {
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"enum": [
+							true
+						],
+						"nullable": false
+					},
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/AdminUserListItemDTO"
+						},
+						"type": "array"
+					},
+					"pagination": {
+						"properties": {
+							"hasPreviousPage": {
+								"type": "boolean"
+							},
+							"hasNextPage": {
+								"type": "boolean"
+							},
+							"totalPages": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalCount": {
+								"type": "number",
+								"format": "double"
+							},
+							"pageSize": {
+								"type": "number",
+								"format": "double"
+							},
+							"currentPage": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"hasPreviousPage",
+							"hasNextPage",
+							"totalPages",
+							"totalCount",
+							"pageSize",
+							"currentPage"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"success",
+					"data",
+					"pagination"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AdminUserUpdateDTO": {
+				"properties": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"phoneNumber": {
+						"type": "string"
+					},
+					"birthDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"roleId": {
+						"type": "string"
+					},
+					"active": {
+						"type": "boolean"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AdminUserResetPasswordDTO": {
+				"properties": {
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {
@@ -974,6 +2320,296 @@
 		"contact": {}
 	},
 	"paths": {
+		"/worklog/create": {
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"200": {
+						"description": "Le WorkLogDTO créé.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/WorkLogDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée un nouveau pointage de temps sur une issue.",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "- Données du pointage (issueId, date, durée, description).",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateWorkLogDTO",
+								"description": "- Données du pointage (issueId, date, durée, description)."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/worklog/issue/{issueId}": {
+			"get": {
+				"operationId": "ListByIssue",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/WorkLogDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retourne tous les pointages d'une issue, triés par date décroissante.",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id de l'issue.",
+						"in": "path",
+						"name": "issueId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/worklog/project/{projectId}": {
+			"get": {
+				"operationId": "ListByProject",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/WorkLogDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retourne les pointages d'un projet pour la feuille de temps.\nUtilisé par la page Tempo pour construire la vue hebdomadaire.",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id du projet.",
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Filtrer par utilisateur (optionnel).",
+						"in": "query",
+						"name": "userId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Borne inférieure ISO (optionnel, ex. \"2026-05-26\").",
+						"in": "query",
+						"name": "from",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Borne supérieure ISO (optionnel, ex. \"2026-06-01\").",
+						"in": "query",
+						"name": "to",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/worklog/{worklogId}": {
+			"patch": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/WorkLogDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour un pointage existant (ownership requis).",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id du WorkLog.",
+						"in": "path",
+						"name": "worklogId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "- Champs à modifier.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateWorkLogDTO",
+								"description": "- Champs à modifier."
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "Remove",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime un pointage (ownership requis).",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id du WorkLog.",
+						"in": "path",
+						"name": "worklogId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/user/subscribe": {
 			"post": {
 				"operationId": "Subscribe",
@@ -983,50 +2619,31 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"anyOf": [
-										{
+									"properties": {
+										"data": {
 											"properties": {
-												"data": {},
-												"message": {
+												"refreshToken": {
 													"type": "string"
 												},
-												"statusCode": {
-													"type": "number",
-													"format": "double"
-												},
-												"success": {
-													"type": "boolean"
+												"accessToken": {
+													"type": "string"
 												}
 											},
 											"required": [
-												"message",
-												"statusCode",
-												"success"
+												"refreshToken",
+												"accessToken"
 											],
 											"type": "object"
 										},
-										{
-											"properties": {
-												"message": {},
-												"data": {
-													"type": "string"
-												},
-												"statusCode": {
-													"type": "number",
-													"format": "double"
-												},
-												"success": {
-													"type": "boolean"
-												}
-											},
-											"required": [
-												"data",
-												"statusCode",
-												"success"
-											],
-											"type": "object"
+										"success": {
+											"type": "boolean"
 										}
-									]
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
 								}
 							}
 						}
@@ -1053,7 +2670,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UserDTO",
+								"$ref": "#/components/schemas/SubscribeDTO",
 								"description": "Les données de l'utilisateur à inscrire"
 							},
 							"example": {
@@ -1504,6 +3121,616 @@
 				]
 			}
 		},
+		"/admin/teams": {
+			"get": {
+				"operationId": "ListTeams",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TeamListResponseDTO"
+								}
+							}
+						}
+					}
+				},
+				"description": "Liste paginée des équipes avec recherche optionnelle.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée une équipe. Le créateur devient automatiquement LEAD.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamCreateDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/available-projects": {
+			"get": {
+				"operationId": "SearchProjects",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"name": {
+														"type": "string"
+													},
+													"key": {
+														"type": "string"
+													},
+													"id": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"name",
+													"key",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Recherche les projets disponibles pour rattachement à une équipe.\nRéservé SUPER_ADMIN / ADMIN.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/admin/teams/{id}": {
+			"get": {
+				"operationId": "GetTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Détail d'une équipe incluant ses membres et projets liés.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamSummaryDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour le nom et/ou la description d'une équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamUpdateDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteTeam",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime une équipe (cascade sur membres et liaisons projets).",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/teams/{id}/members": {
+			"post": {
+				"operationId": "AddMembers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Ajoute un ou plusieurs membres à l'équipe (rôle MEMBER par défaut).\nAutorisé pour SUPER_ADMIN, ADMIN, ou LEAD de l'équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamAddMembersDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/{id}/members/{userId}": {
+			"delete": {
+				"operationId": "RemoveMember",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retire un membre de l'équipe. Refuse si c'est le dernier LEAD.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateMemberRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Change le rôle (LEAD/MEMBER) d'un membre.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamUpdateMemberRoleDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/{id}/projects": {
+			"post": {
+				"operationId": "AddProjects",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Rattache un ou plusieurs projets à l'équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TeamAddProjectsDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/teams/{id}/projects/{projectId}": {
+			"delete": {
+				"operationId": "RemoveProject",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/TeamDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Détache un projet de l'équipe.",
+				"tags": [
+					"admin-teams"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/notification/send": {
 			"post": {
 				"operationId": "SendNotification",
@@ -1831,29 +4058,29 @@
 										"data": {
 											"items": {
 												"properties": {
-													"description": {
+													"title": {
 														"type": "string"
 													},
 													"updatedAt": {
 														"type": "string",
 														"format": "date-time"
 													},
-													"title": {
-														"type": "string"
-													},
 													"createdAt": {
 														"type": "string",
 														"format": "date-time"
+													},
+													"description": {
+														"type": "string"
 													},
 													"id": {
 														"type": "string"
 													}
 												},
 												"required": [
-													"description",
-													"updatedAt",
 													"title",
+													"updatedAt",
 													"createdAt",
+													"description",
 													"id"
 												],
 												"type": "object"
@@ -1879,6 +4106,485 @@
 				],
 				"security": [],
 				"parameters": []
+			}
+		},
+		"/roles": {
+			"get": {
+				"operationId": "GetAllRoles",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/RoleDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère tous les rôles.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/RoleDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée un nouveau rôle.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RoleDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/roles/tables": {
+			"get": {
+				"operationId": "GetTables",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère dynamiquement la liste des tables (modèles Prisma) disponibles\npour la définition des autorisations.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/roles/{id}": {
+			"put": {
+				"operationId": "UpdateRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/RoleDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour un rôle existant.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RoleDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime un rôle.",
+				"tags": [
+					"roles"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/project/{projectId}/statuses": {
+			"post": {
+				"operationId": "CreateStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/ProjectStatusDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new status for a project",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateProjectStatusRequestDTO"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "ListStatuses",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/ProjectStatusDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "List all statuses for a project",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/project/statuses/{statusId}": {
+			"put": {
+				"operationId": "UpdateStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/ProjectStatusDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a project status",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "statusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateProjectStatusRequestDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Delete a project status",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "statusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/project/{projectId}/statuses/reorder": {
+			"put": {
+				"operationId": "ReorderStatuses",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Reorder statuses for a project",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"statusIds": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"statusIds"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/project/create": {
@@ -2346,6 +5052,108 @@
 				]
 			}
 		},
+		"/project/{projectId}/assignable-members": {
+			"get": {
+				"operationId": "GetAssignableMembers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"roleId": {
+														"type": "string"
+													},
+													"pdpUrl": {
+														"type": "string"
+													},
+													"connected": {
+														"type": "boolean"
+													},
+													"phoneNumber": {
+														"type": "string"
+													},
+													"birthDate": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"active": {
+														"type": "boolean"
+													},
+													"firstName": {
+														"type": "string"
+													},
+													"lastName": {
+														"type": "string"
+													},
+													"password": {
+														"type": "string"
+													},
+													"email": {
+														"type": "string"
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"id": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"roleId",
+													"pdpUrl",
+													"connected",
+													"phoneNumber",
+													"birthDate",
+													"active",
+													"firstName",
+													"lastName",
+													"password",
+													"email",
+													"createdAt",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retourne les utilisateurs pouvant être assignés à un ticket du projet.\n\nSi le projet est rattaché à au moins une équipe, seuls les membres de ces\néquipes sont retournés. Sinon, ce sont les membres directs du projet.",
+				"tags": [
+					"project"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- Identifiant du projet.",
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/post/get-salon-post": {
 			"get": {
 				"operationId": "GetSalonPost",
@@ -2408,23 +5216,23 @@
 																	"active": {
 																		"type": "boolean"
 																	},
-																	"createdAt": {
-																		"type": "string",
-																		"format": "date-time"
-																	},
 																	"firstName": {
 																		"type": "string"
 																	},
 																	"lastName": {
 																		"type": "string"
 																	},
-																	"id": {
-																		"type": "string"
-																	},
 																	"password": {
 																		"type": "string"
 																	},
 																	"email": {
+																		"type": "string"
+																	},
+																	"createdAt": {
+																		"type": "string",
+																		"format": "date-time"
+																	},
+																	"id": {
 																		"type": "string"
 																	}
 																},
@@ -2435,12 +5243,12 @@
 																	"phoneNumber",
 																	"birthDate",
 																	"active",
-																	"createdAt",
 																	"firstName",
 																	"lastName",
-																	"id",
 																	"password",
-																	"email"
+																	"email",
+																	"createdAt",
+																	"id"
 																],
 																"type": "object"
 															},
@@ -2470,23 +5278,23 @@
 																						"active": {
 																							"type": "boolean"
 																						},
-																						"createdAt": {
-																							"type": "string",
-																							"format": "date-time"
-																						},
 																						"firstName": {
 																							"type": "string"
 																						},
 																						"lastName": {
 																							"type": "string"
 																						},
-																						"id": {
-																							"type": "string"
-																						},
 																						"password": {
 																							"type": "string"
 																						},
 																						"email": {
+																							"type": "string"
+																						},
+																						"createdAt": {
+																							"type": "string",
+																							"format": "date-time"
+																						},
+																						"id": {
 																							"type": "string"
 																						}
 																					},
@@ -2497,12 +5305,12 @@
 																						"phoneNumber",
 																						"birthDate",
 																						"active",
-																						"createdAt",
 																						"firstName",
 																						"lastName",
-																						"id",
 																						"password",
-																						"email"
+																						"email",
+																						"createdAt",
+																						"id"
 																					],
 																					"type": "object"
 																				}
@@ -2520,15 +5328,15 @@
 																				"postId": {
 																					"type": "string"
 																				},
-																				"userId": {
-																					"type": "string"
-																				},
 																				"type": {
 																					"$ref": "#/components/schemas/_36_Enums.ReactionType"
 																				},
 																				"createdAt": {
 																					"type": "string",
 																					"format": "date-time"
+																				},
+																				"userId": {
+																					"type": "string"
 																				},
 																				"id": {
 																					"type": "string"
@@ -2537,9 +5345,9 @@
 																			"required": [
 																				"commentId",
 																				"postId",
-																				"userId",
 																				"type",
 																				"createdAt",
+																				"userId",
 																				"id"
 																			],
 																			"type": "object"
@@ -2581,18 +5389,18 @@
 															"authorId": {
 																"type": "string"
 															},
+															"content": {
+																"type": "string"
+															},
 															"salonId": {
 																"type": "string"
 															},
-															"content": {
-																"type": "string"
+															"type": {
+																"$ref": "#/components/schemas/_36_Enums.PostType"
 															},
 															"updatedAt": {
 																"type": "string",
 																"format": "date-time"
-															},
-															"type": {
-																"$ref": "#/components/schemas/_36_Enums.PostType"
 															},
 															"createdAt": {
 																"type": "string",
@@ -2605,10 +5413,10 @@
 														"required": [
 															"mediaUrls",
 															"authorId",
-															"salonId",
 															"content",
-															"updatedAt",
+															"salonId",
 															"type",
+															"updatedAt",
 															"createdAt",
 															"id"
 														],
@@ -2704,23 +5512,23 @@
 																"active": {
 																	"type": "boolean"
 																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
-																},
 																"firstName": {
 																	"type": "string"
 																},
 																"lastName": {
 																	"type": "string"
 																},
-																"id": {
-																	"type": "string"
-																},
 																"password": {
 																	"type": "string"
 																},
 																"email": {
+																	"type": "string"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
 																	"type": "string"
 																}
 															},
@@ -2731,12 +5539,12 @@
 																"phoneNumber",
 																"birthDate",
 																"active",
-																"createdAt",
 																"firstName",
 																"lastName",
-																"id",
 																"password",
-																"email"
+																"email",
+																"createdAt",
+																"id"
 															],
 															"type": "object"
 														}
@@ -2757,18 +5565,18 @@
 														"authorId": {
 															"type": "string"
 														},
+														"content": {
+															"type": "string"
+														},
 														"salonId": {
 															"type": "string"
 														},
-														"content": {
-															"type": "string"
+														"type": {
+															"$ref": "#/components/schemas/_36_Enums.PostType"
 														},
 														"updatedAt": {
 															"type": "string",
 															"format": "date-time"
-														},
-														"type": {
-															"$ref": "#/components/schemas/_36_Enums.PostType"
 														},
 														"createdAt": {
 															"type": "string",
@@ -2781,10 +5589,10 @@
 													"required": [
 														"mediaUrls",
 														"authorId",
-														"salonId",
 														"content",
-														"updatedAt",
+														"salonId",
 														"type",
+														"updatedAt",
 														"createdAt",
 														"id"
 													],
@@ -2856,23 +5664,23 @@
 																"active": {
 																	"type": "boolean"
 																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
-																},
 																"firstName": {
 																	"type": "string"
 																},
 																"lastName": {
 																	"type": "string"
 																},
-																"id": {
-																	"type": "string"
-																},
 																"password": {
 																	"type": "string"
 																},
 																"email": {
+																	"type": "string"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
 																	"type": "string"
 																}
 															},
@@ -2883,12 +5691,12 @@
 																"phoneNumber",
 																"birthDate",
 																"active",
-																"createdAt",
 																"firstName",
 																"lastName",
-																"id",
 																"password",
-																"email"
+																"email",
+																"createdAt",
+																"id"
 															],
 															"type": "object"
 														}
@@ -2906,15 +5714,15 @@
 														"postId": {
 															"type": "string"
 														},
-														"userId": {
-															"type": "string"
-														},
 														"type": {
 															"$ref": "#/components/schemas/_36_Enums.ReactionType"
 														},
 														"createdAt": {
 															"type": "string",
 															"format": "date-time"
+														},
+														"userId": {
+															"type": "string"
 														},
 														"id": {
 															"type": "string"
@@ -2923,9 +5731,9 @@
 													"required": [
 														"commentId",
 														"postId",
-														"userId",
 														"type",
 														"createdAt",
+														"userId",
 														"id"
 													],
 													"type": "object"
@@ -3010,50 +5818,6 @@
 											"allOf": [
 												{
 													"properties": {
-														"post": {
-															"properties": {
-																"mediaUrls": {
-																	"items": {
-																		"type": "string"
-																	},
-																	"type": "array"
-																},
-																"authorId": {
-																	"type": "string"
-																},
-																"salonId": {
-																	"type": "string"
-																},
-																"content": {
-																	"type": "string"
-																},
-																"updatedAt": {
-																	"type": "string",
-																	"format": "date-time"
-																},
-																"type": {
-																	"$ref": "#/components/schemas/_36_Enums.PostType"
-																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
-																},
-																"id": {
-																	"type": "string"
-																}
-															},
-															"required": [
-																"mediaUrls",
-																"authorId",
-																"salonId",
-																"content",
-																"updatedAt",
-																"type",
-																"createdAt",
-																"id"
-															],
-															"type": "object"
-														},
 														"author": {
 															"properties": {
 																"roleId": {
@@ -3075,23 +5839,23 @@
 																"active": {
 																	"type": "boolean"
 																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
-																},
 																"firstName": {
 																	"type": "string"
 																},
 																"lastName": {
 																	"type": "string"
 																},
-																"id": {
-																	"type": "string"
-																},
 																"password": {
 																	"type": "string"
 																},
 																"email": {
+																	"type": "string"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
 																	"type": "string"
 																}
 															},
@@ -3102,19 +5866,63 @@
 																"phoneNumber",
 																"birthDate",
 																"active",
-																"createdAt",
 																"firstName",
 																"lastName",
-																"id",
 																"password",
-																"email"
+																"email",
+																"createdAt",
+																"id"
+															],
+															"type": "object"
+														},
+														"post": {
+															"properties": {
+																"mediaUrls": {
+																	"items": {
+																		"type": "string"
+																	},
+																	"type": "array"
+																},
+																"authorId": {
+																	"type": "string"
+																},
+																"content": {
+																	"type": "string"
+																},
+																"salonId": {
+																	"type": "string"
+																},
+																"type": {
+																	"$ref": "#/components/schemas/_36_Enums.PostType"
+																},
+																"updatedAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"mediaUrls",
+																"authorId",
+																"content",
+																"salonId",
+																"type",
+																"updatedAt",
+																"createdAt",
+																"id"
 															],
 															"type": "object"
 														}
 													},
 													"required": [
-														"post",
-														"author"
+														"author",
+														"post"
 													],
 													"type": "object"
 												},
@@ -3505,6 +6313,14 @@
 					},
 					{
 						"in": "query",
+						"name": "statusId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
 						"name": "type",
 						"required": false,
 						"schema": {
@@ -3739,6 +6555,429 @@
 				]
 			}
 		},
+		"/admin/groups": {
+			"get": {
+				"operationId": "ListGroups",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GroupListResponseDTO"
+								}
+							}
+						}
+					}
+				},
+				"description": "Liste paginée des groupes avec recherche optionnelle.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée un groupe. Le créateur devient automatiquement OWNER.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupCreateDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/groups/{id}": {
+			"get": {
+				"operationId": "GetGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Détail d'un groupe incluant la liste de ses membres.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupSummaryDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour le nom et/ou la description d'un groupe.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupUpdateDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteGroup",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime un groupe et tous ses membres (cascade).",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/groups/{id}/members": {
+			"post": {
+				"operationId": "AddMembers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Ajoute un ou plusieurs membres (rôle MEMBER) au groupe.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupAddMembersDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/groups/{id}/members/{userId}": {
+			"delete": {
+				"operationId": "RemoveMember",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retire un membre du groupe. Refuse si c'est le dernier OWNER.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"patch": {
+				"operationId": "UpdateMemberRole",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/GroupDetailDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Change le rôle (OWNER/MEMBER) d'un membre.",
+				"tags": [
+					"admin-groups"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GroupUpdateMemberRoleDTO"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/conversation/all-conversation": {
 			"get": {
 				"operationId": "GetAllConversationByUser",
@@ -3836,21 +7075,21 @@
 									"properties": {
 										"data": {
 											"properties": {
-												"ownerId": {
-													"type": "string"
-												},
 												"read": {
 													"type": "boolean"
 												},
-												"updatedAt": {
-													"type": "string",
-													"format": "date-time"
+												"ownerId": {
+													"type": "string"
 												},
 												"type": {
 													"$ref": "#/components/schemas/_36_Enums.ConversationType"
 												},
 												"title": {
 													"type": "string"
+												},
+												"updatedAt": {
+													"type": "string",
+													"format": "date-time"
 												},
 												"createdAt": {
 													"type": "string",
@@ -3861,11 +7100,11 @@
 												}
 											},
 											"required": [
-												"ownerId",
 												"read",
-												"updatedAt",
+												"ownerId",
 												"type",
 												"title",
+												"updatedAt",
 												"createdAt",
 												"id"
 											],
@@ -3912,14 +7151,11 @@
 													"properties": {
 														"aiMessage": {
 															"properties": {
-																"conversationId": {
-																	"type": "string"
-																},
-																"userId": {
-																	"type": "string"
-																},
 																"sender": {
 																	"$ref": "#/components/schemas/_36_Enums.SenderType"
+																},
+																"conversationId": {
+																	"type": "string"
 																},
 																"content": {
 																	"type": "string"
@@ -3931,31 +7167,31 @@
 																	"type": "string",
 																	"format": "date-time"
 																},
+																"userId": {
+																	"type": "string"
+																},
 																"id": {
 																	"type": "string"
 																}
 															},
 															"required": [
-																"conversationId",
-																"userId",
 																"sender",
+																"conversationId",
 																"content",
 																"type",
 																"createdAt",
+																"userId",
 																"id"
 															],
 															"type": "object"
 														},
 														"userMessage": {
 															"properties": {
-																"conversationId": {
-																	"type": "string"
-																},
-																"userId": {
-																	"type": "string"
-																},
 																"sender": {
 																	"$ref": "#/components/schemas/_36_Enums.SenderType"
+																},
+																"conversationId": {
+																	"type": "string"
 																},
 																"content": {
 																	"type": "string"
@@ -3967,17 +7203,20 @@
 																	"type": "string",
 																	"format": "date-time"
 																},
+																"userId": {
+																	"type": "string"
+																},
 																"id": {
 																	"type": "string"
 																}
 															},
 															"required": [
-																"conversationId",
-																"userId",
 																"sender",
+																"conversationId",
 																"content",
 																"type",
 																"createdAt",
+																"userId",
 																"id"
 															],
 															"type": "object"
@@ -4003,14 +7242,11 @@
 											"properties": {
 												"data": {
 													"properties": {
-														"conversationId": {
-															"type": "string"
-														},
-														"userId": {
-															"type": "string"
-														},
 														"sender": {
 															"$ref": "#/components/schemas/_36_Enums.SenderType"
+														},
+														"conversationId": {
+															"type": "string"
 														},
 														"content": {
 															"type": "string"
@@ -4022,17 +7258,20 @@
 															"type": "string",
 															"format": "date-time"
 														},
+														"userId": {
+															"type": "string"
+														},
 														"id": {
 															"type": "string"
 														}
 													},
 													"required": [
-														"conversationId",
-														"userId",
 														"sender",
+														"conversationId",
 														"content",
 														"type",
 														"createdAt",
+														"userId",
 														"id"
 													],
 													"type": "object"
@@ -4146,6 +7385,285 @@
 						}
 					}
 				]
+			}
+		},
+		"/analytics/project/{projectId}": {
+			"get": {
+				"operationId": "GetProjectAnalytics",
+				"responses": {
+					"200": {
+						"description": "ProjectAnalyticsDTO encapsulé dans { success, data }.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/ProjectAnalyticsDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère les métriques Tempo d'un projet.\n\nRetourne : vélocité par sprint, répartitions par type/priorité,\nprogression du sprint actif, charge par membre et activité hebdomadaire.",
+				"tags": [
+					"analytics"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Identifiant du projet.",
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/users": {
+			"get": {
+				"operationId": "ListUsers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AdminUserListResponseDTO"
+								}
+							}
+						}
+					}
+				},
+				"description": "Liste paginée des utilisateurs avec filtres optionnels.",
+				"tags": [
+					"admin-users"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"default": 1,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "roleId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "active",
+						"required": false,
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		},
+		"/admin/users/{id}": {
+			"patch": {
+				"operationId": "UpdateUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/AdminUserListItemDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour les informations d'un utilisateur (rôle, statut actif, profil).",
+				"tags": [
+					"admin-users"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AdminUserUpdateDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeactivateUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/AdminUserListItemDTO"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Désactive un utilisateur (soft delete via `active = false`).",
+				"tags": [
+					"admin-users"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/users/{id}/reset-password": {
+			"post": {
+				"operationId": "ResetPassword",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean",
+											"enum": [
+												true
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Réinitialise le mot de passe d'un utilisateur. Toutes ses sessions actives\nsont révoquées.",
+				"tags": [
+					"admin-users"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AdminUserResetPasswordDTO"
+							}
+						}
+					}
+				}
 			}
 		}
 	},

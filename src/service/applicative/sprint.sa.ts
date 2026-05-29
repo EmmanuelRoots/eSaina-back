@@ -3,6 +3,7 @@ import {
   SprintStatus,
   UpdateSprintRequestDTO,
 } from "../../data/dto/sprint.dto";
+import { IssueStatus } from "../../data/dto/issue.dto";
 import { toSprintDTO } from "../../data/dto/mappers/sprint.mappers";
 import { ApiError } from "../../data/exception/api.exception";
 import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.handler";
@@ -108,10 +109,27 @@ const startSprint = async (sprintId: string) => {
 
 const closeSprint = async (sprintId: string) => {
   try {
-    const res = await prisma.sprint.update({
-      where: { id: sprintId },
-      data: { status: SprintStatus.CLOSED, endDate: new Date() },
+    const res = await prisma.$transaction(async (tx) => {
+      // 1. Update the sprint status
+      const updatedSprint = await tx.sprint.update({
+        where: { id: sprintId },
+        data: { status: SprintStatus.CLOSED, endDate: new Date() },
+      });
+
+      // 2. Move incomplete issues back to backlog (sprintId = null)
+      await tx.issue.updateMany({
+        where: {
+          sprintId: sprintId,
+          status: { not: IssueStatus.DONE },
+        },
+        data: {
+          sprintId: null,
+        },
+      });
+
+      return updatedSprint;
     });
+
     return { success: true, data: toSprintDTO(res) };
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error);

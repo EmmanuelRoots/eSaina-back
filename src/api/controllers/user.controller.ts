@@ -13,7 +13,7 @@ import {
 import { Request as ExpressRequest } from 'express'
 
 import LoginDTO, { GoogleLoginDTO } from '../../data/dto/login.dto'
-import { UserDTO } from '../../data/dto/user.dto'
+import { SubscribeDTO, UserDTO } from '../../data/dto/user.dto'
 import userSA from '../../service/applicative/user.sa'
 import { sessionMiddleware } from '../middleware/session.middleware'
 import { authMiddleware } from '../middleware/auth.middleware'
@@ -70,8 +70,8 @@ export class UserController extends Controller {
   @Response(201, 'Utilisateur inscrit avec succès')
   @Response(400, 'Données invalides')
   @Response(409, "L'utilisateur existe déjà")
-  public async subscribe(@Body() body: UserDTO) {
-    return userSA.addUser(body)
+  public async subscribe(@Body() body: SubscribeDTO) {
+    return userSA.addUser(body as unknown as UserDTO & { deviceInfo?: string })
   }
 
   /**

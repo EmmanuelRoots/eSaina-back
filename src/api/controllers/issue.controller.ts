@@ -42,9 +42,10 @@ export class IssueController extends Controller {
     @Query() sprintId?: string,
     @Query() assigneeId?: string,
     @Query() status?: IssueStatus,
+    @Query() statusId?: string,
     @Query() type?: IssueType,
   ) {
-    return issueSa.listIssues(projectId, { sprintId, assigneeId, status, type });
+    return issueSa.listIssues(projectId, { sprintId, assigneeId, status, statusId, type });
   }
 
   @Get("{issueId}")

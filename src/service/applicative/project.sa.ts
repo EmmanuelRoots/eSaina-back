@@ -11,6 +11,7 @@ import { prisma } from "../../repository";
 import { IssueStatus } from "../../data/dto/issue.dto";
 import { toIssueDTO } from "../../data/dto/mappers/issue.mappers";
 import { toSprintDTO } from "../../data/dto/mappers/sprint.mappers";
+import { StatusCategory } from "@prisma/client";
 
 const createProject = async (
   payload: CreateProjectRequestDTO,
@@ -35,11 +36,19 @@ const createProject = async (
         members: {
           create: memberCreates,
         },
+        statuses: {
+          create: [
+            { name: "Todo", color: "#94a3b8", position: 0, category: StatusCategory.TODO },
+            { name: "In Progress", color: "#3b82f6", position: 1, category: StatusCategory.IN_PROGRESS },
+            { name: "Done", color: "#22c55e", position: 2, category: StatusCategory.DONE },
+          ],
+        },
       },
       include: {
         owner: true,
         salon: true,
         members: { include: { user: true } },
+        statuses: true,
       },
     });
 
@@ -57,12 +66,15 @@ const getProjectsForUser = async (userId: string) => {
         OR: [
           { ownerId: userId },
           { members: { some: { userId } } },
+          // Projets rattachés à une équipe dont l'utilisateur est membre
+          { teams: { some: { team: { members: { some: { userId } } } } } },
         ],
       },
       include: {
         owner: true,
         salon: true,
         members: { include: { user: true } },
+        statuses: true,
       },
       orderBy: { updatedAt: "desc" },
     });
@@ -70,6 +82,53 @@ const getProjectsForUser = async (userId: string) => {
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error);
     throw new ApiError(500, newError.message, "error on list projects");
+  }
+};
+
+/**
+ * Retourne les utilisateurs pouvant être assignés à un ticket du projet.
+ *
+ * Règle : si le projet est rattaché à au moins une équipe, seuls les membres
+ * de ces équipes sont éligibles. Sinon, ce sont les membres directs du projet.
+ *
+ * @param projectId - Identifiant du projet.
+ * @returns Liste { id, firstName, lastName, email, pdpUrl }.
+ */
+const getAssignableMembers = async (projectId: string) => {
+  try {
+    const teamLinks = await prisma.teamProject.findMany({
+      where: { projectId },
+      include: {
+        team: {
+          include: { members: { include: { user: true } } },
+        },
+      },
+    });
+
+    if (teamLinks.length > 0) {
+      // Déduplique par userId au cas où un user serait dans plusieurs équipes liées
+      const seen = new Set<string>();
+      const users = teamLinks
+        .flatMap((tp) => tp.team.members.map((m) => m.user))
+        .filter((u) => {
+          if (seen.has(u.id)) return false;
+          seen.add(u.id);
+          return true;
+        });
+
+      return { success: true, data: users };
+    }
+
+    // Pas d'équipe : fallback sur les membres directs du projet
+    const projectMembers = await prisma.projectMember.findMany({
+      where: { projectId },
+      include: { user: true },
+    });
+
+    return { success: true, data: projectMembers.map((m) => m.user) };
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error);
+    throw new ApiError(500, newError.message, "error on get assignable members");
   }
 };
 
@@ -83,6 +142,7 @@ const getProjectById = async (projectId: string) => {
         members: { include: { user: true } },
         sprints: true,
         labels: true,
+        statuses: { orderBy: { position: "asc" } },
       },
     });
     if (!res) throw new ApiError(404, "Project not found");
@@ -144,13 +204,14 @@ const getBoard = async (projectId: string) => {
         reporter: true,
         labels: { include: { label: true } },
       },
-      orderBy: [{ status: "asc" }, { position: "asc" }],
+      orderBy: [{ statusId: "asc" }, { position: "asc" }],
     });
 
     const grouped = issues.reduce<Record<string, any>>(
       (acc, issue) => {
         const dto = toIssueDTO(issue, project.key);
-        (acc[issue.status] ??= []).push(dto);
+        const statusKey = issue.statusId || "backlog";
+        (acc[statusKey] ??= []).push(dto);
         return acc;
       },
       {},
@@ -256,4 +317,5 @@ export default {
   getBacklog,
   addMember,
   removeMember,
+  getAssignableMembers,
 };

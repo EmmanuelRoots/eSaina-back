@@ -1,3 +1,4 @@
+import { ProjectStatusDTO } from "./project-status.dto"
 import { UserDTO } from "./user.dto"
 
 export enum IssueType {
@@ -48,8 +49,14 @@ export interface IssueDTO {
   description?: string | null
   type: IssueType
   status: IssueStatus
+  statusId?: string | null
+  projectStatus?: ProjectStatusDTO
   priority: IssuePriority
   storyPoints?: number | null
+  /** Estimation de temps en minutes (ex. 300 = 5h). */
+  estimatedMinutes?: number | null
+  startDate?: string | null
+  dueDate?: string | null
   position?: number
   sprintId?: string | null
   assigneeId?: string | null
@@ -67,8 +74,14 @@ export interface CreateIssueRequestDTO {
   title: string
   description?: string
   type?: IssueType
+  status?: IssueStatus
+  statusId?: string
   priority?: IssuePriority
   storyPoints?: number
+  /** Estimation de temps en minutes à la création (ex. 300 = 5h). */
+  estimatedMinutes?: number
+  startDate?: string
+  dueDate?: string
   sprintId?: string
   assigneeId?: string
   parentIssueId?: string
@@ -80,8 +93,12 @@ export interface UpdateIssueRequestDTO {
   description?: string | null
   type?: IssueType
   status?: IssueStatus
+  statusId?: string | null
   priority?: IssuePriority
   storyPoints?: number | null
+  estimatedMinutes?: number | null
+  startDate?: string | null
+  dueDate?: string | null
   position?: number
   sprintId?: string | null
   assigneeId?: string | null

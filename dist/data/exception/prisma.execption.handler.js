@@ -13,7 +13,12 @@ class PrismaExceptionHandler {
      * @returns Un objet décrivant le type d'erreur et les champs concernés (si applicable)
      */
     static handle(error) {
-        if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'string' && 'meta' in error && 'clientVersion' in error) {
+        if (error &&
+            typeof error === 'object' &&
+            'code' in error &&
+            typeof error.code === 'string' &&
+            'meta' in error &&
+            'clientVersion' in error) {
             switch (error.code) {
                 case 'P2002': // Unique constraint failed
                     const fields = error.meta?.target ?? [];
@@ -60,15 +65,13 @@ class PrismaExceptionHandler {
      * Vérifie si l'erreur est une violation d'unicité (P2002).
      */
     static isUniqueConstraintViolation(error) {
-        return (error instanceof library_1.PrismaClientKnownRequestError &&
-            error.code === 'P2002');
+        return (error instanceof library_1.PrismaClientKnownRequestError && error.code === 'P2002');
     }
     /**
      * Vérifie si l'erreur est "Record not found" (P2025).
      */
     static isRecordNotFound(error) {
-        return (error instanceof library_1.PrismaClientKnownRequestError &&
-            error.code === 'P2025');
+        return (error instanceof library_1.PrismaClientKnownRequestError && error.code === 'P2025');
     }
 }
 exports.PrismaExceptionHandler = PrismaExceptionHandler;

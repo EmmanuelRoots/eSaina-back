@@ -81,4 +81,17 @@ export class ProjectController extends Controller {
   ) {
     return projectSa.removeMember(projectId, userId);
   }
+
+  /**
+   * Retourne les utilisateurs pouvant être assignés à un ticket du projet.
+   *
+   * Si le projet est rattaché à au moins une équipe, seuls les membres de ces
+   * équipes sont retournés. Sinon, ce sont les membres directs du projet.
+   *
+   * @param projectId - Identifiant du projet.
+   */
+  @Get("{projectId}/assignable-members")
+  public async getAssignableMembers(@Path() projectId: string) {
+    return projectSa.getAssignableMembers(projectId);
+  }
 }

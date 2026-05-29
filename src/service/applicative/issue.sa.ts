@@ -12,18 +12,61 @@ import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.ha
 import { prisma } from "../../repository";
 import sseSa from "./sse.sa";
 import { toIssueCommentDTO, toIssueDTO } from "../../data/dto/mappers/issue.mappers";
+import { StatusCategory } from "@prisma/client";
+
+/**
+ * Vérifie que l'assignee est bien membre d'une équipe rattachée au projet.
+ * Si le projet n'a aucune équipe, la contrainte ne s'applique pas.
+ *
+ * @throws ApiError(400) si l'assignee n'est pas membre de l'équipe du projet.
+ */
+const assertAssigneeIsTeamMember = async (
+  projectId: string,
+  assigneeId: string,
+) => {
+  const teamLinks = await prisma.teamProject.findMany({ where: { projectId } });
+  if (teamLinks.length === 0) return; // Pas d'équipe → pas de restriction
+
+  const membership = await prisma.teamMember.findFirst({
+    where: {
+      userId: assigneeId,
+      teamId: { in: teamLinks.map((t) => t.teamId) },
+    },
+  });
+
+  if (!membership) {
+    throw new ApiError(
+      400,
+      "L'assignee doit être membre d'une équipe rattachée au projet",
+      "assignee_not_team_member",
+    );
+  }
+};
 
 const createIssue = async (
   payload: CreateIssueRequestDTO,
   reporterId: string,
 ) => {
   try {
+    if (payload.assigneeId) {
+      await assertAssigneeIsTeamMember(payload.projectId, payload.assigneeId);
+    }
+
     const res = await prisma.$transaction(async (tx) => {
       const project = await tx.project.update({
         where: { id: payload.projectId },
         data: { issueCounter: { increment: 1 } },
         select: { issueCounter: true, key: true },
       });
+
+      let statusId = payload.statusId;
+      if (!statusId) {
+        const defaultStatus = await tx.projectStatus.findFirst({
+          where: { projectId: payload.projectId, category: StatusCategory.TODO },
+          orderBy: { position: "asc" },
+        });
+        statusId = defaultStatus?.id;
+      }
 
       const issue = await tx.issue.create({
         data: {
@@ -32,9 +75,13 @@ const createIssue = async (
           title: payload.title,
           description: payload.description,
           type: payload.type ?? IssueType.TASK,
-          status: IssueStatus.TODO,
+          status: payload.status ?? IssueStatus.TODO,
+          statusId: statusId,
           priority: payload.priority ?? IssuePriority.MEDIUM,
           storyPoints: payload.storyPoints,
+          estimatedMinutes: payload.estimatedMinutes,
+          startDate: payload.startDate ? new Date(payload.startDate) : undefined,
+          dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
           sprintId: payload.sprintId,
           assigneeId: payload.assigneeId,
           reporterId,
@@ -46,6 +93,7 @@ const createIssue = async (
         include: {
           assignee: true,
           reporter: true,
+          projectStatus: true,
           labels: { include: { label: true } },
         },
       });
@@ -77,6 +125,7 @@ const listIssues = async (
     sprintId?: string;
     assigneeId?: string;
     status?: IssueStatus;
+    statusId?: string;
     type?: IssueType;
   } = {},
 ) => {
@@ -93,11 +142,13 @@ const listIssues = async (
         sprintId: filters.sprintId,
         assigneeId: filters.assigneeId,
         status: filters.status,
+        statusId: filters.statusId,
         type: filters.type,
       },
       include: {
         assignee: true,
         reporter: true,
+        projectStatus: true,
         labels: { include: { label: true } },
       },
       orderBy: [{ position: "asc" }, { createdAt: "desc" }],
@@ -119,6 +170,7 @@ const getIssueById = async (issueId: string) => {
         assignee: true,
         reporter: true,
         sprint: true,
+        projectStatus: true,
         labels: { include: { label: true } },
         comments: { include: { author: true }, orderBy: { createdAt: "asc" } },
         childIssues: true,
@@ -142,9 +194,26 @@ const updateIssue = async (
   try {
     const before = await prisma.issue.findUnique({
       where: { id: issueId },
-      select: { assigneeId: true, status: true, projectId: true },
+      select: { assigneeId: true, status: true, statusId: true, projectId: true },
     });
     if (!before) throw new ApiError(404, "Issue not found");
+
+    if (payload.assigneeId && payload.assigneeId !== before.assigneeId) {
+      await assertAssigneeIsTeamMember(before.projectId, payload.assigneeId);
+    }
+
+    // If statusId is changed, we should probably update the legacy 'status' field too if it's one of the standard ones
+    // Or at least ensure 'status' reflects the category of the new projectStatus
+    let status = payload.status;
+    if (payload.statusId && payload.statusId !== before.statusId) {
+        const newStatus = await prisma.projectStatus.findUnique({ where: { id: payload.statusId } });
+        if (newStatus) {
+            // Map category to IssueStatus enum
+            if (newStatus.category === StatusCategory.TODO) status = IssueStatus.TODO;
+            else if (newStatus.category === StatusCategory.IN_PROGRESS) status = IssueStatus.IN_PROGRESS;
+            else if (newStatus.category === StatusCategory.DONE) status = IssueStatus.DONE;
+        }
+    }
 
     const res = await prisma.issue.update({
       where: { id: issueId },
@@ -152,9 +221,13 @@ const updateIssue = async (
         title: payload.title,
         description: payload.description,
         type: payload.type,
-        status: payload.status,
+        status: status,
+        statusId: payload.statusId,
         priority: payload.priority,
         storyPoints: payload.storyPoints,
+        estimatedMinutes: payload.estimatedMinutes,
+        startDate: payload.startDate ? new Date(payload.startDate) : undefined,
+        dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
         position: payload.position,
         sprintId: payload.sprintId,
         assigneeId: payload.assigneeId,
@@ -164,6 +237,7 @@ const updateIssue = async (
         project: { select: { key: true } },
         assignee: true,
         reporter: true,
+        projectStatus: true,
         labels: { include: { label: true } },
       },
     });

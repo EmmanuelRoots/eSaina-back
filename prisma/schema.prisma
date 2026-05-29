@@ -110,6 +110,76 @@ model User {
   issueAttachments            IssueAttachment[]
   roleId                      String
   role                        Role      @relation(fields: [roleId], references: [id])
+  groupMemberships            GroupMember[]
+  createdGroups               Group[]   @relation("GroupCreator")
+  teamMemberships             TeamMember[]
+  createdTeams                Team[]    @relation("TeamCreator")
+  worklogs                    WorkLog[]
+}
+
+model Group {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  createdById String
+  createdBy   User          @relation("GroupCreator", fields: [createdById], references: [id])
+  members     GroupMember[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([createdById])
+}
+
+model GroupMember {
+  id        String          @id @default(uuid())
+  groupId   String
+  group     Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      GroupMemberRole @default(MEMBER)
+  joinedAt  DateTime        @default(now())
+
+  @@unique([groupId, userId])
+  @@index([userId])
+}
+
+model Team {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  createdById String
+  createdBy   User          @relation("TeamCreator", fields: [createdById], references: [id])
+  members     TeamMember[]
+  projects    TeamProject[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([createdById])
+}
+
+model TeamMember {
+  id        String         @id @default(uuid())
+  teamId    String
+  team      Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      TeamMemberRole @default(MEMBER)
+  joinedAt  DateTime       @default(now())
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+model TeamProject {
+  id        String   @id @default(uuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  addedAt   DateTime @default(now())
+
+  @@unique([teamId, projectId])
+  @@index([projectId])
 }
 
 model Post {
@@ -197,11 +267,29 @@ model Project {
   sprints       Sprint[]
   issues        Issue[]
   labels        Label[]
+  statuses      ProjectStatus[]
+  teams         TeamProject[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
   @@index([ownerId])
   @@index([salonId])
+}
+
+model ProjectStatus {
+  id         String         @id @default(cuid())
+  projectId  String
+  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name       String
+  color      String         @default("#94a3b8")
+  position   Float          @default(0)
+  category   StatusCategory @default(TODO)
+  issues     Issue[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([projectId, name])
+  @@index([projectId])
 }
 
 model ProjectMember {
@@ -243,7 +331,11 @@ model Issue {
   description    String?
   type           IssueType         @default(TASK)
   status         IssueStatus       @default(TODO)
+  statusId       String?
+  projectStatus  ProjectStatus?    @relation(fields: [statusId], references: [id], onDelete: SetNull)
   priority       IssuePriority     @default(MEDIUM)
+  startDate      DateTime?
+  dueDate        DateTime?
   storyPoints    Int?
   position       Float             @default(0)
   sprintId       String?
@@ -257,15 +349,18 @@ model Issue {
   childIssues    Issue[]           @relation("IssueChildren")
   comments       IssueComment[]
   labels         IssueLabel[]
-  attachments    IssueAttachment[]
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  attachments        IssueAttachment[]
+  estimatedMinutes   Int?
+  worklogs           WorkLog[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@unique([projectId, number])
   @@index([projectId])
   @@index([sprintId])
   @@index([assigneeId])
   @@index([status])
+  @@index([statusId])
   @@index([type])
 }
 
@@ -307,6 +402,22 @@ model IssueLabel {
 
   @@id([issueId, labelId])
   @@index([labelId])
+}
+
+model WorkLog {
+  id               String   @id @default(cuid())
+  issueId          String
+  issue            Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date             DateTime
+  timeSpentMinutes Int
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([issueId])
+  @@index([userId])
 }
 
 model IssueAttachment {
@@ -373,6 +484,16 @@ enum ProjectMemberRole {
   VIEWER
 }
 
+enum GroupMemberRole {
+  OWNER
+  MEMBER
+}
+
+enum TeamMemberRole {
+  LEAD
+  MEMBER
+}
+
 enum SprintStatus {
   PLANNED
   ACTIVE
@@ -399,6 +520,12 @@ enum IssuePriority {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+enum StatusCategory {
+  TODO
+  IN_PROGRESS
+  DONE
 }
 
 datasource db {

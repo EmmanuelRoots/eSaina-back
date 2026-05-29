@@ -6,6 +6,7 @@ import {
   Sprint,
   Label,
   IssueLabel,
+  ProjectStatus,
 } from "@prisma/client";
 import { toISO } from "../../../utils/date.utils";
 import {
@@ -17,6 +18,7 @@ import {
 } from "../issue.dto";
 import { toUserDTO } from "./user.mappers";
 import { toSprintDTO } from "./sprint.mappers";
+import { toProjectStatusDTO } from "./project-status.mappers";
 
 export const buildIssueKey = (projectKey: string, number: number): string =>
   `${projectKey}-${number}`;
@@ -29,6 +31,7 @@ export const toIssueDTO = (
     sprint?: Sprint | null;
     labels?: (IssueLabel & { label: Label })[];
     comments?: (IssueComment & { author?: User })[];
+    projectStatus?: ProjectStatus | null;
   },
   projectKey?: string,
 ): IssueDTO => {
@@ -45,8 +48,15 @@ export const toIssueDTO = (
     description: issue.description,
     type: issue.type as IssueType,
     status: issue.status as IssueStatus,
+    statusId: issue.statusId,
+    projectStatus: issue.projectStatus
+      ? toProjectStatusDTO(issue.projectStatus)
+      : undefined,
     priority: issue.priority as IssuePriority,
     storyPoints: issue.storyPoints,
+    estimatedMinutes: issue.estimatedMinutes ?? undefined,
+    startDate: issue.startDate ? toISO(issue.startDate) : undefined,
+    dueDate: issue.dueDate ? toISO(issue.dueDate) : undefined,
     position: issue.position,
     sprintId: issue.sprintId,
     assigneeId: issue.assigneeId,
