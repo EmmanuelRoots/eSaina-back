@@ -10,12 +10,17 @@ import sseSa from "./service/applicative/sse.sa";
 import { prisma } from "./repository";
 
 export const app = Express();
+
+// CORS_ORIGIN est injecté depuis .env en production (ex. https://sales.boost.arkeup.com).
+// En dev, on retombe sur l'origine Vite locale.
+const corsOrigin = process.env.CORS_ORIGIN ?? "http://localhost:5173";
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // Ton frontend Vite
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Autoriser explicitement la méthode OPTIONS pour le preflight
+    origin: corsOrigin,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    credentials: true, // Indispensable si ton frontend envoie des cookies ou des tokens d'autorisation
+    credentials: true,
   }),
 );
 app.use(Express.json({ limit: "50mb" }));
