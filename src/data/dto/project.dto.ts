@@ -1,3 +1,4 @@
+import { ProjectStatusDTO } from "./project-status.dto"
 import { SprintDTO } from "./sprint.dto"
 import { UserDTO } from "./user.dto"
 
@@ -34,6 +35,7 @@ export interface ProjectDTO {
   members?: ProjectMemberDTO[]
   sprints?: SprintDTO[]
   labels?: ProjectLabelDTO[]
+  statuses?: ProjectStatusDTO[]
   createdAt?: string
   updatedAt?: string
 }

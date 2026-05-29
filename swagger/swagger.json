@@ -825,6 +825,91 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"_36_Enums.StatusCategory": {
+				"type": "string",
+				"enum": [
+					"TODO",
+					"IN_PROGRESS",
+					"DONE"
+				]
+			},
+			"StatusCategory": {
+				"$ref": "#/components/schemas/_36_Enums.StatusCategory"
+			},
+			"ProjectStatusDTO": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"projectId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"color": {
+						"type": "string"
+					},
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
+					"category": {
+						"$ref": "#/components/schemas/StatusCategory"
+					}
+				},
+				"required": [
+					"id",
+					"projectId",
+					"name",
+					"color",
+					"position",
+					"category"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateProjectStatusRequestDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"color": {
+						"type": "string"
+					},
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
+					"category": {
+						"$ref": "#/components/schemas/StatusCategory"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateProjectStatusRequestDTO": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"color": {
+						"type": "string"
+					},
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
+					"category": {
+						"$ref": "#/components/schemas/StatusCategory"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Partial_UserDTO_": {
 				"properties": {
 					"id": {
@@ -983,6 +1068,12 @@
 						},
 						"type": "array"
 					},
+					"statuses": {
+						"items": {
+							"$ref": "#/components/schemas/ProjectStatusDTO"
+						},
+						"type": "array"
+					},
 					"createdAt": {
 						"type": "string"
 					},
@@ -1123,6 +1214,13 @@
 					"status": {
 						"$ref": "#/components/schemas/IssueStatus"
 					},
+					"statusId": {
+						"type": "string",
+						"nullable": true
+					},
+					"projectStatus": {
+						"$ref": "#/components/schemas/ProjectStatusDTO"
+					},
 					"priority": {
 						"$ref": "#/components/schemas/IssuePriority"
 					},
@@ -1258,6 +1356,9 @@
 					"status": {
 						"$ref": "#/components/schemas/IssueStatus"
 					},
+					"statusId": {
+						"type": "string"
+					},
 					"priority": {
 						"$ref": "#/components/schemas/IssuePriority"
 					},
@@ -1308,6 +1409,10 @@
 					},
 					"status": {
 						"$ref": "#/components/schemas/IssueStatus"
+					},
+					"statusId": {
+						"type": "string",
+						"nullable": true
 					},
 					"priority": {
 						"$ref": "#/components/schemas/IssuePriority"
@@ -3567,6 +3672,266 @@
 				]
 			}
 		},
+		"/project/{projectId}/statuses": {
+			"post": {
+				"operationId": "CreateStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/ProjectStatusDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new status for a project",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateProjectStatusRequestDTO"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "ListStatuses",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/ProjectStatusDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "List all statuses for a project",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/project/statuses/{statusId}": {
+			"put": {
+				"operationId": "UpdateStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/ProjectStatusDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a project status",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "statusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateProjectStatusRequestDTO"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Delete a project status",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "statusId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/project/{projectId}/statuses/reorder": {
+			"put": {
+				"operationId": "ReorderStatuses",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Reorder statuses for a project",
+				"tags": [
+					"Project Status"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"statusIds": {
+										"items": {
+											"type": "string"
+										},
+										"type": "array"
+									}
+								},
+								"required": [
+									"statusIds"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/project/create": {
 			"post": {
 				"operationId": "Create",
@@ -5187,6 +5552,14 @@
 						"required": false,
 						"schema": {
 							"$ref": "#/components/schemas/IssueStatus"
+						}
+					},
+					{
+						"in": "query",
+						"name": "statusId",
+						"required": false,
+						"schema": {
+							"type": "string"
 						}
 					},
 					{

@@ -16,6 +16,8 @@ import { SalonController } from './../controllers/salon.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { RoleController } from './../controllers/role.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { ProjectStatusesController } from './../controllers/projectStatus.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ProjectController } from './../controllers/project.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PostController } from './../controllers/post.controller';
@@ -357,6 +359,51 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "_36_Enums.StatusCategory": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["TODO"]},{"dataType":"enum","enums":["IN_PROGRESS"]},{"dataType":"enum","enums":["DONE"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "StatusCategory": {
+        "dataType": "refAlias",
+        "type": {"ref":"_36_Enums.StatusCategory","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProjectStatusDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "projectId": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "color": {"dataType":"string","required":true},
+            "position": {"dataType":"double","required":true},
+            "category": {"ref":"StatusCategory","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateProjectStatusRequestDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "color": {"dataType":"string"},
+            "position": {"dataType":"double"},
+            "category": {"ref":"StatusCategory"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateProjectStatusRequestDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string"},
+            "color": {"dataType":"string"},
+            "position": {"dataType":"double"},
+            "category": {"ref":"StatusCategory"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserDTO_": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string"},"email":{"dataType":"string"},"password":{"dataType":"string"},"lastName":{"dataType":"string"},"firstName":{"dataType":"string"},"createdAt":{"dataType":"string"},"phoneNumber":{"dataType":"string"},"birthDate":{"dataType":"string"},"active":{"dataType":"boolean"},"conversations":{"dataType":"array","array":{"dataType":"refObject","ref":"ConversationDTO"}},"messaages":{"dataType":"array","array":{"dataType":"refObject","ref":"MessageDTO"}},"pdpUrl":{"dataType":"string"},"roleId":{"dataType":"string"},"role":{"ref":"RoleDTO"}},"validators":{}},
@@ -404,6 +451,7 @@ const models: TsoaRoute.Models = {
             "members": {"dataType":"array","array":{"dataType":"refObject","ref":"ProjectMemberDTO"}},
             "sprints": {"dataType":"array","array":{"dataType":"refObject","ref":"SprintDTO"}},
             "labels": {"dataType":"array","array":{"dataType":"refObject","ref":"ProjectLabelDTO"}},
+            "statuses": {"dataType":"array","array":{"dataType":"refObject","ref":"ProjectStatusDTO"}},
             "createdAt": {"dataType":"string"},
             "updatedAt": {"dataType":"string"},
         },
@@ -473,6 +521,8 @@ const models: TsoaRoute.Models = {
             "description": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
             "type": {"ref":"IssueType","required":true},
             "status": {"ref":"IssueStatus","required":true},
+            "statusId": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
+            "projectStatus": {"ref":"ProjectStatusDTO"},
             "priority": {"ref":"IssuePriority","required":true},
             "storyPoints": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]}]},
             "startDate": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
@@ -528,6 +578,7 @@ const models: TsoaRoute.Models = {
             "description": {"dataType":"string"},
             "type": {"ref":"IssueType"},
             "status": {"ref":"IssueStatus"},
+            "statusId": {"dataType":"string"},
             "priority": {"ref":"IssuePriority"},
             "storyPoints": {"dataType":"double"},
             "startDate": {"dataType":"string"},
@@ -547,6 +598,7 @@ const models: TsoaRoute.Models = {
             "description": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
             "type": {"ref":"IssueType"},
             "status": {"ref":"IssueStatus"},
+            "statusId": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
             "priority": {"ref":"IssuePriority"},
             "storyPoints": {"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]}]},
             "startDate": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}]},
@@ -1736,6 +1788,159 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsProjectStatusesController_createStatus: Record<string, TsoaRoute.ParameterSchema> = {
+                projectId: {"in":"path","name":"projectId","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"CreateProjectStatusRequestDTO"},
+        };
+        app.post('/project/:projectId/statuses',
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController)),
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController.prototype.createStatus)),
+
+            async function ProjectStatusesController_createStatus(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsProjectStatusesController_createStatus, request, response });
+
+                const controller = new ProjectStatusesController();
+
+              await templateService.apiHandler({
+                methodName: 'createStatus',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsProjectStatusesController_listStatuses: Record<string, TsoaRoute.ParameterSchema> = {
+                projectId: {"in":"path","name":"projectId","required":true,"dataType":"string"},
+        };
+        app.get('/project/:projectId/statuses',
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController)),
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController.prototype.listStatuses)),
+
+            async function ProjectStatusesController_listStatuses(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsProjectStatusesController_listStatuses, request, response });
+
+                const controller = new ProjectStatusesController();
+
+              await templateService.apiHandler({
+                methodName: 'listStatuses',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsProjectStatusesController_updateStatus: Record<string, TsoaRoute.ParameterSchema> = {
+                statusId: {"in":"path","name":"statusId","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"UpdateProjectStatusRequestDTO"},
+        };
+        app.put('/project/statuses/:statusId',
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController)),
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController.prototype.updateStatus)),
+
+            async function ProjectStatusesController_updateStatus(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsProjectStatusesController_updateStatus, request, response });
+
+                const controller = new ProjectStatusesController();
+
+              await templateService.apiHandler({
+                methodName: 'updateStatus',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsProjectStatusesController_deleteStatus: Record<string, TsoaRoute.ParameterSchema> = {
+                statusId: {"in":"path","name":"statusId","required":true,"dataType":"string"},
+        };
+        app.delete('/project/statuses/:statusId',
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController)),
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController.prototype.deleteStatus)),
+
+            async function ProjectStatusesController_deleteStatus(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsProjectStatusesController_deleteStatus, request, response });
+
+                const controller = new ProjectStatusesController();
+
+              await templateService.apiHandler({
+                methodName: 'deleteStatus',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsProjectStatusesController_reorderStatuses: Record<string, TsoaRoute.ParameterSchema> = {
+                projectId: {"in":"path","name":"projectId","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"statusIds":{"dataType":"array","array":{"dataType":"string"},"required":true}}},
+        };
+        app.put('/project/:projectId/statuses/reorder',
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController)),
+            ...(fetchMiddlewares<RequestHandler>(ProjectStatusesController.prototype.reorderStatuses)),
+
+            async function ProjectStatusesController_reorderStatuses(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsProjectStatusesController_reorderStatuses, request, response });
+
+                const controller = new ProjectStatusesController();
+
+              await templateService.apiHandler({
+                methodName: 'reorderStatuses',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsProjectController_create: Record<string, TsoaRoute.ParameterSchema> = {
                 body: {"in":"body","name":"body","required":true,"ref":"CreateProjectRequestDTO"},
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -2318,6 +2523,7 @@ export function RegisterRoutes(app: Router) {
                 sprintId: {"in":"query","name":"sprintId","dataType":"string"},
                 assigneeId: {"in":"query","name":"assigneeId","dataType":"string"},
                 status: {"in":"query","name":"status","ref":"IssueStatus"},
+                statusId: {"in":"query","name":"statusId","dataType":"string"},
                 type: {"in":"query","name":"type","ref":"IssueType"},
         };
         app.get('/issue/list',

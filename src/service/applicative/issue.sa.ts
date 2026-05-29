@@ -12,6 +12,7 @@ import { PrismaExceptionHandler } from "../../data/exception/prisma.execption.ha
 import { prisma } from "../../repository";
 import sseSa from "./sse.sa";
 import { toIssueCommentDTO, toIssueDTO } from "../../data/dto/mappers/issue.mappers";
+import { StatusCategory } from "@prisma/client";
 
 const createIssue = async (
   payload: CreateIssueRequestDTO,
@@ -25,6 +26,15 @@ const createIssue = async (
         select: { issueCounter: true, key: true },
       });
 
+      let statusId = payload.statusId;
+      if (!statusId) {
+        const defaultStatus = await tx.projectStatus.findFirst({
+          where: { projectId: payload.projectId, category: StatusCategory.TODO },
+          orderBy: { position: "asc" },
+        });
+        statusId = defaultStatus?.id;
+      }
+
       const issue = await tx.issue.create({
         data: {
           projectId: payload.projectId,
@@ -33,6 +43,7 @@ const createIssue = async (
           description: payload.description,
           type: payload.type ?? IssueType.TASK,
           status: payload.status ?? IssueStatus.TODO,
+          statusId: statusId,
           priority: payload.priority ?? IssuePriority.MEDIUM,
           storyPoints: payload.storyPoints,
           startDate: payload.startDate ? new Date(payload.startDate) : undefined,
@@ -48,6 +59,7 @@ const createIssue = async (
         include: {
           assignee: true,
           reporter: true,
+          projectStatus: true,
           labels: { include: { label: true } },
         },
       });
@@ -79,6 +91,7 @@ const listIssues = async (
     sprintId?: string;
     assigneeId?: string;
     status?: IssueStatus;
+    statusId?: string;
     type?: IssueType;
   } = {},
 ) => {
@@ -95,11 +108,13 @@ const listIssues = async (
         sprintId: filters.sprintId,
         assigneeId: filters.assigneeId,
         status: filters.status,
+        statusId: filters.statusId,
         type: filters.type,
       },
       include: {
         assignee: true,
         reporter: true,
+        projectStatus: true,
         labels: { include: { label: true } },
       },
       orderBy: [{ position: "asc" }, { createdAt: "desc" }],
@@ -121,6 +136,7 @@ const getIssueById = async (issueId: string) => {
         assignee: true,
         reporter: true,
         sprint: true,
+        projectStatus: true,
         labels: { include: { label: true } },
         comments: { include: { author: true }, orderBy: { createdAt: "asc" } },
         childIssues: true,
@@ -144,9 +160,22 @@ const updateIssue = async (
   try {
     const before = await prisma.issue.findUnique({
       where: { id: issueId },
-      select: { assigneeId: true, status: true, projectId: true },
+      select: { assigneeId: true, status: true, statusId: true, projectId: true },
     });
     if (!before) throw new ApiError(404, "Issue not found");
+
+    // If statusId is changed, we should probably update the legacy 'status' field too if it's one of the standard ones
+    // Or at least ensure 'status' reflects the category of the new projectStatus
+    let status = payload.status;
+    if (payload.statusId && payload.statusId !== before.statusId) {
+        const newStatus = await prisma.projectStatus.findUnique({ where: { id: payload.statusId } });
+        if (newStatus) {
+            // Map category to IssueStatus enum
+            if (newStatus.category === StatusCategory.TODO) status = IssueStatus.TODO;
+            else if (newStatus.category === StatusCategory.IN_PROGRESS) status = IssueStatus.IN_PROGRESS;
+            else if (newStatus.category === StatusCategory.DONE) status = IssueStatus.DONE;
+        }
+    }
 
     const res = await prisma.issue.update({
       where: { id: issueId },
@@ -154,7 +183,8 @@ const updateIssue = async (
         title: payload.title,
         description: payload.description,
         type: payload.type,
-        status: payload.status,
+        status: status,
+        statusId: payload.statusId,
         priority: payload.priority,
         storyPoints: payload.storyPoints,
         startDate: payload.startDate ? new Date(payload.startDate) : undefined,
@@ -168,6 +198,7 @@ const updateIssue = async (
         project: { select: { key: true } },
         assignee: true,
         reporter: true,
+        projectStatus: true,
         labels: { include: { label: true } },
       },
     });

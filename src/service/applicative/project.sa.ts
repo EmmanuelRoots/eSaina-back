@@ -11,6 +11,7 @@ import { prisma } from "../../repository";
 import { IssueStatus } from "../../data/dto/issue.dto";
 import { toIssueDTO } from "../../data/dto/mappers/issue.mappers";
 import { toSprintDTO } from "../../data/dto/mappers/sprint.mappers";
+import { StatusCategory } from "@prisma/client";
 
 const createProject = async (
   payload: CreateProjectRequestDTO,
@@ -35,11 +36,19 @@ const createProject = async (
         members: {
           create: memberCreates,
         },
+        statuses: {
+          create: [
+            { name: "Todo", color: "#94a3b8", position: 0, category: StatusCategory.TODO },
+            { name: "In Progress", color: "#3b82f6", position: 1, category: StatusCategory.IN_PROGRESS },
+            { name: "Done", color: "#22c55e", position: 2, category: StatusCategory.DONE },
+          ],
+        },
       },
       include: {
         owner: true,
         salon: true,
         members: { include: { user: true } },
+        statuses: true,
       },
     });
 
@@ -63,6 +72,7 @@ const getProjectsForUser = async (userId: string) => {
         owner: true,
         salon: true,
         members: { include: { user: true } },
+        statuses: true,
       },
       orderBy: { updatedAt: "desc" },
     });
@@ -83,6 +93,7 @@ const getProjectById = async (projectId: string) => {
         members: { include: { user: true } },
         sprints: true,
         labels: true,
+        statuses: { orderBy: { position: "asc" } },
       },
     });
     if (!res) throw new ApiError(404, "Project not found");
@@ -144,13 +155,14 @@ const getBoard = async (projectId: string) => {
         reporter: true,
         labels: { include: { label: true } },
       },
-      orderBy: [{ status: "asc" }, { position: "asc" }],
+      orderBy: [{ statusId: "asc" }, { position: "asc" }],
     });
 
     const grouped = issues.reduce<Record<string, any>>(
       (acc, issue) => {
         const dto = toIssueDTO(issue, project.key);
-        (acc[issue.status] ??= []).push(dto);
+        const statusKey = issue.statusId || "backlog";
+        (acc[statusKey] ??= []).push(dto);
         return acc;
       },
       {},

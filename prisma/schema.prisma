@@ -266,12 +266,29 @@ model Project {
   sprints       Sprint[]
   issues        Issue[]
   labels        Label[]
+  statuses      ProjectStatus[]
   teams         TeamProject[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
   @@index([ownerId])
   @@index([salonId])
+}
+
+model ProjectStatus {
+  id         String         @id @default(cuid())
+  projectId  String
+  project    Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name       String
+  color      String         @default("#94a3b8")
+  position   Float          @default(0)
+  category   StatusCategory @default(TODO)
+  issues     Issue[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([projectId, name])
+  @@index([projectId])
 }
 
 model ProjectMember {
@@ -313,6 +330,8 @@ model Issue {
   description    String?
   type           IssueType         @default(TASK)
   status         IssueStatus       @default(TODO)
+  statusId       String?
+  projectStatus  ProjectStatus?    @relation(fields: [statusId], references: [id], onDelete: SetNull)
   priority       IssuePriority     @default(MEDIUM)
   startDate      DateTime?
   dueDate        DateTime?
@@ -338,6 +357,7 @@ model Issue {
   @@index([sprintId])
   @@index([assigneeId])
   @@index([status])
+  @@index([statusId])
   @@index([type])
 }
 
@@ -481,6 +501,12 @@ enum IssuePriority {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+enum StatusCategory {
+  TODO
+  IN_PROGRESS
+  DONE
 }
 
 datasource db {

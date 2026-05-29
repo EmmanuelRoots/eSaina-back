@@ -1,6 +1,7 @@
 {
    "entryFile": "src/index.ts",
    "noImplicitAdditionalProperties": "throw-on-extras",
+   "tsconfig": "tsconfig.json",
    "spec": {
      "outputDirectory": "swagger",
      "specVersion": 3,

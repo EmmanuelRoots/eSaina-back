@@ -1,8 +1,9 @@
-import { Project, ProjectMember, User, Salon, Sprint, Label } from "@prisma/client";
+import { Project, ProjectMember, User, Salon, Sprint, Label, ProjectStatus } from "@prisma/client";
 import { toISO } from "../../../utils/date.utils";
 import { ProjectDTO, ProjectMemberDTO, ProjectMemberRole } from "../project.dto";
 import { toUserDTO } from "./user.mappers";
 import { toSprintDTO } from "./sprint.mappers";
+import { toProjectStatusDTO } from "./project-status.mappers";
 
 export const toProjectDTO = (
   project: Project & {
@@ -11,6 +12,7 @@ export const toProjectDTO = (
     members?: (ProjectMember & { user?: User })[];
     sprints?: Sprint[];
     labels?: Label[];
+    statuses?: ProjectStatus[];
   },
 ): ProjectDTO => ({
   id: project.id,
@@ -28,6 +30,7 @@ export const toProjectDTO = (
     name: l.name,
     color: l.color,
   })),
+  statuses: project.statuses?.map(toProjectStatusDTO),
   createdAt: toISO(project.createdAt)!,
   updatedAt: toISO(project.updatedAt)!,
 });
