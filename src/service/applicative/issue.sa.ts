@@ -14,11 +14,44 @@ import sseSa from "./sse.sa";
 import { toIssueCommentDTO, toIssueDTO } from "../../data/dto/mappers/issue.mappers";
 import { StatusCategory } from "@prisma/client";
 
+/**
+ * Vérifie que l'assignee est bien membre d'une équipe rattachée au projet.
+ * Si le projet n'a aucune équipe, la contrainte ne s'applique pas.
+ *
+ * @throws ApiError(400) si l'assignee n'est pas membre de l'équipe du projet.
+ */
+const assertAssigneeIsTeamMember = async (
+  projectId: string,
+  assigneeId: string,
+) => {
+  const teamLinks = await prisma.teamProject.findMany({ where: { projectId } });
+  if (teamLinks.length === 0) return; // Pas d'équipe → pas de restriction
+
+  const membership = await prisma.teamMember.findFirst({
+    where: {
+      userId: assigneeId,
+      teamId: { in: teamLinks.map((t) => t.teamId) },
+    },
+  });
+
+  if (!membership) {
+    throw new ApiError(
+      400,
+      "L'assignee doit être membre d'une équipe rattachée au projet",
+      "assignee_not_team_member",
+    );
+  }
+};
+
 const createIssue = async (
   payload: CreateIssueRequestDTO,
   reporterId: string,
 ) => {
   try {
+    if (payload.assigneeId) {
+      await assertAssigneeIsTeamMember(payload.projectId, payload.assigneeId);
+    }
+
     const res = await prisma.$transaction(async (tx) => {
       const project = await tx.project.update({
         where: { id: payload.projectId },
@@ -46,6 +79,7 @@ const createIssue = async (
           statusId: statusId,
           priority: payload.priority ?? IssuePriority.MEDIUM,
           storyPoints: payload.storyPoints,
+          estimatedMinutes: payload.estimatedMinutes,
           startDate: payload.startDate ? new Date(payload.startDate) : undefined,
           dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
           sprintId: payload.sprintId,
@@ -164,6 +198,10 @@ const updateIssue = async (
     });
     if (!before) throw new ApiError(404, "Issue not found");
 
+    if (payload.assigneeId && payload.assigneeId !== before.assigneeId) {
+      await assertAssigneeIsTeamMember(before.projectId, payload.assigneeId);
+    }
+
     // If statusId is changed, we should probably update the legacy 'status' field too if it's one of the standard ones
     // Or at least ensure 'status' reflects the category of the new projectStatus
     let status = payload.status;
@@ -187,6 +225,7 @@ const updateIssue = async (
         statusId: payload.statusId,
         priority: payload.priority,
         storyPoints: payload.storyPoints,
+        estimatedMinutes: payload.estimatedMinutes,
         startDate: payload.startDate ? new Date(payload.startDate) : undefined,
         dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
         position: payload.position,

@@ -54,6 +54,7 @@ export const toIssueDTO = (
       : undefined,
     priority: issue.priority as IssuePriority,
     storyPoints: issue.storyPoints,
+    estimatedMinutes: issue.estimatedMinutes ?? undefined,
     startDate: issue.startDate ? toISO(issue.startDate) : undefined,
     dueDate: issue.dueDate ? toISO(issue.dueDate) : undefined,
     position: issue.position,

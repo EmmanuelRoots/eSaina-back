@@ -7,6 +7,127 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"Pick_UserDTO.id-or-firstName-or-lastName-or-pdpUrl_": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"pdpUrl": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"lastName",
+					"firstName"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"WorkLogDTO": {
+				"description": "Projection d'un WorkLog exposée à l'API.",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"issueId": {
+						"type": "string"
+					},
+					"issueKey": {
+						"type": "string",
+						"description": "Clé lisible de l'issue (ex. \"PRJ-42\"), incluse pour l'affichage feuille de temps."
+					},
+					"issueTitle": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"user": {
+						"$ref": "#/components/schemas/Pick_UserDTO.id-or-firstName-or-lastName-or-pdpUrl_"
+					},
+					"date": {
+						"type": "string",
+						"description": "Jour du pointage au format ISO 8601 (date uniquement, heure = minuit UTC)."
+					},
+					"timeSpentMinutes": {
+						"type": "number",
+						"format": "double"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"issueId",
+					"userId",
+					"user",
+					"date",
+					"timeSpentMinutes",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateWorkLogDTO": {
+				"description": "Payload de création d'un WorkLog.",
+				"properties": {
+					"issueId": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string",
+						"description": "Jour du pointage au format ISO 8601 (ex. \"2026-05-29\")."
+					},
+					"timeSpentMinutes": {
+						"type": "number",
+						"format": "double",
+						"description": "Durée en minutes (doit être > 0)."
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"issueId",
+					"date",
+					"timeSpentMinutes"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateWorkLogDTO": {
+				"description": "Payload de mise à jour partielle d'un WorkLog (ownership requis).",
+				"properties": {
+					"date": {
+						"type": "string"
+					},
+					"timeSpentMinutes": {
+						"type": "number",
+						"format": "double"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
 			"SubscribeDTO": {
 				"properties": {
 					"email": {
@@ -1229,6 +1350,12 @@
 						"format": "double",
 						"nullable": true
 					},
+					"estimatedMinutes": {
+						"type": "number",
+						"format": "double",
+						"nullable": true,
+						"description": "Estimation de temps en minutes (ex. 300 = 5h)."
+					},
 					"startDate": {
 						"type": "string",
 						"nullable": true
@@ -1366,6 +1493,11 @@
 						"type": "number",
 						"format": "double"
 					},
+					"estimatedMinutes": {
+						"type": "number",
+						"format": "double",
+						"description": "Estimation de temps en minutes à la création (ex. 300 = 5h)."
+					},
 					"startDate": {
 						"type": "string"
 					},
@@ -1418,6 +1550,11 @@
 						"$ref": "#/components/schemas/IssuePriority"
 					},
 					"storyPoints": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"estimatedMinutes": {
 						"type": "number",
 						"format": "double",
 						"nullable": true
@@ -1790,6 +1927,234 @@
 					"SYSTEM"
 				]
 			},
+			"SprintVelocity": {
+				"description": "Vélocité d'un sprint : points planifiés vs réalisés.",
+				"properties": {
+					"sprintId": {
+						"type": "string"
+					},
+					"sprintName": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"endDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"planned": {
+						"type": "number",
+						"format": "double",
+						"description": "Somme des storyPoints de toutes les issues du sprint."
+					},
+					"completed": {
+						"type": "number",
+						"format": "double",
+						"description": "Somme des storyPoints des issues dont le statut est DONE."
+					}
+				},
+				"required": [
+					"sprintId",
+					"sprintName",
+					"status",
+					"startDate",
+					"endDate",
+					"planned",
+					"completed"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"IssueRepartition": {
+				"description": "Répartition d'issues par une dimension (type, priorité…).",
+				"properties": {
+					"label": {
+						"type": "string"
+					},
+					"count": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"label",
+					"count"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ActiveSprintProgress": {
+				"description": "Sprint actif : avancement TODO / IN_PROGRESS / DONE.",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"goal": {
+						"type": "string",
+						"nullable": true
+					},
+					"startDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"endDate": {
+						"type": "string",
+						"nullable": true
+					},
+					"todo": {
+						"type": "number",
+						"format": "double"
+					},
+					"inProgress": {
+						"type": "number",
+						"format": "double"
+					},
+					"done": {
+						"type": "number",
+						"format": "double"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"goal",
+					"startDate",
+					"endDate",
+					"todo",
+					"inProgress",
+					"done",
+					"total"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MemberWorkload": {
+				"description": "Charge d'un membre (issues assignées dans le projet).",
+				"properties": {
+					"userId": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"pdpUrl": {
+						"type": "string",
+						"nullable": true
+					},
+					"assigned": {
+						"type": "number",
+						"format": "double",
+						"description": "Issues assignées toutes catégories confondues."
+					},
+					"done": {
+						"type": "number",
+						"format": "double",
+						"description": "Issues assignées dont le statut est DONE."
+					}
+				},
+				"required": [
+					"userId",
+					"firstName",
+					"lastName",
+					"pdpUrl",
+					"assigned",
+					"done"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"WeeklyActivity": {
+				"description": "Charge hebdomadaire — issues closes et créées par semaine sur les N dernières semaines.",
+				"properties": {
+					"week": {
+						"type": "string",
+						"description": "Label de la semaine (ex. \"S01\", \"S12\")."
+					},
+					"created": {
+						"type": "number",
+						"format": "double"
+					},
+					"closed": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"week",
+					"created",
+					"closed"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ProjectAnalyticsDTO": {
+				"description": "Payload complet retourné par getProjectAnalytics.",
+				"properties": {
+					"velocity": {
+						"items": {
+							"$ref": "#/components/schemas/SprintVelocity"
+						},
+						"type": "array"
+					},
+					"issuesByType": {
+						"items": {
+							"$ref": "#/components/schemas/IssueRepartition"
+						},
+						"type": "array"
+					},
+					"issuesByPriority": {
+						"items": {
+							"$ref": "#/components/schemas/IssueRepartition"
+						},
+						"type": "array"
+					},
+					"activeSprint": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/ActiveSprintProgress"
+							}
+						],
+						"nullable": true
+					},
+					"memberWorkload": {
+						"items": {
+							"$ref": "#/components/schemas/MemberWorkload"
+						},
+						"type": "array"
+					},
+					"weeklyActivity": {
+						"items": {
+							"$ref": "#/components/schemas/WeeklyActivity"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"velocity",
+					"issuesByType",
+					"issuesByPriority",
+					"activeSprint",
+					"memberWorkload",
+					"weeklyActivity"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"AdminUserListItemDTO": {
 				"description": "Représentation d'un utilisateur exposée dans la console d'administration.\nLe mot de passe n'est jamais sérialisé.",
 				"properties": {
@@ -1955,6 +2320,296 @@
 		"contact": {}
 	},
 	"paths": {
+		"/worklog/create": {
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"200": {
+						"description": "Le WorkLogDTO créé.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/WorkLogDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Crée un nouveau pointage de temps sur une issue.",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "- Données du pointage (issueId, date, durée, description).",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateWorkLogDTO",
+								"description": "- Données du pointage (issueId, date, durée, description)."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/worklog/issue/{issueId}": {
+			"get": {
+				"operationId": "ListByIssue",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/WorkLogDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retourne tous les pointages d'une issue, triés par date décroissante.",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id de l'issue.",
+						"in": "path",
+						"name": "issueId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/worklog/project/{projectId}": {
+			"get": {
+				"operationId": "ListByProject",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/WorkLogDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retourne les pointages d'un projet pour la feuille de temps.\nUtilisé par la page Tempo pour construire la vue hebdomadaire.",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id du projet.",
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Filtrer par utilisateur (optionnel).",
+						"in": "query",
+						"name": "userId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Borne inférieure ISO (optionnel, ex. \"2026-05-26\").",
+						"in": "query",
+						"name": "from",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Borne supérieure ISO (optionnel, ex. \"2026-06-01\").",
+						"in": "query",
+						"name": "to",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/worklog/{worklogId}": {
+			"patch": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/WorkLogDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Met à jour un pointage existant (ownership requis).",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id du WorkLog.",
+						"in": "path",
+						"name": "worklogId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "- Champs à modifier.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateWorkLogDTO",
+								"description": "- Champs à modifier."
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "Remove",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Supprime un pointage (ownership requis).",
+				"tags": [
+					"worklog"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Id du WorkLog.",
+						"in": "path",
+						"name": "worklogId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/user/subscribe": {
 			"post": {
 				"operationId": "Subscribe",
@@ -3403,29 +4058,29 @@
 										"data": {
 											"items": {
 												"properties": {
-													"description": {
+													"title": {
 														"type": "string"
 													},
 													"updatedAt": {
 														"type": "string",
 														"format": "date-time"
 													},
-													"title": {
-														"type": "string"
-													},
 													"createdAt": {
 														"type": "string",
 														"format": "date-time"
+													},
+													"description": {
+														"type": "string"
 													},
 													"id": {
 														"type": "string"
 													}
 												},
 												"required": [
-													"description",
-													"updatedAt",
 													"title",
+													"updatedAt",
 													"createdAt",
+													"description",
 													"id"
 												],
 												"type": "object"
@@ -4397,6 +5052,108 @@
 				]
 			}
 		},
+		"/project/{projectId}/assignable-members": {
+			"get": {
+				"operationId": "GetAssignableMembers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"roleId": {
+														"type": "string"
+													},
+													"pdpUrl": {
+														"type": "string"
+													},
+													"connected": {
+														"type": "boolean"
+													},
+													"phoneNumber": {
+														"type": "string"
+													},
+													"birthDate": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"active": {
+														"type": "boolean"
+													},
+													"firstName": {
+														"type": "string"
+													},
+													"lastName": {
+														"type": "string"
+													},
+													"password": {
+														"type": "string"
+													},
+													"email": {
+														"type": "string"
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"id": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"roleId",
+													"pdpUrl",
+													"connected",
+													"phoneNumber",
+													"birthDate",
+													"active",
+													"firstName",
+													"lastName",
+													"password",
+													"email",
+													"createdAt",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retourne les utilisateurs pouvant être assignés à un ticket du projet.\n\nSi le projet est rattaché à au moins une équipe, seuls les membres de ces\néquipes sont retournés. Sinon, ce sont les membres directs du projet.",
+				"tags": [
+					"project"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- Identifiant du projet.",
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/post/get-salon-post": {
 			"get": {
 				"operationId": "GetSalonPost",
@@ -4440,28 +5197,24 @@
 														"properties": {
 															"author": {
 																"properties": {
-																	"connected": {
-																		"type": "boolean"
-																	},
 																	"roleId": {
 																		"type": "string"
 																	},
 																	"pdpUrl": {
 																		"type": "string"
 																	},
-																	"active": {
+																	"connected": {
 																		"type": "boolean"
+																	},
+																	"phoneNumber": {
+																		"type": "string"
 																	},
 																	"birthDate": {
 																		"type": "string",
 																		"format": "date-time"
 																	},
-																	"phoneNumber": {
-																		"type": "string"
-																	},
-																	"createdAt": {
-																		"type": "string",
-																		"format": "date-time"
+																	"active": {
+																		"type": "boolean"
 																	},
 																	"firstName": {
 																		"type": "string"
@@ -4469,29 +5222,33 @@
 																	"lastName": {
 																		"type": "string"
 																	},
-																	"id": {
-																		"type": "string"
-																	},
 																	"password": {
 																		"type": "string"
 																	},
 																	"email": {
 																		"type": "string"
+																	},
+																	"createdAt": {
+																		"type": "string",
+																		"format": "date-time"
+																	},
+																	"id": {
+																		"type": "string"
 																	}
 																},
 																"required": [
-																	"connected",
 																	"roleId",
 																	"pdpUrl",
-																	"active",
-																	"birthDate",
+																	"connected",
 																	"phoneNumber",
-																	"createdAt",
+																	"birthDate",
+																	"active",
 																	"firstName",
 																	"lastName",
-																	"id",
 																	"password",
-																	"email"
+																	"email",
+																	"createdAt",
+																	"id"
 																],
 																"type": "object"
 															},
@@ -4502,28 +5259,24 @@
 																			"properties": {
 																				"user": {
 																					"properties": {
-																						"connected": {
-																							"type": "boolean"
-																						},
 																						"roleId": {
 																							"type": "string"
 																						},
 																						"pdpUrl": {
 																							"type": "string"
 																						},
-																						"active": {
+																						"connected": {
 																							"type": "boolean"
+																						},
+																						"phoneNumber": {
+																							"type": "string"
 																						},
 																						"birthDate": {
 																							"type": "string",
 																							"format": "date-time"
 																						},
-																						"phoneNumber": {
-																							"type": "string"
-																						},
-																						"createdAt": {
-																							"type": "string",
-																							"format": "date-time"
+																						"active": {
+																							"type": "boolean"
 																						},
 																						"firstName": {
 																							"type": "string"
@@ -4531,29 +5284,33 @@
 																						"lastName": {
 																							"type": "string"
 																						},
-																						"id": {
-																							"type": "string"
-																						},
 																						"password": {
 																							"type": "string"
 																						},
 																						"email": {
 																							"type": "string"
+																						},
+																						"createdAt": {
+																							"type": "string",
+																							"format": "date-time"
+																						},
+																						"id": {
+																							"type": "string"
 																						}
 																					},
 																					"required": [
-																						"connected",
 																						"roleId",
 																						"pdpUrl",
-																						"active",
-																						"birthDate",
+																						"connected",
 																						"phoneNumber",
-																						"createdAt",
+																						"birthDate",
+																						"active",
 																						"firstName",
 																						"lastName",
-																						"id",
 																						"password",
-																						"email"
+																						"email",
+																						"createdAt",
+																						"id"
 																					],
 																					"type": "object"
 																				}
@@ -4574,12 +5331,12 @@
 																				"type": {
 																					"$ref": "#/components/schemas/_36_Enums.ReactionType"
 																				},
-																				"userId": {
-																					"type": "string"
-																				},
 																				"createdAt": {
 																					"type": "string",
 																					"format": "date-time"
+																				},
+																				"userId": {
+																					"type": "string"
 																				},
 																				"id": {
 																					"type": "string"
@@ -4589,8 +5346,8 @@
 																				"commentId",
 																				"postId",
 																				"type",
-																				"userId",
 																				"createdAt",
+																				"userId",
 																				"id"
 																			],
 																			"type": "object"
@@ -4638,12 +5395,12 @@
 															"salonId": {
 																"type": "string"
 															},
+															"type": {
+																"$ref": "#/components/schemas/_36_Enums.PostType"
+															},
 															"updatedAt": {
 																"type": "string",
 																"format": "date-time"
-															},
-															"type": {
-																"$ref": "#/components/schemas/_36_Enums.PostType"
 															},
 															"createdAt": {
 																"type": "string",
@@ -4658,8 +5415,8 @@
 															"authorId",
 															"content",
 															"salonId",
-															"updatedAt",
 															"type",
+															"updatedAt",
 															"createdAt",
 															"id"
 														],
@@ -4736,28 +5493,24 @@
 													"properties": {
 														"author": {
 															"properties": {
-																"connected": {
-																	"type": "boolean"
-																},
 																"roleId": {
 																	"type": "string"
 																},
 																"pdpUrl": {
 																	"type": "string"
 																},
-																"active": {
+																"connected": {
 																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
 																},
 																"birthDate": {
 																	"type": "string",
 																	"format": "date-time"
 																},
-																"phoneNumber": {
-																	"type": "string"
-																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
+																"active": {
+																	"type": "boolean"
 																},
 																"firstName": {
 																	"type": "string"
@@ -4765,29 +5518,33 @@
 																"lastName": {
 																	"type": "string"
 																},
-																"id": {
-																	"type": "string"
-																},
 																"password": {
 																	"type": "string"
 																},
 																"email": {
 																	"type": "string"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
 																}
 															},
 															"required": [
-																"connected",
 																"roleId",
 																"pdpUrl",
-																"active",
-																"birthDate",
+																"connected",
 																"phoneNumber",
-																"createdAt",
+																"birthDate",
+																"active",
 																"firstName",
 																"lastName",
-																"id",
 																"password",
-																"email"
+																"email",
+																"createdAt",
+																"id"
 															],
 															"type": "object"
 														}
@@ -4814,12 +5571,12 @@
 														"salonId": {
 															"type": "string"
 														},
+														"type": {
+															"$ref": "#/components/schemas/_36_Enums.PostType"
+														},
 														"updatedAt": {
 															"type": "string",
 															"format": "date-time"
-														},
-														"type": {
-															"$ref": "#/components/schemas/_36_Enums.PostType"
 														},
 														"createdAt": {
 															"type": "string",
@@ -4834,8 +5591,8 @@
 														"authorId",
 														"content",
 														"salonId",
-														"updatedAt",
 														"type",
+														"updatedAt",
 														"createdAt",
 														"id"
 													],
@@ -4888,28 +5645,24 @@
 													"properties": {
 														"user": {
 															"properties": {
-																"connected": {
-																	"type": "boolean"
-																},
 																"roleId": {
 																	"type": "string"
 																},
 																"pdpUrl": {
 																	"type": "string"
 																},
-																"active": {
+																"connected": {
 																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
 																},
 																"birthDate": {
 																	"type": "string",
 																	"format": "date-time"
 																},
-																"phoneNumber": {
-																	"type": "string"
-																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
+																"active": {
+																	"type": "boolean"
 																},
 																"firstName": {
 																	"type": "string"
@@ -4917,29 +5670,33 @@
 																"lastName": {
 																	"type": "string"
 																},
-																"id": {
-																	"type": "string"
-																},
 																"password": {
 																	"type": "string"
 																},
 																"email": {
 																	"type": "string"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
 																}
 															},
 															"required": [
-																"connected",
 																"roleId",
 																"pdpUrl",
-																"active",
-																"birthDate",
+																"connected",
 																"phoneNumber",
-																"createdAt",
+																"birthDate",
+																"active",
 																"firstName",
 																"lastName",
-																"id",
 																"password",
-																"email"
+																"email",
+																"createdAt",
+																"id"
 															],
 															"type": "object"
 														}
@@ -4960,12 +5717,12 @@
 														"type": {
 															"$ref": "#/components/schemas/_36_Enums.ReactionType"
 														},
-														"userId": {
-															"type": "string"
-														},
 														"createdAt": {
 															"type": "string",
 															"format": "date-time"
+														},
+														"userId": {
+															"type": "string"
 														},
 														"id": {
 															"type": "string"
@@ -4975,8 +5732,8 @@
 														"commentId",
 														"postId",
 														"type",
-														"userId",
 														"createdAt",
+														"userId",
 														"id"
 													],
 													"type": "object"
@@ -5063,28 +5820,24 @@
 													"properties": {
 														"author": {
 															"properties": {
-																"connected": {
-																	"type": "boolean"
-																},
 																"roleId": {
 																	"type": "string"
 																},
 																"pdpUrl": {
 																	"type": "string"
 																},
-																"active": {
+																"connected": {
 																	"type": "boolean"
+																},
+																"phoneNumber": {
+																	"type": "string"
 																},
 																"birthDate": {
 																	"type": "string",
 																	"format": "date-time"
 																},
-																"phoneNumber": {
-																	"type": "string"
-																},
-																"createdAt": {
-																	"type": "string",
-																	"format": "date-time"
+																"active": {
+																	"type": "boolean"
 																},
 																"firstName": {
 																	"type": "string"
@@ -5092,29 +5845,33 @@
 																"lastName": {
 																	"type": "string"
 																},
-																"id": {
-																	"type": "string"
-																},
 																"password": {
 																	"type": "string"
 																},
 																"email": {
 																	"type": "string"
+																},
+																"createdAt": {
+																	"type": "string",
+																	"format": "date-time"
+																},
+																"id": {
+																	"type": "string"
 																}
 															},
 															"required": [
-																"connected",
 																"roleId",
 																"pdpUrl",
-																"active",
-																"birthDate",
+																"connected",
 																"phoneNumber",
-																"createdAt",
+																"birthDate",
+																"active",
 																"firstName",
 																"lastName",
-																"id",
 																"password",
-																"email"
+																"email",
+																"createdAt",
+																"id"
 															],
 															"type": "object"
 														},
@@ -5135,12 +5892,12 @@
 																"salonId": {
 																	"type": "string"
 																},
+																"type": {
+																	"$ref": "#/components/schemas/_36_Enums.PostType"
+																},
 																"updatedAt": {
 																	"type": "string",
 																	"format": "date-time"
-																},
-																"type": {
-																	"$ref": "#/components/schemas/_36_Enums.PostType"
 																},
 																"createdAt": {
 																	"type": "string",
@@ -5155,8 +5912,8 @@
 																"authorId",
 																"content",
 																"salonId",
-																"updatedAt",
 																"type",
+																"updatedAt",
 																"createdAt",
 																"id"
 															],
@@ -6318,21 +7075,21 @@
 									"properties": {
 										"data": {
 											"properties": {
+												"read": {
+													"type": "boolean"
+												},
 												"ownerId": {
+													"type": "string"
+												},
+												"type": {
+													"$ref": "#/components/schemas/_36_Enums.ConversationType"
+												},
+												"title": {
 													"type": "string"
 												},
 												"updatedAt": {
 													"type": "string",
 													"format": "date-time"
-												},
-												"read": {
-													"type": "boolean"
-												},
-												"title": {
-													"type": "string"
-												},
-												"type": {
-													"$ref": "#/components/schemas/_36_Enums.ConversationType"
 												},
 												"createdAt": {
 													"type": "string",
@@ -6343,11 +7100,11 @@
 												}
 											},
 											"required": [
-												"ownerId",
-												"updatedAt",
 												"read",
-												"title",
+												"ownerId",
 												"type",
+												"title",
+												"updatedAt",
 												"createdAt",
 												"id"
 											],
@@ -6406,12 +7163,12 @@
 																"type": {
 																	"$ref": "#/components/schemas/_36_Enums.MessageType"
 																},
-																"userId": {
-																	"type": "string"
-																},
 																"createdAt": {
 																	"type": "string",
 																	"format": "date-time"
+																},
+																"userId": {
+																	"type": "string"
 																},
 																"id": {
 																	"type": "string"
@@ -6422,8 +7179,8 @@
 																"conversationId",
 																"content",
 																"type",
-																"userId",
 																"createdAt",
+																"userId",
 																"id"
 															],
 															"type": "object"
@@ -6442,12 +7199,12 @@
 																"type": {
 																	"$ref": "#/components/schemas/_36_Enums.MessageType"
 																},
-																"userId": {
-																	"type": "string"
-																},
 																"createdAt": {
 																	"type": "string",
 																	"format": "date-time"
+																},
+																"userId": {
+																	"type": "string"
 																},
 																"id": {
 																	"type": "string"
@@ -6458,8 +7215,8 @@
 																"conversationId",
 																"content",
 																"type",
-																"userId",
 																"createdAt",
+																"userId",
 																"id"
 															],
 															"type": "object"
@@ -6497,12 +7254,12 @@
 														"type": {
 															"$ref": "#/components/schemas/_36_Enums.MessageType"
 														},
-														"userId": {
-															"type": "string"
-														},
 														"createdAt": {
 															"type": "string",
 															"format": "date-time"
+														},
+														"userId": {
+															"type": "string"
 														},
 														"id": {
 															"type": "string"
@@ -6513,8 +7270,8 @@
 														"conversationId",
 														"content",
 														"type",
-														"userId",
 														"createdAt",
+														"userId",
 														"id"
 													],
 													"type": "object"
@@ -6625,6 +7382,55 @@
 							"default": 20,
 							"format": "double",
 							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/analytics/project/{projectId}": {
+			"get": {
+				"operationId": "GetProjectAnalytics",
+				"responses": {
+					"200": {
+						"description": "ProjectAnalyticsDTO encapsulé dans { success, data }.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/ProjectAnalyticsDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère les métriques Tempo d'un projet.\n\nRetourne : vélocité par sprint, répartitions par type/priorité,\nprogression du sprint actif, charge par membre et activité hebdomadaire.",
+				"tags": [
+					"analytics"
+				],
+				"security": [
+					{
+						"bearer": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "- Identifiant du projet.",
+						"in": "path",
+						"name": "projectId",
+						"required": true,
+						"schema": {
+							"type": "string"
 						}
 					}
 				]

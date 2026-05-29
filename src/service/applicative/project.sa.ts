@@ -66,6 +66,8 @@ const getProjectsForUser = async (userId: string) => {
         OR: [
           { ownerId: userId },
           { members: { some: { userId } } },
+          // Projets rattachés à une équipe dont l'utilisateur est membre
+          { teams: { some: { team: { members: { some: { userId } } } } } },
         ],
       },
       include: {
@@ -80,6 +82,53 @@ const getProjectsForUser = async (userId: string) => {
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error);
     throw new ApiError(500, newError.message, "error on list projects");
+  }
+};
+
+/**
+ * Retourne les utilisateurs pouvant être assignés à un ticket du projet.
+ *
+ * Règle : si le projet est rattaché à au moins une équipe, seuls les membres
+ * de ces équipes sont éligibles. Sinon, ce sont les membres directs du projet.
+ *
+ * @param projectId - Identifiant du projet.
+ * @returns Liste { id, firstName, lastName, email, pdpUrl }.
+ */
+const getAssignableMembers = async (projectId: string) => {
+  try {
+    const teamLinks = await prisma.teamProject.findMany({
+      where: { projectId },
+      include: {
+        team: {
+          include: { members: { include: { user: true } } },
+        },
+      },
+    });
+
+    if (teamLinks.length > 0) {
+      // Déduplique par userId au cas où un user serait dans plusieurs équipes liées
+      const seen = new Set<string>();
+      const users = teamLinks
+        .flatMap((tp) => tp.team.members.map((m) => m.user))
+        .filter((u) => {
+          if (seen.has(u.id)) return false;
+          seen.add(u.id);
+          return true;
+        });
+
+      return { success: true, data: users };
+    }
+
+    // Pas d'équipe : fallback sur les membres directs du projet
+    const projectMembers = await prisma.projectMember.findMany({
+      where: { projectId },
+      include: { user: true },
+    });
+
+    return { success: true, data: projectMembers.map((m) => m.user) };
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error);
+    throw new ApiError(500, newError.message, "error on get assignable members");
   }
 };
 
@@ -268,4 +317,5 @@ export default {
   getBacklog,
   addMember,
   removeMember,
+  getAssignableMembers,
 };

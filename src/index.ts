@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { ExceptionMiddleware } from './api/middleware/exception.middleware'
 import { app } from './app'
 import './api/controllers/projectStatus.controller'

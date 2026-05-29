@@ -53,6 +53,8 @@ export interface IssueDTO {
   projectStatus?: ProjectStatusDTO
   priority: IssuePriority
   storyPoints?: number | null
+  /** Estimation de temps en minutes (ex. 300 = 5h). */
+  estimatedMinutes?: number | null
   startDate?: string | null
   dueDate?: string | null
   position?: number
@@ -76,6 +78,8 @@ export interface CreateIssueRequestDTO {
   statusId?: string
   priority?: IssuePriority
   storyPoints?: number
+  /** Estimation de temps en minutes à la création (ex. 300 = 5h). */
+  estimatedMinutes?: number
   startDate?: string
   dueDate?: string
   sprintId?: string
@@ -92,6 +96,7 @@ export interface UpdateIssueRequestDTO {
   statusId?: string | null
   priority?: IssuePriority
   storyPoints?: number | null
+  estimatedMinutes?: number | null
   startDate?: string | null
   dueDate?: string | null
   position?: number

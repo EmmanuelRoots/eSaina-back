@@ -114,6 +114,7 @@ model User {
   createdGroups               Group[]   @relation("GroupCreator")
   teamMemberships             TeamMember[]
   createdTeams                Team[]    @relation("TeamCreator")
+  worklogs                    WorkLog[]
 }
 
 model Group {
@@ -348,9 +349,11 @@ model Issue {
   childIssues    Issue[]           @relation("IssueChildren")
   comments       IssueComment[]
   labels         IssueLabel[]
-  attachments    IssueAttachment[]
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  attachments        IssueAttachment[]
+  estimatedMinutes   Int?
+  worklogs           WorkLog[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@unique([projectId, number])
   @@index([projectId])
@@ -399,6 +402,22 @@ model IssueLabel {
 
   @@id([issueId, labelId])
   @@index([labelId])
+}
+
+model WorkLog {
+  id               String   @id @default(cuid())
+  issueId          String
+  issue            Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date             DateTime
+  timeSpentMinutes Int
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([issueId])
+  @@index([userId])
 }
 
 model IssueAttachment {
