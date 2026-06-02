@@ -1,3 +1,4 @@
+import { StatusCategory } from '@prisma/client'
 import { prisma } from '../../src/repository'
 
 export const projectSeed = async () => {
@@ -22,6 +23,10 @@ export const projectSeed = async () => {
     where: { title: 'Annonce officielle' },
   })
 
+  // Création du projet avec les statuts dynamiques par défaut — même logique
+  // que createProject dans project.sa.ts. Sans ces entrées ProjectStatus,
+  // le dashboard analytics (qui lit projectStatus.category) n'aurait aucun
+  // résultat pour les issues seedées.
   const project = await prisma.project.create({
     data: {
       key: 'ESA',
@@ -40,21 +45,33 @@ export const projectSeed = async () => {
           { name: 'urgent', color: '#EF4444' },
         ],
       },
+      statuses: {
+        create: [
+          { name: 'Todo',        color: '#94a3b8', position: 0, category: StatusCategory.TODO },
+          { name: 'In Progress', color: '#3b82f6', position: 1, category: StatusCategory.IN_PROGRESS },
+          { name: 'Done',        color: '#22c55e', position: 2, category: StatusCategory.DONE },
+        ],
+      },
       sprints: {
         create: [
           {
             name: 'Sprint 1 - Bootstrap',
-            goal: 'Mise en place de l\'architecture projet.',
+            goal: "Mise en place de l'architecture projet.",
             status: 'ACTIVE',
             startDate: new Date(),
           },
         ],
       },
     },
-    include: { sprints: true },
+    include: { sprints: true, statuses: true },
   })
 
   const sprint = project.sprints[0]
+
+  // Résolution des IDs de statuts par catégorie pour lier les issues
+  const statusByCategory = Object.fromEntries(
+    project.statuses.map((s) => [s.category, s.id]),
+  )
 
   await prisma.issue.createMany({
     data: [
@@ -65,6 +82,7 @@ export const projectSeed = async () => {
         description: 'Vue avec colonnes TODO / IN_PROGRESS / IN_REVIEW / DONE.',
         type: 'STORY',
         status: 'IN_PROGRESS',
+        statusId: statusByCategory[StatusCategory.IN_PROGRESS],
         priority: 'HIGH',
         storyPoints: 5,
         position: 1,
@@ -79,6 +97,7 @@ export const projectSeed = async () => {
         description: 'Project, Sprint, Issue, Label, etc.',
         type: 'TASK',
         status: 'DONE',
+        statusId: statusByCategory[StatusCategory.DONE],
         priority: 'MEDIUM',
         storyPoints: 3,
         position: 2,
@@ -93,6 +112,7 @@ export const projectSeed = async () => {
         description: 'Vérifier la TTL côté backend.',
         type: 'BUG',
         status: 'TODO',
+        statusId: statusByCategory[StatusCategory.TODO],
         priority: 'CRITICAL',
         storyPoints: 2,
         position: 3,
@@ -101,5 +121,5 @@ export const projectSeed = async () => {
     ],
   })
 
-  console.log('✅ Project "ESA" créé avec 3 issues + 1 sprint actif.')
+  console.log('✅ Project "ESA" créé avec 3 issues + 1 sprint actif + statuts dynamiques.')
 }
