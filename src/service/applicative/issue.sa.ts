@@ -13,6 +13,11 @@ import { prisma } from "../../repository";
 import sseSa from "./sse.sa";
 import { toIssueCommentDTO, toIssueDTO } from "../../data/dto/mappers/issue.mappers";
 import { StatusCategory } from "@prisma/client";
+import {
+  sendIssueAssigned,
+  sendIssueStatusChanged,
+  sendIssueCommented,
+} from "../technical/mail";
 
 /**
  * Vérifie que l'assignee est bien membre d'une équipe rattachée au projet.
@@ -101,15 +106,28 @@ const createIssue = async (
       return { issue, projectKey: project.key };
     });
 
-    if (res.issue.assigneeId && res.issue.assigneeId !== reporterId) {
+    if (res.issue.assigneeId && res.issue.assigneeId !== reporterId && res.issue.assignee) {
+      const ref = `${res.projectKey}-${res.issue.number}`
+      const reporterName = `${res.issue.reporter.firstName} ${res.issue.reporter.lastName}`
+
+      // Notification SSE en temps réel
       await sseSa.sendEventToUser({
         userId: res.issue.assigneeId,
-        type: NotificationType.NOTIFICATION,
-        title: `Issue assigned: ${res.projectKey}-${res.issue.number}`,
+        type: NotificationType.ISSUE_ASSIGNED,
+        title: `Ticket assigné : ${ref}`,
         message: res.issue.title,
-        data: { issueId: res.issue.id, event: "ISSUE_ASSIGNED" },
+        data: { issueId: res.issue.id, projectId: res.issue.projectId, event: "ISSUE_ASSIGNED" },
         read: false,
       });
+
+      // Mail transactionnel vers l'assignee
+      await sendIssueAssigned(
+        res.issue.assignee.email,
+        res.projectKey,
+        res.issue.number,
+        res.issue.title,
+        reporterName,
+      );
     }
 
     return { success: true, data: toIssueDTO(res.issue, res.projectKey) };
@@ -194,7 +212,16 @@ const updateIssue = async (
   try {
     const before = await prisma.issue.findUnique({
       where: { id: issueId },
-      select: { assigneeId: true, status: true, statusId: true, projectId: true },
+      select: {
+        assigneeId: true,
+        status: true,
+        statusId: true,
+        projectId: true,
+        // Nécessaire pour les mails de changement de statut
+        assignee: { select: { id: true, email: true, firstName: true, lastName: true } },
+        reporter: { select: { id: true, email: true, firstName: true, lastName: true } },
+        projectStatus: { select: { name: true } },
+      },
     });
     if (!before) throw new ApiError(404, "Issue not found");
 
@@ -202,17 +229,17 @@ const updateIssue = async (
       await assertAssigneeIsTeamMember(before.projectId, payload.assigneeId);
     }
 
-    // If statusId is changed, we should probably update the legacy 'status' field too if it's one of the standard ones
-    // Or at least ensure 'status' reflects the category of the new projectStatus
+    // Si statusId change, synchroniser le champ legacy 'status' avec la catégorie du nouveau statut
     let status = payload.status;
+    let newStatusName: string | undefined;
     if (payload.statusId && payload.statusId !== before.statusId) {
-        const newStatus = await prisma.projectStatus.findUnique({ where: { id: payload.statusId } });
-        if (newStatus) {
-            // Map category to IssueStatus enum
-            if (newStatus.category === StatusCategory.TODO) status = IssueStatus.TODO;
-            else if (newStatus.category === StatusCategory.IN_PROGRESS) status = IssueStatus.IN_PROGRESS;
-            else if (newStatus.category === StatusCategory.DONE) status = IssueStatus.DONE;
-        }
+      const newProjectStatus = await prisma.projectStatus.findUnique({ where: { id: payload.statusId } });
+      if (newProjectStatus) {
+        newStatusName = newProjectStatus.name;
+        if (newProjectStatus.category === StatusCategory.TODO) status = IssueStatus.TODO;
+        else if (newProjectStatus.category === StatusCategory.IN_PROGRESS) status = IssueStatus.IN_PROGRESS;
+        else if (newProjectStatus.category === StatusCategory.DONE) status = IssueStatus.DONE;
+      }
     }
 
     const res = await prisma.issue.update({
@@ -242,19 +269,62 @@ const updateIssue = async (
       },
     });
 
+    const projectKey = res.project.key;
+    const ref = `${projectKey}-${res.number}`;
+    const actorName = res.reporter
+      ? `${res.reporter.firstName} ${res.reporter.lastName}`
+      : 'Quelqu\'un';
+
+    // ── Notification : changement d'assignee ──────────────────────────────────
     if (
       payload.assigneeId &&
       payload.assigneeId !== before.assigneeId &&
-      payload.assigneeId !== actorId
+      payload.assigneeId !== actorId &&
+      res.assignee
     ) {
       await sseSa.sendEventToUser({
         userId: payload.assigneeId,
-        type: NotificationType.NOTIFICATION,
-        title: `Issue assigned: ${res.project.key}-${res.number}`,
+        type: NotificationType.ISSUE_ASSIGNED,
+        title: `Ticket assigné : ${ref}`,
         message: res.title,
-        data: { issueId: res.id, event: "ISSUE_ASSIGNED" },
+        data: { issueId: res.id, projectId: res.projectId, event: "ISSUE_ASSIGNED" },
         read: false,
       });
+      await sendIssueAssigned(
+        res.assignee.email,
+        projectKey,
+        res.number,
+        res.title,
+        actorName,
+      );
+    }
+
+    // ── Notification : changement de statut ───────────────────────────────────
+    if (payload.statusId && payload.statusId !== before.statusId && newStatusName) {
+      const oldStatusName = before.projectStatus?.name ?? before.status;
+      const recipients = new Set<{ id: string; email: string }>()
+      if (res.assignee && res.assignee.id !== actorId) recipients.add({ id: res.assignee.id, email: res.assignee.email });
+      if (res.reporter && res.reporter.id !== actorId) recipients.add({ id: res.reporter.id, email: res.reporter.email });
+
+      for (const recipient of recipients) {
+        await sseSa.sendEventToUser({
+          userId: recipient.id,
+          type: NotificationType.ISSUE_STATUS_CHANGED,
+          title: `Statut mis à jour : ${ref}`,
+          message: `${oldStatusName} → ${newStatusName}`,
+          data: { issueId: res.id, projectId: res.projectId, event: "ISSUE_STATUS_CHANGED", oldStatus: oldStatusName, newStatus: newStatusName },
+          read: false,
+        });
+        await sendIssueStatusChanged(
+          recipient.email,
+          projectKey,
+          res.number,
+          res.title,
+          String(oldStatusName),
+          newStatusName,
+          actorName,
+        );
+      }
     }
 
     return { success: true, data: toIssueDTO(res) };
@@ -287,8 +357,47 @@ const addComment = async (
         content: payload.content,
         parentId: payload.parentId,
       },
-      include: { author: true },
+      include: {
+        author: true,
+        // Récupère l'issue avec les destinataires pour les notifications
+        issue: {
+          include: {
+            project: { select: { key: true } },
+            assignee: { select: { id: true, email: true } },
+            reporter: { select: { id: true, email: true } },
+          },
+        },
+      },
     });
+
+    const issue = res.issue;
+    const projectKey = issue.project.key;
+    const commenterName = `${res.author.firstName} ${res.author.lastName}`;
+
+    // Notifie assignee et reporter, sauf l'auteur du commentaire lui-même
+    const recipients = new Set<{ id: string; email: string }>();
+    if (issue.assignee && issue.assignee.id !== authorId) recipients.add(issue.assignee);
+    if (issue.reporter && issue.reporter.id !== authorId) recipients.add(issue.reporter);
+
+    for (const recipient of recipients) {
+      await sseSa.sendEventToUser({
+        userId: recipient.id,
+        type: NotificationType.ISSUE_COMMENTED,
+        title: `Nouveau commentaire : ${projectKey}-${issue.number}`,
+        message: payload.content.slice(0, 100),
+        data: { issueId: issue.id, projectId: issue.projectId, event: "ISSUE_COMMENTED", commentId: res.id },
+        read: false,
+      });
+      await sendIssueCommented(
+        recipient.email,
+        projectKey,
+        issue.number,
+        issue.title,
+        commenterName,
+        payload.content,
+      );
+    }
+
     return { success: true, data: toIssueCommentDTO(res) };
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error);

@@ -4,6 +4,7 @@ import { Response } from 'express'
 import {
   NotificationDTO,
   NotificationType,
+  StoredNotificationDTO,
 } from '../../data/dto/notification.dto'
 import { prisma } from '../../repository'
 import { PrismaExceptionHandler } from '../../data/exception/prisma.execption.handler'
@@ -36,6 +37,7 @@ const sendEventToUser = async ({
   data,
 }: NotificationDTO) => {
   try {
+    // Le cast est StoredNotificationDTO car Prisma retourne id + createdAt.
     const notification = (await prisma.notification.create({
       data: {
         userId,
@@ -45,12 +47,14 @@ const sendEventToUser = async ({
         message,
         data,
       },
-    })) as NotificationDTO
+    })) as unknown as StoredNotificationDTO
 
     clients.forEach(({ userId: clientUserId, res }) => {
       if (clientUserId === userId && !res.writableEnded) {
         res.write(`event: ${type}\n`)
-        res.write(`data: ${JSON.stringify(data)}\n\n`)
+        // On envoie la notification complète (avec id, createdAt) pour que le front
+        // puisse afficher la date relative correctement.
+        res.write(`data: ${JSON.stringify(notification)}\n\n`)
       }
     })
 
@@ -107,11 +111,63 @@ const getUserNotifications = async (userId: string, limit: number) => {
 
     return {
       success: true,
-      data: notifications,
+      data: notifications as unknown as StoredNotificationDTO[],
     }
   } catch (error) {
     const newError = PrismaExceptionHandler.handle(error)
     throw new ApiError(500, newError.message, 'create session')
+  }
+}
+
+/**
+ * Marque une notification comme lue.
+ * Vérifie que la notification appartient bien à l'utilisateur avant de la modifier.
+ *
+ * @param notificationId - Identifiant de la notification.
+ * @param userId         - Identifiant de l'utilisateur (guard d'ownership).
+ * @returns La notification mise à jour.
+ * @throws ApiError(404) si la notification n'existe pas ou n'appartient pas à l'utilisateur.
+ */
+const markAsRead = async (notificationId: string, userId: string) => {
+  try {
+    const existing = await prisma.notification.findUnique({
+      where: { id: notificationId },
+    })
+
+    if (!existing || existing.userId !== userId) {
+      throw new ApiError(404, 'Notification introuvable', 'notification_not_found')
+    }
+
+    const notification = await prisma.notification.update({
+      where: { id: notificationId },
+      data: { read: true },
+    })
+
+    return { success: true, data: notification as unknown as StoredNotificationDTO }
+  } catch (error) {
+    if (error instanceof ApiError) throw error
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'mark notification as read')
+  }
+}
+
+/**
+ * Marque toutes les notifications non lues d'un utilisateur comme lues.
+ *
+ * @param userId - Identifiant de l'utilisateur.
+ * @returns Le nombre de notifications mises à jour.
+ */
+const markAllAsRead = async (userId: string) => {
+  try {
+    const { count } = await prisma.notification.updateMany({
+      where: { userId, read: false },
+      data: { read: true },
+    })
+
+    return { success: true, data: { count } }
+  } catch (error) {
+    const newError = PrismaExceptionHandler.handle(error)
+    throw new ApiError(500, newError.message, 'mark all notifications as read')
   }
 }
 
@@ -121,4 +177,6 @@ export default {
   sendEventToUser,
   broadcastEvent,
   getUserNotifications,
+  markAsRead,
+  markAllAsRead,
 }

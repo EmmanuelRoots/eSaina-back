@@ -814,11 +814,69 @@
 					"BROADCAST",
 					"NOTIFICATION",
 					"CONNECTED",
-					"NEW_POST"
+					"NEW_POST",
+					"ISSUE_ASSIGNED",
+					"ISSUE_STATUS_CHANGED",
+					"ISSUE_COMMENTED",
+					"ISSUE_UPDATED"
 				],
 				"type": "string"
 			},
+			"Record_string.unknown_": {
+				"properties": {},
+				"additionalProperties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"StoredNotificationDTO": {
+				"description": "Notification persistée telle que retournée par l'API (inclut id et createdAt).",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"userId": {
+						"type": "string"
+					},
+					"type": {
+						"$ref": "#/components/schemas/NotificationType"
+					},
+					"title": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Record_string.unknown_"
+							}
+						],
+						"nullable": true,
+						"description": "Données contextuelles JSON sérialisées — structure variable selon le type."
+					},
+					"read": {
+						"type": "boolean"
+					},
+					"createdAt": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"userId",
+					"type",
+					"title",
+					"message",
+					"data",
+					"read",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"NotificationDTO": {
+				"description": "Payload d'envoi d'une notification (input).",
 				"properties": {
 					"userId": {
 						"type": "string"
@@ -3742,7 +3800,7 @@
 								"schema": {
 									"properties": {
 										"data": {
-											"$ref": "#/components/schemas/NotificationDTO"
+											"$ref": "#/components/schemas/StoredNotificationDTO"
 										},
 										"success": {
 											"type": "boolean"
@@ -3758,6 +3816,7 @@
 						}
 					}
 				},
+				"description": "Envoie manuellement une notification SSE à un utilisateur.\nEndpoint utilitaire (tests, admin).",
 				"tags": [
 					"notification"
 				],
@@ -3773,6 +3832,173 @@
 						}
 					}
 				}
+			}
+		},
+		"/notification": {
+			"get": {
+				"operationId": "GetNotifications",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"$ref": "#/components/schemas/StoredNotificationDTO"
+											},
+											"type": "array"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Récupère les N dernières notifications de l'utilisateur authentifié.",
+				"tags": [
+					"notification"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- Identifiant de l'utilisateur.",
+						"in": "query",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Nombre maximum de notifications à retourner (défaut : 20).",
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 20,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/notification/{notificationId}/read": {
+			"patch": {
+				"operationId": "MarkAsRead",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"$ref": "#/components/schemas/StoredNotificationDTO"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Marque une notification spécifique comme lue.\nVérifie que la notification appartient à l'utilisateur authentifié.",
+				"tags": [
+					"notification"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- Identifiant de la notification à marquer.",
+						"in": "path",
+						"name": "notificationId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "- Identifiant de l'utilisateur (ownership check).",
+						"in": "query",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/notification/read-all": {
+			"patch": {
+				"operationId": "MarkAllAsRead",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"properties": {
+												"count": {
+													"type": "number",
+													"format": "double"
+												}
+											},
+											"required": [
+												"count"
+											],
+											"type": "object"
+										},
+										"success": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"data",
+										"success"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Marque toutes les notifications non lues de l'utilisateur comme lues.",
+				"tags": [
+					"notification"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "- Identifiant de l'utilisateur.",
+						"in": "query",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/sprint/create": {

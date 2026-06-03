@@ -346,7 +346,27 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "NotificationType": {
         "dataType": "refEnum",
-        "enums": ["NEW_MESSAGE","NEW_CONVERSATION","BROADCAST","NOTIFICATION","CONNECTED","NEW_POST"],
+        "enums": ["NEW_MESSAGE","NEW_CONVERSATION","BROADCAST","NOTIFICATION","CONNECTED","NEW_POST","ISSUE_ASSIGNED","ISSUE_STATUS_CHANGED","ISSUE_COMMENTED","ISSUE_UPDATED"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Record_string.unknown_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"additionalProperties":{"dataType":"any"},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "StoredNotificationDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "userId": {"dataType":"string","required":true},
+            "type": {"ref":"NotificationType","required":true},
+            "title": {"dataType":"string","required":true},
+            "message": {"dataType":"string","required":true},
+            "data": {"dataType":"union","subSchemas":[{"ref":"Record_string.unknown_"},{"dataType":"enum","enums":[null]}],"required":true},
+            "read": {"dataType":"boolean","required":true},
+            "createdAt": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "NotificationDTO": {
@@ -1705,6 +1725,98 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'sendNotification',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSSEController_getNotifications: Record<string, TsoaRoute.ParameterSchema> = {
+                userId: {"in":"query","name":"userId","required":true,"dataType":"string"},
+                limit: {"default":20,"in":"query","name":"limit","dataType":"double"},
+        };
+        app.get('/notification',
+            ...(fetchMiddlewares<RequestHandler>(SSEController)),
+            ...(fetchMiddlewares<RequestHandler>(SSEController.prototype.getNotifications)),
+
+            async function SSEController_getNotifications(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSSEController_getNotifications, request, response });
+
+                const controller = new SSEController();
+
+              await templateService.apiHandler({
+                methodName: 'getNotifications',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSSEController_markAsRead: Record<string, TsoaRoute.ParameterSchema> = {
+                notificationId: {"in":"path","name":"notificationId","required":true,"dataType":"string"},
+                userId: {"in":"query","name":"userId","required":true,"dataType":"string"},
+        };
+        app.patch('/notification/:notificationId/read',
+            ...(fetchMiddlewares<RequestHandler>(SSEController)),
+            ...(fetchMiddlewares<RequestHandler>(SSEController.prototype.markAsRead)),
+
+            async function SSEController_markAsRead(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSSEController_markAsRead, request, response });
+
+                const controller = new SSEController();
+
+              await templateService.apiHandler({
+                methodName: 'markAsRead',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsSSEController_markAllAsRead: Record<string, TsoaRoute.ParameterSchema> = {
+                userId: {"in":"query","name":"userId","required":true,"dataType":"string"},
+        };
+        app.patch('/notification/read-all',
+            ...(fetchMiddlewares<RequestHandler>(SSEController)),
+            ...(fetchMiddlewares<RequestHandler>(SSEController.prototype.markAllAsRead)),
+
+            async function SSEController_markAllAsRead(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsSSEController_markAllAsRead, request, response });
+
+                const controller = new SSEController();
+
+              await templateService.apiHandler({
+                methodName: 'markAllAsRead',
                 controller,
                 response,
                 next,
