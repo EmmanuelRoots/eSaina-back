@@ -14,7 +14,7 @@ COPY prisma ./prisma/
 RUN yarn install --frozen-lockfile
 
 # Copie des sources
-COPY tsoa.json tsconfig.json ./
+COPY tsoa.json tsconfig.json tsconfig.seed.json ./
 COPY src ./src/
 COPY swagger ./swagger/
 
