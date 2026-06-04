@@ -18,9 +18,10 @@ COPY tsoa.json tsconfig.json ./
 COPY src ./src/
 COPY swagger ./swagger/
 
-# Génération du client Prisma + routes TSOA + compilation TS
+# Génération du client Prisma + routes TSOA + compilation TS + seed
 RUN npx prisma generate && \
-    yarn build
+    yarn build && \
+    npx tsc -p tsconfig.seed.json --noEmit false
 
 # ─── Runtime stage ─────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runtime

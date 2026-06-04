@@ -16,7 +16,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "prisma": {
-    "seed": "ts-node prisma/seed/index.ts"
+    "seed": "node dist/prisma/seed/index.js"
   },
   "keywords": [],
   "author": "",
