@@ -18,9 +18,14 @@ COPY tsoa.json tsconfig.json tsconfig.seed.json ./
 COPY src ./src/
 COPY swagger ./swagger/
 
-# Génération du client Prisma + routes TSOA + compilation TS + seed
+# Ordre obligatoire :
+# 1. prisma generate  — client Prisma nécessaire à la compilation TS
+# 2. tsoa spec-and-routes — génère src/api/routes/routes.ts à partir des décorateurs
+# 3. tsc              — compile tout, y compris le routes.ts fraîchement généré
+# 4. tsc seed         — compile prisma/seed/ (rootDir différent, passe séparément)
 RUN npx prisma generate && \
-    yarn build && \
+    npx tsoa spec-and-routes && \
+    npx tsc && \
     npx tsc -p tsconfig.seed.json --noEmit false
 
 # ─── Runtime stage ─────────────────────────────────────────────────────────────

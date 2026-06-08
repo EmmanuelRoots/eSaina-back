@@ -22,6 +22,14 @@ import { verifyAccess } from './utils/jwt'
 
 export const app = Express()
 
+// ── Trust proxy ───────────────────────────────────────────────────────────────
+// En production, le backend est derrière nginx (1 hop). Express doit faire
+// confiance au X-Forwarded-For envoyé par nginx pour que express-rate-limit
+// puisse identifier les IPs clientes réelles.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1)
+}
+
 // ── Headers de sécurité HTTP ──────────────────────────────────────────────────
 // Helmet injecte X-Content-Type-Options, X-Frame-Options, HSTS, CSP, etc.
 app.use(helmet())
